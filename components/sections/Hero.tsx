@@ -36,7 +36,7 @@ export function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
               <a 
-                href="#contact" 
+                href="tel:0140680237" 
                 className="group inline-flex items-center gap-3 bg-foreground text-white px-8 py-4 text-sm font-bold tracking-wider uppercase hover:bg-gray-800 transition-all duration-300"
               >
                 Prendre rendez-vous
@@ -44,13 +44,13 @@ export function Hero() {
               </a>
               
               <a 
-                href="tel:0140680237"
+                href="#expertises"
                 className="flex items-center gap-3 px-4 py-2 text-foreground/80 hover:text-foreground transition-colors group"
               >
                 <div className="h-10 w-10 rounded-full border border-gray-300 flex items-center justify-center group-hover:border-foreground transition-colors">
-                  <Phone className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 -rotate-45 group-hover:rotate-0 transition-transform" />
                 </div>
-                <span className="font-serif italic text-lg">01 40 68 02 37</span>
+                <span className="font-serif italic text-lg">Découvrir</span>
               </a>
             </div>
           </motion.div>

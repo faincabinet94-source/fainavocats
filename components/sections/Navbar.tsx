@@ -55,6 +55,14 @@ export function Navbar() {
                   <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground transition-all duration-300 group-hover:w-full"></span>
                 </a>
               ))}
+              
+              {/* Bouton Appel Direct dans la Nav Desktop */}
+              <a 
+                href="tel:0140680237"
+                className="bg-foreground text-white px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors"
+              >
+                Prendre RDV
+              </a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -104,8 +112,10 @@ export function Navbar() {
             "mt-8 pt-8 border-t border-gray-200 w-full transition-all duration-700 delay-500",
             mobileMenuOpen ? "opacity-100" : "opacity-0"
           )}>
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Nous contacter</p>
-            <a href="tel:0140680237" className="font-serif text-2xl text-foreground block">01 40 68 02 37</a>
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Prendre rendez-vous</p>
+            <a href="tel:0140680237" className="font-serif text-2xl text-foreground block bg-white border border-gray-200 py-4 px-6 mt-4 hover:bg-gray-50 transition-colors">
+              Appeler le cabinet
+            </a>
           </div>
         </div>
       </div>
