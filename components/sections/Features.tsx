@@ -38,7 +38,7 @@ export function Features() {
               Domaines <br/>
               <span className="italic text-gray-500">d'intervention.</span>
             </h2>
-            <p className="text-gray-600 font-light leading-relaxed mb-8">
+            <p className="text-gray-700 font-normal leading-relaxed mb-8 text-lg">
               Une expertise pointue exclusivement dédiée au droit de la famille et du patrimoine. Nous intervenons à chaque étape de votre vie personnelle.
             </p>
             <a href="#contact" className="inline-flex items-center text-xs font-bold uppercase tracking-widest border-b border-foreground pb-1 hover:text-gray-600 transition-colors">
@@ -55,7 +55,7 @@ export function Features() {
                     <h3 className="font-serif text-2xl text-foreground mb-2 group-hover:pl-4 transition-all duration-300">
                       {item.title}
                     </h3>
-                    <p className="text-gray-500 font-light text-sm md:max-w-md group-hover:pl-4 transition-all duration-300">
+                    <p className="text-gray-600 font-normal text-base md:max-w-md group-hover:pl-4 transition-all duration-300">
                       {item.desc}
                     </p>
                   </div>

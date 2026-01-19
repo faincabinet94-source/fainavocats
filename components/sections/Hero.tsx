@@ -30,8 +30,8 @@ export function Hero() {
               <span className="italic text-gray-500">Droit de la famille.</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-600 font-light leading-relaxed max-w-2xl mb-12">
-              Cabinet expert à Paris 16ème (Victor Hugo). Divorce, garde d'enfants, patrimoine. Une défense d'excellence pour protéger vos intérêts.
+            <p className="text-xl md:text-2xl text-gray-800 font-normal leading-relaxed max-w-2xl mb-12">
+              Cabinet expert à Paris 16ème (Victor Hugo). Divorce, garde d&apos;enfants, patrimoine. Une défense d&apos;excellence pour protéger vos intérêts.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">

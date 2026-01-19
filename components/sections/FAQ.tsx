@@ -38,8 +38,8 @@ export function FAQ() {
               Questions <br/>
               <span className="italic text-gray-500">fréquentes.</span>
             </h2>
-            <p className="text-gray-600 font-light text-sm leading-relaxed">
-              Nous savons que les démarches juridiques peuvent être source d'anxiété. Voici des réponses claires pour avancer sereinement.
+            <p className="text-gray-700 font-normal text-base leading-relaxed">
+              Nous savons que les démarches juridiques peuvent être source d&apos;anxiété. Voici des réponses claires pour avancer sereinement.
             </p>
           </div>
 
@@ -77,7 +77,7 @@ export function FAQ() {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="overflow-hidden"
                       >
-                        <p className="pb-4 text-gray-600 font-light leading-relaxed max-w-2xl">
+                        <p className="pb-4 text-gray-700 font-normal leading-relaxed max-w-2xl">
                           {faq.answer}
                         </p>
                       </motion.div>
