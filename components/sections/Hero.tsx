@@ -26,12 +26,12 @@ export function Hero() {
             </div>
 
             <h1 className="font-serif text-6xl md:text-7xl lg:text-8xl leading-[1.1] text-foreground mb-8">
-              L'excellence du <br/>
-              <span className="italic text-gray-500">droit de la famille.</span>
+              Avocat <br/>
+              <span className="italic text-gray-500">Droit de la famille.</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-600 font-light leading-relaxed max-w-2xl mb-12">
-              Un cabinet à taille humaine dédié à la protection de vos intérêts personnels et patrimoniaux. Discrétion absolue et stratégie sur-mesure.
+              Cabinet expert à Paris 16ème (Victor Hugo). Divorce, garde d'enfants, patrimoine. Une défense d'excellence pour protéger vos intérêts.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
