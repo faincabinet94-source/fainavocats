@@ -53,6 +53,14 @@ export function Hero() {
                 <span className="font-serif italic text-lg">Découvrir</span>
               </a>
             </div>
+
+            <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-green-700/80">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              Permanence téléphonique 24h/24 • 7j/7
+            </div>
           </motion.div>
 
           {/* Colonne Image (5 colonnes) - La vraie photo */}

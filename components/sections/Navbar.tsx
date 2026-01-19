@@ -113,9 +113,13 @@ export function Navbar() {
             mobileMenuOpen ? "opacity-100" : "opacity-0"
           )}>
             <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Prendre rendez-vous</p>
-            <a href="tel:0140680237" className="font-serif text-2xl text-foreground block bg-white border border-gray-200 py-4 px-6 mt-4 hover:bg-gray-50 transition-colors">
+            <a href="tel:0140680237" className="font-serif text-2xl text-foreground block bg-white border border-gray-200 py-4 px-6 mt-4 hover:bg-gray-50 transition-colors shadow-sm">
               Appeler le cabinet
             </a>
+            <p className="text-center text-xs font-bold text-green-600 mt-3 uppercase tracking-widest flex items-center justify-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              Disponible 24h/24 • 7j/7
+            </p>
           </div>
         </div>
       </div>

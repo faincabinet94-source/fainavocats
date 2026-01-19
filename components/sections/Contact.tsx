@@ -43,7 +43,13 @@ export function Contact() {
                   <div className="bg-white/80 backdrop-blur-sm p-6 border border-gray-100 shadow-sm inline-block min-w-[280px]">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Contact Direct</h3>
                     <a href="tel:0140680237" className="font-serif text-2xl text-foreground hover:text-blue-900 transition-colors">01 40 68 02 37</a>
-                    <p className="text-gray-700 font-medium mt-1 text-sm">Appel gratuit de 15 min</p>
+                    <div className="flex items-center gap-2 mt-2">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <p className="text-green-700 font-bold text-xs uppercase tracking-wider">Réponse immédiate 24/7</p>
+                    </div>
                   </div>
                 </div>
             </div>
