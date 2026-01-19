@@ -54,8 +54,8 @@ export function Hero() {
               </a>
             </div>
 
-            <p className="mt-8 text-xs font-medium uppercase tracking-widest text-gray-400">
-              Disponibilité étendue pour les urgences
+            <p className="mt-8 text-xs font-bold uppercase tracking-widest text-gray-500">
+              Joignable à tout moment • 7j/7
             </p>
           </motion.div>
 
