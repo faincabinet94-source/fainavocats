@@ -50,17 +50,13 @@ export function Hero() {
                 <div className="h-10 w-10 rounded-full border border-gray-300 flex items-center justify-center group-hover:border-foreground transition-colors">
                   <ArrowRight className="h-4 w-4 -rotate-45 group-hover:rotate-0 transition-transform" />
                 </div>
-                <span className="font-serif italic text-lg">Découvrir</span>
+                <span className="font-serif italic text-lg">Découvrir le cabinet</span>
               </a>
             </div>
 
-            <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-green-700/80">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              Permanence téléphonique 24h/24 • 7j/7
-            </div>
+            <p className="mt-8 text-xs font-medium uppercase tracking-widest text-gray-400">
+              Disponibilité étendue pour les urgences
+            </p>
           </motion.div>
 
           {/* Colonne Image (5 colonnes) - La vraie photo */}
