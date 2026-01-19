@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex flex-col pt-32 pb-12 overflow-hidden">
+    <section className="relative min-h-[90vh] flex flex-col pt-32 pb-12 overflow-hidden" id="cabinet">
       <Container className="flex-1 flex flex-col justify-center">
         
         {/* En-tête éditorial */}

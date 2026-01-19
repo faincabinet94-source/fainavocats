@@ -29,7 +29,7 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-24 bg-[#F9F8F6] border-t border-gray-200">
+    <section className="py-24 bg-[#F9F8F6] border-t border-gray-200" id="honoraires">
       <Container>
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-24">
           
