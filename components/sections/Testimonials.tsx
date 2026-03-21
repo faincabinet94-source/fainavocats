@@ -1,43 +1,77 @@
 "use client";
 
 import { Container } from "@/components/ui/Container";
+import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
+import { Star } from "lucide-react";
 
 export function Testimonials() {
+  const { t } = useTranslation();
+
   return (
-    <section className="py-32 bg-foreground text-[#F9F8F6] overflow-hidden" id="temoignages">
+    <section className="py-32 bg-[#F4F2EC]" id="temoignages">
       <Container>
-        <div className="max-w-4xl mx-auto text-center relative">
-          
-          {/* Guillemet décoratif géant */}
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 text-[12rem] font-serif text-white/5 leading-none select-none pointer-events-none">
-            &rdquo;
-          </div>
-
-          <p className="font-serif text-3xl md:text-5xl leading-tight mb-12 relative z-10">
-            Une écoute rare et une stratégie implacable. Me Fain a su transformer une situation inextricable en un accord équilibré.
-          </p>
-
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">
-              Sophie L.
-            </span>
-            <span className="text-sm font-light text-white/40 italic">
-              Divorce contentieux — Paris 16
-            </span>
+        <div className="text-center mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="font-serif text-4xl md:text-5xl text-[#1A1A1A] mb-6">
+              {t.testimonials.title}
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
+              {t.testimonials.subtitle}
+            </p>
             
-            <div className="mt-8 pt-8 border-t border-white/10 w-full flex justify-center gap-8">
-               <div className="text-center">
-                 <div className="text-2xl font-serif">4.7/5</div>
-                 <div className="text-[10px] uppercase tracking-wider text-white/40">Google Avis</div>
-               </div>
-               <div className="w-px bg-white/10 h-10"></div>
-               <div className="text-center">
-                 <div className="text-2xl font-serif">20+</div>
-                 <div className="text-[10px] uppercase tracking-wider text-white/40">Années d'expérience</div>
-               </div>
+            {/* Note Google */}
+            <div className="flex flex-col items-center justify-center gap-2">
+              <div className="flex items-center gap-2 text-[#1A1A1A]">
+                <span className="text-3xl font-bold">{t.testimonials.googleRating}</span>
+                <div className="flex text-[#FABB05]">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-6 h-6 fill-current" />
+                  ))}
+                </div>
+              </div>
+              <p className="text-sm font-medium text-gray-500 uppercase tracking-widest">
+                {t.testimonials.googleReviews}
+              </p>
             </div>
-          </div>
+          </motion.div>
+        </div>
 
+        <div className="grid md:grid-cols-3 gap-8">
+          {t.testimonials.items.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              className="bg-white p-10 shadow-sm border border-gray-100 flex flex-col justify-between h-full"
+            >
+              <div className="flex text-[#FABB05] mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="font-serif text-lg leading-relaxed text-[#1A1A1A] mb-8">
+                "{item.text}"
+              </p>
+              
+              <div className="mt-auto border-t border-gray-100 pt-6 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 font-bold">
+                  {item.author.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-[#1A1A1A]">{item.author}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{item.role}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </Container>
     </section>

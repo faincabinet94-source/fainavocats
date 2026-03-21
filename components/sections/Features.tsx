@@ -1,68 +1,74 @@
 "use client";
 
 import { Container } from "@/components/ui/Container";
-import { ArrowRight } from "lucide-react";
-
-const expertises = [
-  {
-    title: "Divorce & Séparation",
-    desc: "Consentement mutuel, procédure contentieuse, rupture de PACS."
-  },
-  {
-    title: "Garde d'Enfants",
-    desc: "Résidence alternée, droit de visite, autorité parentale."
-  },
-  {
-    title: "Patrimoine & Successions",
-    desc: "Liquidation de régime matrimonial, indivision, héritage."
-  },
-  {
-    title: "Filiation & Adoption",
-    desc: "Recherche de paternité, adoption simple et plénière."
-  },
-  {
-    title: "Droit Pénal de la Famille",
-    desc: "Violences conjugales, non-présentation d'enfant, abandon."
-  }
-];
+import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function Features() {
+  const { t } = useTranslation();
+
   return (
-    <section className="py-24 bg-[#F9F8F6]" id="expertises">
+    <section className="py-32 bg-[#131B16] text-white" id="expertises">
       <Container>
         <div className="grid lg:grid-cols-12 gap-16">
           
-          {/* Titre Section */}
+          {/* Colonne gauche - Titre */}
           <div className="lg:col-span-4">
-            <h2 className="font-serif text-4xl md:text-5xl text-foreground mb-6 leading-tight">
-              Domaines <br/>
-              <span className="italic text-gray-500">d'intervention.</span>
-            </h2>
-            <p className="text-gray-700 font-normal leading-relaxed mb-8 text-lg">
-              Une expertise pointue exclusivement dédiée au droit de la famille et du patrimoine. Nous intervenons à chaque étape de votre vie personnelle.
-            </p>
-            <a href="#contact" className="inline-flex items-center text-xs font-bold uppercase tracking-widest border-b border-foreground pb-1 hover:text-gray-600 transition-colors">
-              Tous nos services
-            </a>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <p className="text-sm font-medium tracking-wider text-white/80 mb-6 uppercase">
+                {t.expertises.subtitle}
+              </p>
+            </motion.div>
           </div>
 
-          {/* Liste Expertises */}
+          {/* Colonne droite - Liste */}
           <div className="lg:col-span-8">
-            <div className="border-t border-gray-300">
-              {expertises.map((item, index) => (
-                <div key={index} className="group border-b border-gray-300 py-8 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-default transition-all hover:bg-white/50 px-4 -mx-4">
-                  <div>
-                    <h3 className="font-serif text-2xl text-foreground mb-2 group-hover:pl-4 transition-all duration-300">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-600 font-normal text-base md:max-w-md group-hover:pl-4 transition-all duration-300">
-                      {item.desc}
-                    </p>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 transform group-hover:translate-x-2 duration-300" />
-                </div>
+            <div className="flex flex-col gap-4">
+              {t.expertises.items.map((item, index) => (
+                <motion.div 
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <h3 className="text-3xl md:text-5xl font-serif text-white/80 hover:text-white transition-colors cursor-default py-2">
+                    {item.title}
+                  </h3>
+                </motion.div>
               ))}
+              
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: t.expertises.items.length * 0.1 }}
+              >
+                <h3 className="text-3xl md:text-5xl font-serif text-[#C2A679] italic mt-4">
+                  {t.expertises.more}
+                </h3>
+              </motion.div>
             </div>
+
+            <motion.div 
+              className="mt-16"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <a 
+                href="tel:0140680237" 
+                className="inline-flex items-center justify-center bg-white text-[#1A1A1A] px-8 py-3 rounded-full text-sm font-bold hover:bg-gray-200 transition-all duration-300"
+              >
+                {t.expertises.cta}
+              </a>
+            </motion.div>
           </div>
 
         </div>
