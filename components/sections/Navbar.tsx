@@ -1,7 +1,7 @@
 "use client";
 
 import { Container } from "@/components/ui/Container";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -82,42 +82,56 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <div 
         className={cn(
-          "fixed inset-0 bg-[#F4F2EC] z-[60] flex flex-col justify-center items-center transition-all duration-500 md:hidden",
+          "fixed inset-0 bg-[#F4F2EC] z-[60] flex flex-col justify-between transition-all duration-500 md:hidden",
           mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
       >
-        <button 
-          className="absolute top-6 right-6 p-2 text-[#1A1A1A] hover:bg-gray-200 rounded-full transition-colors"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <X className="h-8 w-8" />
-        </button>
+        {/* Header mobile */}
+        <div className="flex items-center justify-between px-6 py-6">
+          <span className="font-serif text-2xl font-bold tracking-tight text-[#1A1A1A]">
+            FAIN AVOCATS.
+          </span>
+          <button 
+            className="p-2 text-[#1A1A1A] hover:bg-gray-200 rounded-full transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X className="h-7 w-7" />
+          </button>
+        </div>
 
-        <div className="flex flex-col items-center gap-8 p-8 text-center">
+        {/* Navigation links */}
+        <div className="flex flex-col items-center gap-7 px-8">
           {navigation.map((item, index) => (
             <a
               key={item.name}
               href={item.href}
               className={cn(
-                "font-serif text-3xl text-[#1A1A1A] hover:text-gray-600 transition-all duration-500 transform",
+                "font-serif text-4xl text-[#1A1A1A] hover:text-[#362A24] transition-all duration-500 transform",
                 mobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
               )}
-              style={{ transitionDelay: `${index * 100}ms` }}
+              style={{ transitionDelay: `${index * 80}ms` }}
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}
             </a>
           ))}
-          
-          <div className={cn(
-            "mt-8 pt-8 border-t border-gray-300 w-full transition-all duration-700 delay-500",
-            mobileMenuOpen ? "opacity-100" : "opacity-0"
-          )}>
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">{t.nav.cta}</p>
-            <a href="tel:0140680237" className="font-serif text-2xl text-[#1A1A1A] block bg-white border border-gray-200 py-4 px-6 mt-4 hover:bg-gray-50 transition-colors shadow-sm rounded-lg">
-              01 40 68 02 37
-            </a>
-          </div>
+        </div>
+
+        {/* CTA Appel en bas */}
+        <div className={cn(
+          "px-6 pb-10 transition-all duration-700 delay-500",
+          mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        )}>
+          <a 
+            href="tel:0140680237" 
+            className="flex items-center justify-center gap-3 w-full bg-[#362A24] text-white py-5 rounded-full text-lg font-semibold tracking-wide hover:bg-[#2C221D] transition-all duration-300 shadow-lg"
+          >
+            <Phone className="w-5 h-5" />
+            {t.nav.cta} — 01 40 68 02 37
+          </a>
+          <p className="text-center text-xs text-gray-500 mt-3 font-medium">
+            {t.hero.availability}
+          </p>
         </div>
       </div>
     </>
