@@ -53,10 +53,10 @@ export function Footer() {
               <a href="#contact" className="hover:text-[#362A24] transition-colors">
                 {t.footer.links.contact}
               </a>
-              <a href="#" className="hover:text-[#362A24] transition-colors">
+              <a href="/mentions-legales" className="hover:text-[#362A24] transition-colors">
                 {t.footer.links.legal}
               </a>
-              <a href="#" className="hover:text-[#362A24] transition-colors">
+              <a href="/confidentialite" className="hover:text-[#362A24] transition-colors">
                 {t.footer.links.privacy}
               </a>
             </div>
