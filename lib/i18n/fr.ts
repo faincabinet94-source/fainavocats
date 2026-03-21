@@ -14,7 +14,7 @@ export const fr = {
     subtitle: "Cabinet expert à Paris 16ème. Divorce, garde d'enfants, patrimoine. Une défense d'excellence pour protéger vos intérêts.",
     cta1: "Prendre rendez-vous",
     cta2: "Découvrir le cabinet",
-    availability: "Joignable à tout moment • 7j/7",
+    availability: "Joignable 24h/24 • 7j/7",
     address: "196 Avenue Victor Hugo, 75116 Paris",
     barreau: "Avocats au Barreau de Paris"
   },

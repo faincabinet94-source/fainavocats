@@ -14,7 +14,7 @@ export const en = {
     subtitle: "Expert law firm in Paris 16th. Divorce, child custody, wealth protection. Excellence in defense to protect your interests.",
     cta1: "Schedule a Consultation",
     cta2: "Discover the firm",
-    availability: "Available anytime • 24/7",
+    availability: "Available 24/7",
     address: "196 Avenue Victor Hugo, 75116 Paris",
     barreau: "Lawyers at the Paris Bar"
   },
