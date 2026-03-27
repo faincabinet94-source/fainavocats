@@ -43,7 +43,7 @@ export function Footer() {
               </p>
               <p>
                 <a href="mailto:contact@fain-avocats.fr" className="hover:text-[#362A24] transition-colors">
-                  contact : contact@fain-avocats.fr
+                  contact@fain-avocats.fr
                 </a>
               </p>
             </div>
