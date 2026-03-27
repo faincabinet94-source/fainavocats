@@ -74,6 +74,15 @@ export const fr = {
       { question: "Comment sont fixés vos honoraires ?", answer: "Nous privilégions la transparence totale. Une convention d'honoraires écrite vous est systématiquement proposée avant toute démarche, le plus souvent sous forme de forfait pour que vous maîtrisiez votre budget." }
     ]
   },
+  fondateur: {
+    label: "Le fondateur",
+    role: "Avocat associé — Barreau de Paris",
+    p1: "Avocat au Barreau de Paris depuis plus de 12 ans, Maître Joackim Fain a fondé le cabinet avec une conviction : offrir à chaque client un accompagnement d'excellence, alliant rigueur juridique et profonde humanité.",
+    p2: "Spécialisé en droit de la famille et du patrimoine, il intervient dans les dossiers les plus sensibles — divorces complexes, conflits de garde, liquidations patrimoniales — avec une approche stratégique et une écoute attentive.",
+    p3: "Son engagement : défendre vos intérêts avec détermination tout en préservant ce qui compte le plus pour vous.",
+    cta: "Prendre rendez-vous",
+    linkedin: "Profil LinkedIn"
+  },
   footer: {
     desc: "Cabinet d'avocats intervenant en droit de la famille et du patrimoine depuis 2004.",
     contactTitle: "Contact",

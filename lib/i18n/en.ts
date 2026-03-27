@@ -74,6 +74,15 @@ export const en = {
       { question: "How are your fees determined?", answer: "We prioritize complete transparency. A written fee agreement is always provided before any action is taken, usually in the form of a flat fee so you can manage your budget." }
     ]
   },
+  fondateur: {
+    label: "The Founder",
+    role: "Managing Partner — Paris Bar",
+    p1: "A member of the Paris Bar for over 12 years, Maître Joackim Fain founded the firm with one conviction: to offer each client outstanding representation, combining legal rigor with deep humanity.",
+    p2: "Specializing in family and wealth law, he handles the most sensitive cases — complex divorces, custody disputes, asset liquidations — with a strategic approach and attentive listening.",
+    p3: "His commitment: defending your interests with determination while preserving what matters most to you.",
+    cta: "Schedule a Consultation",
+    linkedin: "LinkedIn Profile"
+  },
   footer: {
     desc: "Law firm intervening in family law and wealth protection since 2004.",
     contactTitle: "Contact",
