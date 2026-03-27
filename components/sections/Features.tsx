@@ -4,6 +4,8 @@ import { Container } from "@/components/ui/Container";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+
+const MotionLink = motion(Link);
 import { useTranslation } from "@/hooks/useTranslation";
 
 const expertiseLinks: Record<string, string> = {
@@ -42,49 +44,48 @@ export function Features() {
                 const href = expertiseLinks[item.title] || "#contact";
                 const isPage = href.startsWith("/");
 
-                return (
-                  <motion.div 
+                return isPage ? (
+                  <MotionLink
+                    key={index}
+                    href={href}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="group flex items-center gap-4 py-2"
+                  >
+                    <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
+                      {item.title}
+                    </h3>
+                    <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                  </MotionLink>
+                ) : (
+                  <motion.h3
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="text-3xl md:text-5xl font-serif text-white/80 hover:text-white transition-colors cursor-default py-2"
                   >
-                    {isPage ? (
-                      <Link
-                        href={href}
-                        className="group flex items-center gap-4 py-2"
-                      >
-                        <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
-                          {item.title}
-                        </h3>
-                        <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
-                      </Link>
-                    ) : (
-                      <h3 className="text-3xl md:text-5xl font-serif text-white/80 hover:text-white transition-colors cursor-default py-2">
-                        {item.title}
-                      </h3>
-                    )}
-                  </motion.div>
+                    {item.title}
+                  </motion.h3>
                 );
               })}
               
-              <motion.div
+              <MotionLink
+                href="/pension-alimentaire"
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: t.expertises.items.length * 0.1 }}
+                className="group flex items-center gap-4 mt-4"
               >
-                <Link
-                  href="/pension-alimentaire"
-                  className="group flex items-center gap-4 mt-4"
-                >
-                  <h3 className="text-3xl md:text-5xl font-serif text-[#C2A679] italic group-hover:text-white transition-colors">
-                    Pension alimentaire
-                  </h3>
-                  <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
-                </Link>
-              </motion.div>
+                <h3 className="text-3xl md:text-5xl font-serif text-[#C2A679] italic group-hover:text-white transition-colors">
+                  Pension alimentaire
+                </h3>
+                <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+              </MotionLink>
             </div>
 
             <motion.div 
