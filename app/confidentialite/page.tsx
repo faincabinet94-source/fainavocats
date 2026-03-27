@@ -25,7 +25,7 @@ export default function Confidentialite() {
                 Le responsable du traitement des données personnelles est :<br/>
                 <strong>Cabinet Fain Avocats</strong><br/>
                 196 avenue victor hugo, 75116 paris<br/>
-                Email : jf@fain-avocats.fr<br/>
+                Email : contact@fain-avocats.fr<br/>
                 Téléphone : +33 1 40 68 02 37
               </p>
             </section>
@@ -37,7 +37,7 @@ export default function Confidentialite() {
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Appels téléphoniques</strong> : lorsque vous cliquez sur le numéro de téléphone, votre appareil lance un appel. Le cabinet ne collecte aucune donnée supplémentaire via le site.</li>
-                <li><strong>Emails</strong> : si vous envoyez un email à jf@fain-avocats.fr, les données que vous communiquez (nom, email, contenu du message) sont traitées dans le cadre strict de votre demande.</li>
+                <li><strong>Emails</strong> : si vous envoyez un email à contact@fain-avocats.fr, les données que vous communiquez (nom, email, contenu du message) sont traitées dans le cadre strict de votre demande.</li>
               </ul>
             </section>
 
@@ -88,7 +88,7 @@ export default function Confidentialite() {
                 <li><strong>Droit d&apos;opposition</strong> : vous opposer au traitement de vos données</li>
               </ul>
               <p className="mt-4">
-                Pour exercer ces droits, contactez-nous par email à <a href="mailto:jf@fain-avocats.fr" className="text-[#362A24] underline">jf@fain-avocats.fr</a> ou par courrier au 196 avenue victor hugo, 75116 paris.
+                Pour exercer ces droits, contactez-nous par email à <a href="mailto:contact@fain-avocats.fr" className="text-[#362A24] underline">contact@fain-avocats.fr</a> ou par courrier au 196 avenue victor hugo, 75116 paris.
               </p>
             </section>
 

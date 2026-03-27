@@ -75,7 +75,7 @@ const jsonLd = {
       description: "Cabinet d'avocats expert en droit de la famille à Paris 16ème. Divorce, garde d'enfants, patrimoine, successions.",
       url: "https://www.fain-avocats.fr",
       telephone: "+33140680237",
-      email: "jf@fain-avocats.fr",
+      email: "contact@fain-avocats.fr",
       image: "https://www.fain-avocats.fr/DSC01907.webp",
       priceRange: "€€",
       address: {

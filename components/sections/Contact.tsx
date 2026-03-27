@@ -82,7 +82,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Email</h3>
-                  <a href="mailto:jf@fain-avocats.fr" className="text-[#1A1A1A] font-medium hover:text-[#362A24] transition-colors">jf@fain-avocats.fr</a>
+                  <a href="mailto:contact@fain-avocats.fr" className="text-[#1A1A1A] font-medium hover:text-[#362A24] transition-colors">contact@fain-avocats.fr</a>
                 </div>
               </div>
             </div>

@@ -27,7 +27,7 @@ export default function MentionsLegales() {
                 Profession libérale réglementée — Avocat inscrit au Barreau de Paris<br/>
                 196 avenue victor hugo, 75116 paris<br/>
                 Téléphone : +33 1 40 68 02 37<br/>
-                Email : jf@fain-avocats.fr
+                Email : contact@fain-avocats.fr
               </p>
               <p>
                 Directeur de la publication : <strong>Maître Joackim Fain</strong>
