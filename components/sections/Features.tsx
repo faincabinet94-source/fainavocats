@@ -2,7 +2,18 @@
 
 import { Container } from "@/components/ui/Container";
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
+
+const expertiseLinks: Record<string, string> = {
+  "Divorce & Séparation": "/divorce",
+  "Garde d'Enfants": "/garde-enfants",
+  "Patrimoine & Successions": "/patrimoine-successions",
+  "Filiation & Adoption": "#contact",
+  "Droit Pénal de la Famille": "#contact",
+  "Médiation Familiale": "#contact",
+};
 
 export function Features() {
   const { t } = useTranslation();
@@ -12,7 +23,6 @@ export function Features() {
       <Container>
         <div className="grid lg:grid-cols-12 gap-16">
           
-          {/* Colonne gauche - Titre */}
           <div className="lg:col-span-4">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -26,22 +36,38 @@ export function Features() {
             </motion.div>
           </div>
 
-          {/* Colonne droite - Liste */}
           <div className="lg:col-span-8">
             <div className="flex flex-col gap-4">
-              {t.expertises.items.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <h3 className="text-3xl md:text-5xl font-serif text-white/80 hover:text-white transition-colors cursor-default py-2">
-                    {item.title}
-                  </h3>
-                </motion.div>
-              ))}
+              {t.expertises.items.map((item, index) => {
+                const href = expertiseLinks[item.title] || "#contact";
+                const isPage = href.startsWith("/");
+
+                return (
+                  <motion.div 
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    {isPage ? (
+                      <Link
+                        href={href}
+                        className="group flex items-center gap-4 py-2"
+                      >
+                        <h3 className="text-3xl md:text-5xl font-serif text-white/80 group-hover:text-white transition-colors">
+                          {item.title}
+                        </h3>
+                        <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                      </Link>
+                    ) : (
+                      <h3 className="text-3xl md:text-5xl font-serif text-white/80 hover:text-white transition-colors cursor-default py-2">
+                        {item.title}
+                      </h3>
+                    )}
+                  </motion.div>
+                );
+              })}
               
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -49,9 +75,15 @@ export function Features() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: t.expertises.items.length * 0.1 }}
               >
-                <h3 className="text-3xl md:text-5xl font-serif text-[#C2A679] italic mt-4">
-                  {t.expertises.more}
-                </h3>
+                <Link
+                  href="/pension-alimentaire"
+                  className="group flex items-center gap-4 mt-4"
+                >
+                  <h3 className="text-3xl md:text-5xl font-serif text-[#C2A679] italic group-hover:text-white transition-colors">
+                    Pension alimentaire
+                  </h3>
+                  <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                </Link>
               </motion.div>
             </div>
 

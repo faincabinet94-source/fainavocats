@@ -11,6 +11,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
+  const expertisePages = [
+    'divorce',
+    'garde-enfants',
+    'pension-alimentaire',
+    'patrimoine-successions',
+  ]
+
+  const expertiseEntries: MetadataRoute.Sitemap = expertisePages.map((slug) => ({
+    url: `https://www.fain-avocats.fr/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.9,
+  }))
+
   return [
     {
       url: 'https://www.fain-avocats.fr',
@@ -18,6 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 1,
     },
+    ...expertiseEntries,
     {
       url: 'https://www.fain-avocats.fr/actualites',
       lastModified: new Date(),
