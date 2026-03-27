@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: faincabinet94-source/fainavocats
   branch: main
 
 locale: "fr"
