@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import Image from "next/image";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -71,13 +72,15 @@ export function Navbar() {
         <Container>
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a
-              href="/"
-              className="relative z-50 group"
-            >
-              <span className="font-serif text-2xl font-bold tracking-tight text-[#1A1A1A] group-hover:opacity-80 transition-opacity">
-                FAIN AVOCATS.
-              </span>
+            <a href="/" className="relative z-50 group">
+              <Image
+                src="/logo-fain.png"
+                alt="Fain Avocats"
+                width={90}
+                height={60}
+                className="h-12 w-auto object-contain group-hover:opacity-80 transition-opacity"
+                priority
+              />
             </a>
 
             {/* Desktop Navigation */}
@@ -122,9 +125,13 @@ export function Navbar() {
         )}
       >
         <div className="flex items-center justify-between px-6 py-6">
-          <span className="font-serif text-2xl font-bold tracking-tight text-[#1A1A1A]">
-            FAIN AVOCATS.
-          </span>
+          <Image
+            src="/logo-fain.png"
+            alt="Fain Avocats"
+            width={80}
+            height={54}
+            className="h-10 w-auto object-contain"
+          />
           <button
             className="p-2 text-[#1A1A1A] hover:bg-gray-200 rounded-full transition-colors"
             onClick={() => setMobileMenuOpen(false)}

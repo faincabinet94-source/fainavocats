@@ -2,6 +2,7 @@
 
 import { Container } from "@/components/ui/Container";
 import { useTranslation } from "@/hooks/useTranslation";
+import Image from "next/image";
 
 export function Footer() {
   const { t } = useTranslation();
@@ -13,9 +14,13 @@ export function Footer() {
           
           {/* Colonne 1 - Branding */}
           <div>
-            <h3 className="font-serif text-3xl font-bold text-[#1A1A1A] mb-4">
-              Fain Avocats
-            </h3>
+            <Image
+              src="/logo-fain.png"
+              alt="Fain Avocats"
+              width={100}
+              height={68}
+              className="h-14 w-auto object-contain mb-6"
+            />
             <p className="text-gray-600 leading-relaxed mb-6">
               {t.footer.desc}
             </p>
