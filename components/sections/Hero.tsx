@@ -62,7 +62,7 @@ export function Hero() {
 
           {/* Colonne Image */}
           <motion.div 
-            className="lg:col-span-5 relative h-[500px] lg:h-[700px] w-full"
+            className="hidden lg:block lg:col-span-5 relative lg:h-[700px] w-full"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}

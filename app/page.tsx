@@ -15,8 +15,8 @@ export default function Home() {
       <Navbar />
       <main className="relative">
         <Hero />
-        <Fondateur />
         <Features />
+        <Fondateur />
         <Testimonials />
         <FAQ />
         <Contact />
