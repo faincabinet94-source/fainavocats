@@ -70,7 +70,7 @@ export function Fondateur() {
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <a
-                href="tel:0140680237"
+                href="tel:+33140680237"
                 className="inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
               >
                 Prendre rendez-vous

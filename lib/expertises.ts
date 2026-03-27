@@ -37,7 +37,7 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Divorce Paris 16 | Consentement Mutuel & Contentieux - Fain Avocats",
     metaDescription:
-      "Cabinet Fain Avocats, expert en divorce à Paris 16ème. Divorce par consentement mutuel, contentieux, séparation de corps. Premier entretien téléphonique gratuit. 01 40 68 02 37.",
+      "Cabinet Fain Avocats, expert en divorce à Paris 16ème. Divorce par consentement mutuel, contentieux, séparation de corps. Premier entretien téléphonique gratuit. +33 1 40 68 02 37.",
     keywords: [
       "avocat divorce Paris",
       "avocat divorce Paris 16",
@@ -119,7 +119,7 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Garde d'Enfants Paris 16 | Résidence Alternée & Autorité Parentale",
     metaDescription:
-      "Avocat spécialisé en garde d'enfants à Paris 16. Résidence alternée, droit de visite, modification de garde. Cabinet Fain Avocats, 20 ans d'expérience. 01 40 68 02 37.",
+      "Avocat spécialisé en garde d'enfants à Paris 16. Résidence alternée, droit de visite, modification de garde. Cabinet Fain Avocats, 20 ans d'expérience. +33 1 40 68 02 37.",
     keywords: [
       "avocat garde enfants Paris",
       "résidence alternée avocat",
@@ -201,7 +201,7 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Pension Alimentaire Paris 16 | Fixation & Révision - Fain Avocats",
     metaDescription:
-      "Avocat spécialisé en pension alimentaire à Paris 16. Fixation, révision, recouvrement, prestation compensatoire. Cabinet Fain Avocats. 01 40 68 02 37.",
+      "Avocat spécialisé en pension alimentaire à Paris 16. Fixation, révision, recouvrement, prestation compensatoire. Cabinet Fain Avocats. +33 1 40 68 02 37.",
     keywords: [
       "avocat pension alimentaire Paris",
       "calcul pension alimentaire",
@@ -283,7 +283,7 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Succession Paris 16 | Patrimoine & Héritage - Fain Avocats",
     metaDescription:
-      "Avocat spécialisé en successions et patrimoine à Paris 16. Liquidation de régime matrimonial, indivision, donation, héritage. Cabinet Fain Avocats. 01 40 68 02 37.",
+      "Avocat spécialisé en successions et patrimoine à Paris 16. Liquidation de régime matrimonial, indivision, donation, héritage. Cabinet Fain Avocats. +33 1 40 68 02 37.",
     keywords: [
       "avocat succession Paris",
       "avocat patrimoine Paris 16",

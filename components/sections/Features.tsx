@@ -98,7 +98,7 @@ export function Features() {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <a 
-                href="tel:0140680237" 
+                href="tel:+33140680237" 
                 className="inline-flex items-center justify-center bg-white text-[#1A1A1A] px-8 py-3 rounded-full text-sm font-bold hover:bg-gray-200 transition-all duration-300"
               >
                 {t.expertises.cta}

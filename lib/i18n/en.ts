@@ -15,7 +15,7 @@ export const en = {
     cta1: "Schedule a Consultation",
     cta2: "Discover the firm",
     availability: "Available 24/7",
-    address: "196 Avenue Victor Hugo, 75116 Paris",
+    address: "196 avenue victor hugo, 75116 paris",
     barreau: "Lawyers at the Paris Bar"
   },
   welcome: {
@@ -75,7 +75,7 @@ export const en = {
     ]
   },
   footer: {
-    desc: "Law firm specializing in family law and wealth protection since 2004.",
+    desc: "Law firm intervening in family law and wealth protection since 2004.",
     contactTitle: "Contact",
     linksTitle: "Useful Links",
     links: {

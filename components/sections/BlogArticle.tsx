@@ -106,10 +106,10 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             </Link>
 
             <a
-              href="tel:0140680237"
+              href="tel:+33140680237"
               className="inline-flex items-center gap-3 bg-[#362A24] text-white px-6 py-3 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
             >
-              Nous consulter — 01 40 68 02 37
+              Nous consulter — +33 1 40 68 02 37
             </a>
           </div>
         </motion.div>

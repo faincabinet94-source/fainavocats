@@ -32,7 +32,7 @@ export function Welcome() {
             </div>
 
             <a 
-              href="tel:0140680237" 
+              href="tel:+33140680237" 
               className="inline-flex items-center gap-2 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-semibold tracking-wide hover:bg-[#2C221D] transition-all duration-300"
             >
               {t.welcome.cta}

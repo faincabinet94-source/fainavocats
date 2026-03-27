@@ -15,7 +15,7 @@ export const fr = {
     cta1: "Prendre rendez-vous",
     cta2: "Découvrir le cabinet",
     availability: "Joignable 24h/24 • 7j/7",
-    address: "196 Avenue Victor Hugo, 75116 Paris",
+    address: "196 avenue victor hugo, 75116 paris",
     barreau: "Avocats au Barreau de Paris"
   },
   welcome: {
@@ -75,7 +75,7 @@ export const fr = {
     ]
   },
   footer: {
-    desc: "Cabinet d'avocats spécialisé en droit de la famille et du patrimoine depuis 2004.",
+    desc: "Cabinet d'avocats intervenant en droit de la famille et du patrimoine depuis 2004.",
     contactTitle: "Contact",
     linksTitle: "Liens utiles",
     links: {

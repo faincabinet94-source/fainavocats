@@ -47,11 +47,11 @@ export function Contact() {
 
             {/* Bouton d'appel principal */}
             <a 
-              href="tel:0140680237"
+              href="tel:+33140680237"
               className="flex items-center justify-center gap-3 bg-[#362A24] text-white py-5 rounded-full text-lg font-semibold tracking-wide hover:bg-[#2C221D] transition-all duration-300 mb-10"
             >
               <Phone className="w-5 h-5" />
-              01 40 68 02 37
+              +33 1 40 68 02 37
             </a>
 
             {/* Infos pratiques */}
@@ -62,7 +62,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">{t.contact.addressTitle}</h3>
-                  <p className="text-[#1A1A1A] font-medium">196 avenue Victor Hugo, 75116 Paris</p>
+                  <p className="text-[#1A1A1A] font-medium">196 avenue victor hugo, 75116 paris</p>
                 </div>
               </div>
 

@@ -43,11 +43,11 @@ export function ExpertisePage({ data }: { data: ExpertiseData }) {
               </p>
 
               <a
-                href="tel:0140680237"
+                href="tel:+33140680237"
                 className="inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
               >
                 <Phone className="w-4 h-4" />
-                Consultation gratuite — 01 40 68 02 37
+                Consultation gratuite — +33 1 40 68 02 37
               </a>
             </div>
           </motion.div>
@@ -257,14 +257,14 @@ export function ExpertisePage({ data }: { data: ExpertiseData }) {
               24h.
             </p>
             <a
-              href="tel:0140680237"
+              href="tel:+33140680237"
               className="inline-flex items-center gap-3 bg-white text-[#1A1A1A] px-10 py-5 rounded-full text-lg font-semibold hover:bg-gray-200 transition-all duration-300"
             >
               <Phone className="w-5 h-5" />
-              01 40 68 02 37
+              +33 1 40 68 02 37
             </a>
             <p className="mt-4 text-xs font-bold uppercase tracking-widest text-white/40">
-              196 Avenue Victor Hugo, 75116 Paris
+              196 avenue victor hugo, 75116 paris
             </p>
           </motion.div>
         </Container>

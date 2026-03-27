@@ -95,7 +95,7 @@ export function Navbar() {
               ))}
 
               <a
-                href="tel:0140680237"
+                href="tel:+33140680237"
                 className="bg-[#362A24] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#2C221D] transition-colors"
               >
                 {t.nav.cta}
@@ -153,11 +153,11 @@ export function Navbar() {
           mobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         )}>
           <a
-            href="tel:0140680237"
+            href="tel:+33140680237"
             className="flex items-center justify-center gap-3 w-full bg-[#362A24] text-white py-5 rounded-full text-lg font-semibold tracking-wide hover:bg-[#2C221D] transition-all duration-300 shadow-lg"
           >
             <Phone className="w-5 h-5" />
-            {t.nav.cta} — 01 40 68 02 37
+            {t.nav.cta} — +33 1 40 68 02 37
           </a>
           <p className="text-center text-xs text-gray-500 mt-3 font-medium">
             {t.hero.availability}

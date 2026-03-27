@@ -38,7 +38,7 @@ export function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
               <a 
-                href="tel:0140680237" 
+                href="tel:+33140680237" 
                 className="group inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
               >
                 {t.hero.cta1}
