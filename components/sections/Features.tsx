@@ -8,14 +8,15 @@ import Link from "next/link";
 const MotionLink = motion(Link);
 import { useTranslation } from "@/hooks/useTranslation";
 
-const expertiseLinks: Record<string, string> = {
-  "Divorce & Séparation": "/divorce",
-  "Garde d'Enfants": "/garde-enfants",
-  "Patrimoine & Successions": "/patrimoine-successions",
-  "Filiation & Adoption": "#contact",
-  "Droit Pénal de la Famille": "#contact",
-  "Médiation Familiale": "#contact",
-};
+// Liens par index (indépendant de la langue)
+const expertiseLinks = [
+  "/divorce",
+  "/garde-enfants",
+  "/patrimoine-successions",
+  "#contact",
+  "#contact",
+  "#contact",
+];
 
 export function Features() {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export function Features() {
           <div className="lg:col-span-8">
             <div className="flex flex-col gap-4">
               {t.expertises.items.map((item, index) => {
-                const href = expertiseLinks[item.title] || "#contact";
+                const href = expertiseLinks[index] || "#contact";
                 const isPage = href.startsWith("/");
 
                 return isPage ? (
