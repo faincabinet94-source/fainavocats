@@ -75,7 +75,7 @@ export const en = {
     ]
   },
   footer: {
-    desc: "Law firm specializing in family law and wealth protection since 2003.",
+    desc: "Law firm specializing in family law and wealth protection since 2004.",
     contactTitle: "Contact",
     linksTitle: "Useful Links",
     links: {

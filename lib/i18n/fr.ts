@@ -75,7 +75,7 @@ export const fr = {
     ]
   },
   footer: {
-    desc: "Cabinet d'avocats spécialisé en droit de la famille et du patrimoine depuis 2003.",
+    desc: "Cabinet d'avocats spécialisé en droit de la famille et du patrimoine depuis 2004.",
     contactTitle: "Contact",
     linksTitle: "Liens utiles",
     links: {
