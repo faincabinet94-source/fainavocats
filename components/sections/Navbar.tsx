@@ -22,6 +22,7 @@ export function Navbar() {
   const navigation = [
     { name: t.nav.cabinet, href: "#cabinet" },
     { name: t.nav.expertises, href: "#expertises" },
+    { name: "Actualités", href: "/actualites" },
     { name: t.nav.honoraires, href: "#honoraires" },
     { name: t.nav.contact, href: "#contact" },
   ];
