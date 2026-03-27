@@ -9,7 +9,7 @@ export const fr = {
   hero: {
     badge: "Parmi les 12 meilleurs avocats de Paris en droit de la famille",
     since: "Depuis 2003 • Paris 16",
-    title1: "Fain &",
+    title1: "Fain",
     title2: "Avocats",
     subtitle: "Cabinet expert à Paris 16ème. Divorce, garde d'enfants, patrimoine. Une défense d'excellence pour protéger vos intérêts.",
     cta1: "Prendre rendez-vous",

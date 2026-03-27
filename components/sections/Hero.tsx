@@ -28,7 +28,7 @@ export function Hero() {
             </div>
 
             <h1 className="font-serif text-6xl md:text-7xl lg:text-[7.5rem] leading-[1.05] tracking-tight text-[#1A1A1A] mb-8">
-              {t.hero.title1}<br/>
+              {t.hero.title1} <span className="italic font-light text-[#362A24]">&amp;</span><br/>
               {t.hero.title2}
             </h1>
 
