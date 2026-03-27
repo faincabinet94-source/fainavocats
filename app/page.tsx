@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
+import { Fondateur } from "@/components/sections/Fondateur";
 import { Features } from "@/components/sections/Features";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { FAQ } from "@/components/sections/FAQ";
@@ -14,6 +15,7 @@ export default function Home() {
       <Navbar />
       <main className="relative">
         <Hero />
+        <Fondateur />
         <Features />
         <Testimonials />
         <FAQ />
