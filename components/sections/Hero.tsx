@@ -2,7 +2,7 @@
 
 import { Container } from "@/components/ui/Container";
 import { motion } from "framer-motion";
-import { ArrowRight, Trophy } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -22,13 +22,8 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#362A24]/10 text-[#362A24] mb-8">
-              <Trophy className="w-4 h-4" />
-              <span className="text-sm font-bold tracking-wide">{t.hero.badge}</span>
-            </div>
-
             <h1 className="font-serif text-6xl md:text-7xl lg:text-[7.5rem] leading-[1.05] tracking-tight text-[#1A1A1A] mb-8">
-              {t.hero.title1} <span className="italic font-light text-[#362A24]">&</span><br/>
+              {t.hero.title1} &amp;<br/>
               {t.hero.title2}
             </h1>
 
