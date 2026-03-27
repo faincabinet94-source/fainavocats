@@ -48,21 +48,21 @@ export function Fondateur() {
             </p>
 
             <div className="space-y-6 mb-10">
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-gray-700 text-lg leading-relaxed text-justify">
                 Avocat au Barreau de Paris depuis plus de 12 ans, Maître
                 Joackim Fain a fondé le cabinet avec une conviction : offrir
                 à chaque client un accompagnement d'excellence, alliant
                 rigueur juridique et profonde humanité.
               </p>
 
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-gray-700 text-lg leading-relaxed text-justify">
                 Spécialisé en droit de la famille et du patrimoine, il
                 intervient dans les dossiers les plus sensibles — divorces
                 complexes, conflits de garde, liquidations patrimoniales —
                 avec une approche stratégique et une écoute attentive.
               </p>
 
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className="text-gray-700 text-lg leading-relaxed text-justify">
                 Son engagement : défendre vos intérêts avec détermination
                 tout en préservant ce qui compte le plus pour vous.
               </p>
