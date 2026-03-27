@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Lato } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const playfair = Cormorant_Garamond({ 
@@ -168,6 +169,18 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-[#F4F2EC] text-[#1A1A1A] antialiased selection:bg-[#1A1A1A] selection:text-white">
         {children}
+        <Script src="https://identity.netlify.com/v1/netlify-identity-widget.js" strategy="lazyOnload" />
+        <Script id="netlify-identity-redirect" strategy="lazyOnload">{`
+          if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("init", function(user) {
+              if (!user) {
+                window.netlifyIdentity.on("login", function() {
+                  document.location.href = "/admin/";
+                });
+              }
+            });
+          }
+        `}</Script>
       </body>
     </html>
   );
