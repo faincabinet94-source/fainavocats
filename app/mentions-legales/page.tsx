@@ -30,7 +30,7 @@ export default function MentionsLegales() {
                 Email : jf@fain-avocats.fr
               </p>
               <p>
-                Directeur de la publication : <strong>Maître Jean-François Fain</strong>
+                Directeur de la publication : <strong>Maître Joackim Fain</strong>
               </p>
             </section>
 
@@ -78,7 +78,16 @@ export default function MentionsLegales() {
             </section>
 
             <section>
-              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">7. Droit applicable</h2>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">7. Conception & développement</h2>
+              <p>
+                Site conçu et développé par :<br/>
+                <strong>NL Project</strong><br/>
+                Email : <a href="mailto:contact.nlproject@gmail.com" className="text-[#362A24] underline">contact.nlproject@gmail.com</a>
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">8. Droit applicable</h2>
               <p>
                 Les présentes mentions légales sont soumises au droit français. En cas de litige, les tribunaux de Paris seront seuls compétents.
               </p>
