@@ -46,7 +46,11 @@ export function Navbar() {
       const anchor = window.location.hash.slice(1);
       const el = document.getElementById(anchor);
       if (el) {
-        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth" });
+          // Supprime le hash de l'URL pour éviter le scroll au refresh
+          window.history.replaceState(null, "", "/");
+        }, 100);
       }
     }
   }, [pathname]);
