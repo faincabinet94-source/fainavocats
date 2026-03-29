@@ -1,3 +1,4 @@
+
 'use client' // Indispensable pour utiliser les fonctions de recherche d'URL
 
 import { useSearchParams } from 'next/navigation'
