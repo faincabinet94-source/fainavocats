@@ -2,15 +2,11 @@
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export const metadata = {
-  title: 'Formulaire Divorce | Fain Avocats',
-}
-
-export default function FormDivorcePage() {
+// Composant interne qui gère l'affichage du formulaire
+function FormulaireDivorceContent() {
   const searchParams = useSearchParams()
-  // L'URL de base de votre formulaire Cognito (Formulaire n°3)
   const [iframeUrl, setIframeUrl] = useState("https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3")
 
   useEffect(() => {
@@ -21,6 +17,27 @@ export default function FormDivorcePage() {
     }
   }, [searchParams])
 
+  return (
+    <div className="w-full border-t border-slate-100 pt-8">
+      <iframe 
+        src={iframeUrl}
+        style={{ 
+          position: 'relative',
+          width: '100%', 
+          minWidth: '100%',
+          border: 'none', 
+          minHeight: '1600px' 
+        }}
+        frameBorder="0"
+        scrolling="yes"
+        title="Formulaire de Divorce"
+      ></iframe>
+    </div>
+  )
+}
+
+// Page principale
+export default function FormDivorcePage() {
   return (
     <main className="max-w-6xl mx-auto pt-24 pb-12 px-6 md:px-12 min-h-screen bg-white">
       
@@ -33,21 +50,11 @@ export default function FormDivorcePage() {
         </Link>
       </div>
 
-      <div className="w-full border-t border-slate-100 pt-8">
-        <iframe 
-          src={iframeUrl}
-          style={{ 
-            position: 'relative',
-            width: '100%', 
-            minWidth: '100%',
-            border: 'none', 
-            minHeight: '1600px' 
-          }}
-          frameBorder="0"
-          scrolling="yes"
-          title="Formulaire de Divorce"
-        ></iframe>
-      </div>
+      {/* Le Suspense évite l'erreur de build sur Netlify lors de l'utilisation de useSearchParams */}
+      <Suspense fallback={<div className="text-center py-10">Chargement du formulaire...</div>}>
+        <FormulaireDivorceContent />
+      </Suspense>
+
     </main>
   )
 }
