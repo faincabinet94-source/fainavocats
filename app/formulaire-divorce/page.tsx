@@ -1,21 +1,21 @@
-
 'use client' // Indispensable pour utiliser les fonctions de recherche d'URL
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react' // Corrigé : ajout de useState ici
 
 export default function FormDcmPage() {
   const searchParams = useSearchParams()
+  
+  // État pour stocker l'URL de l'iframe
   const [iframeUrl, setIframeUrl] = useState("https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3")
 
   useEffect(() => {
     // On récupère le paramètre 'entry' de l'URL du navigateur (ex: Airtable)
     const entryData = searchParams.get('entry')
-    
+
     if (entryData) {
-      // On l'ajoute à l'URL de l'iframe comme on le faisait dans le script précédent
-      // Note : on utilise '?' ou '&' selon la structure de l'URL
+      // On met à jour l'URL avec le paramètre encodé
       setIframeUrl(`https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3?entry=${encodeURIComponent(entryData)}`)
     }
   }, [searchParams])
@@ -25,30 +25,23 @@ export default function FormDcmPage() {
       
       {/* Bouton de retour */}
       <div className="mb-8">
-        <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Retour à l'accueil
+        <Link 
+          href="/" 
+          className="text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center gap-2 transition-colors"
+        >
+          ← Retour à l'accueil
         </Link>
       </div>
 
-      {/* L'Iframe avec la logique de pré-remplissage récupérée */}
-      <div className="w-full border-t border-slate-100 pt-8">
-        <iframe 
+      <div className="w-full h-[800px] border-0 rounded-lg overflow-hidden shadow-sm">
+        <iframe
           src={iframeUrl}
-          style={{ 
-            position: 'relative',
-            width: '100%', 
-            minWidth: '100%',
-            border: 'none', 
-            minHeight: '1600px' 
-          }}
-          frameBorder="0"
-          scrolling="yes"
-          title="Formulaire de Renseignements"
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          title="Formulaire de divorce"
+          allow="payment"
         ></iframe>
       </div>
+      
     </main>
   )
 }
