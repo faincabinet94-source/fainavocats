@@ -4,27 +4,19 @@ export const metadata = {
 
 export default function FormDcmPage() {
   return (
-    <main style={{ maxWidth: '900px', margin: '0 auto', padding: '10px' }}>
+    /* - pt-20 : Ajoute un grand espace en haut pour que le titre ne soit plus coupé par le menu.
+      - px-6 md:px-12 : Ajoute de l'espace sur les côtés pour ne pas coller aux bords.
+      - max-w-6xl : Permet au formulaire d'être assez large pour les colonnes (Civilite, Nom, Prenom).
+    */
+    <main className="max-w-6xl mx-auto pt-20 pb-12 px-6 md:px-12 min-h-screen bg-white">
       
-      {/* Titre avec très peu de marge en dessous */}
-      <div style={{ marginBottom: '10px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a1a1a', margin: '0' }}>
-          Formulaire de Renseignements
-        </h1>
-        <p style={{ color: '#666', fontSize: '14px', margin: '5px 0 0 0' }}>
-          Veuillez remplir les informations ci-dessous pour votre dossier.
-        </p>
-      </div>
-
-      {/* L'Iframe forcée, sans script extérieur pour éviter les carrés blancs */}
-      <div style={{ width: '100%', overflow: 'hidden' }}>
+      <div className="w-full">
         <iframe 
           src="https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3"
           style={{ 
             border: 'none', 
             width: '100%', 
-            minHeight: '1200px', // On met bien grand pour tout voir d'un coup
-            marginTop: '0' 
+            minHeight: '1500px', // On augmente encore un peu pour éviter les barres de défilement internes
           }}
           title="Formulaire de Renseignements"
         ></iframe>
