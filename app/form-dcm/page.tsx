@@ -13,7 +13,7 @@ function FormDcmContent() {
   useEffect(() => {
     const entryData = searchParams.get('entry')
     if (entryData) {
-      // On injecte les données de pré-remplissage (Airtable) dans l'iframe 14
+      // On injecte les données de pré-remplissage (Airtable) dans l'iframe 14
       setIframeUrl(`https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/14?entry=${encodeURIComponent(entryData)}`)
     }
   }, [searchParams])
@@ -46,7 +46,7 @@ export default function FormDcmPage() {
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Retour à l'accueil
+          Retour à l'accueil
         </Link>
       </div>
 
