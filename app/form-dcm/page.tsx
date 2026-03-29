@@ -1,21 +1,28 @@
-'use client' // Obligatoire pour lire les paramètres d'URL en direct
+'use client' // Indispensable pour utiliser les fonctions de recherche d'URL
 
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function FormDcmPage() {
   const searchParams = useSearchParams()
-  
-  // On récupère les données de pré-remplissage dans l'URL (le paramètre "entry")
-  const entryData = searchParams.get('entry') || ''
-  
-  // On construit l'URL de l'iframe en y ajoutant les données de pré-remplissage
-  const baseUrl = "https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3"
-  const finalUrl = entryData ? `${baseUrl}?entry=${encodeURIComponent(entryData)}` : baseUrl
+  const [iframeUrl, setIframeUrl] = useState("https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3")
+
+  useEffect(() => {
+    // On récupère le paramètre 'entry' de l'URL du navigateur (ex: Airtable)
+    const entryData = searchParams.get('entry')
+    
+    if (entryData) {
+      // On l'ajoute à l'URL de l'iframe comme on le faisait dans le script précédent
+      // Note : on utilise '?' ou '&' selon la structure de l'URL
+      setIframeUrl(`https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg/3?entry=${encodeURIComponent(entryData)}`)
+    }
+  }, [searchParams])
 
   return (
     <main className="max-w-6xl mx-auto pt-24 pb-12 px-6 md:px-12 min-h-screen bg-white text-slate-900">
       
+      {/* Bouton de retour */}
       <div className="mb-8">
         <Link href="/" className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,10 +32,19 @@ export default function FormDcmPage() {
         </Link>
       </div>
 
+      {/* L'Iframe avec la logique de pré-remplissage récupérée */}
       <div className="w-full border-t border-slate-100 pt-8">
         <iframe 
-          src={finalUrl}
-          style={{ border: 'none', width: '100%', minHeight: '1600px' }}
+          src={iframeUrl}
+          style={{ 
+            position: 'relative',
+            width: '100%', 
+            minWidth: '100%',
+            border: 'none', 
+            minHeight: '1600px' 
+          }}
+          frameBorder="0"
+          scrolling="yes"
           title="Formulaire de Renseignements"
         ></iframe>
       </div>
