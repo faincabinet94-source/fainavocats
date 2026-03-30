@@ -77,7 +77,7 @@ export const en = {
   fondateur: {
     label: "The Founder",
     role: "Managing Partner — Paris Bar",
-    p1: "A member of the Paris Bar for over 12 years, Maître Joackim Fain founded the firm with one conviction: to offer each client outstanding representation, combining legal rigor with deep humanity.",
+    p1: "A member of the Paris Bar since 2004, Maître Joackim Fain founded the firm with one conviction: to offer each client outstanding representation, combining legal rigor with deep humanity.",
     p2: "Specializing in family and wealth law, he handles the most sensitive cases — complex divorces, custody disputes, asset liquidations — with a strategic approach and attentive listening.",
     p3: "His commitment: defending your interests with determination while preserving what matters most to you.",
     cta: "Schedule a Consultation",
