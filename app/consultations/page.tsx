@@ -22,11 +22,31 @@ export default function ConsultationsPage() {
               &larr; Retour &agrave; l&apos;accueil
             </a>
 
+            <h1 className="font-serif text-4xl md:text-5xl text-[#1A1A1A] mb-8 leading-tight text-center">
+              Consultation Juridique en Ligne en droit de la famille et Divorce
+            </h1>
+
+            <p className="text-gray-700 text-lg leading-relaxed mb-12 max-w-3xl mx-auto text-center">
+              Réservez votre créneau de consultation directement en ligne. Choisissez le mode qui vous convient&nbsp;: au cabinet, en visioconférence ou par téléphone.
+            </p>
+
+            <div className="bg-white p-10 rounded-lg text-center mb-20">
+              <div id="avocat-widget" className="mb-4">
+                <a
+                  className="avocat-consultingwidget"
+                  href="https://consultation.avocat.fr/avocat-1132-ea21.html"
+                  data-widget-id="4b2b406fdc824ea8e64d"
+                >
+                  Consulter mon profil Avocat.fr
+                </a>
+              </div>
+            </div>
+
             <div className="grid lg:grid-cols-2 gap-16 items-start mb-20">
               <div>
-                <h1 className="font-serif text-4xl md:text-5xl text-[#1A1A1A] mb-8 leading-tight">
-                  Consultation Juridique en Ligne en droit de la famille et Divorce
-                </h1>
+                <h2 className="font-serif text-3xl text-[#1A1A1A] mb-6">
+                  Pourquoi prendre rendez-vous&nbsp;?
+                </h2>
 
                 <p className="text-gray-700 text-lg leading-relaxed mb-6">
                   Notre service de prise de rendez-vous en ligne vous offre la possibilité de planifier une consultation avec un avocat spécialisé en droit de la famille et divorce.
@@ -39,15 +59,6 @@ export default function ConsultationsPage() {
                 <p className="text-gray-700 text-lg leading-relaxed mb-8">
                   Maîtrisez votre budget en réglant votre consultation à l&apos;avance à un prix fixe. Besoin d&apos;aide sur le calcul de la pension alimentaire de vos enfants&nbsp;? Ou sur la prestation compensatoire&nbsp;? Profitez de l&apos;expertise d&apos;un avocat expérimenté.
                 </p>
-
-                <a
-                  href="https://consultation.avocat.fr/avocat-1132-ea21.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
-                >
-                  Consulter mon profil Avocat.fr
-                </a>
               </div>
 
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
@@ -61,7 +72,7 @@ export default function ConsultationsPage() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-20">
+            <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white p-8 rounded-lg">
                 <div className="w-12 h-12 bg-[#362A24]/10 rounded-full flex items-center justify-center mb-6">
                   <svg className="w-6 h-6 text-[#362A24]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,22 +107,6 @@ export default function ConsultationsPage() {
                 <p className="text-gray-600 leading-relaxed">
                   Consultation téléphonique rapide et confidentielle. Idéal pour une première évaluation de votre situation ou un suivi de dossier en cours.
                 </p>
-              </div>
-            </div>
-
-            <div className="bg-white p-10 rounded-lg text-center">
-              <h2 className="font-serif text-3xl text-[#1A1A1A] mb-6">Prendre rendez-vous en ligne</h2>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-                Réservez votre créneau de consultation directement en ligne via notre profil Avocat.fr. Choisissez le mode de consultation qui vous convient.
-              </p>
-              <div id="avocat-widget" className="mb-8">
-                <a
-                  className="avocat-consultingwidget"
-                  href="https://consultation.avocat.fr/avocat-1132-ea21.html"
-                  data-widget-id="4b2b406fdc824ea8e64d"
-                >
-                  Consulter mon profil Avocat.fr
-                </a>
               </div>
             </div>
 
