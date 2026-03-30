@@ -58,9 +58,7 @@ export function Navbar() {
   const navigation = [
     { name: t.nav.cabinet, href: "#cabinet" },
     { name: "Compétences", href: "/droit-de-la-famille" },
-    { name: "Fiches pratiques", href: "/fiches" },
     { name: "Consultations", href: "/consultations" },
-    { name: "Devis", href: "/devis" },
     { name: "Honoraires", href: "/honoraires" },
     { name: "Actualités", href: "/actualites" },
     { name: t.nav.contact, href: "#contact" },
