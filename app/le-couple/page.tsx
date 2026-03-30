@@ -140,7 +140,12 @@ export default function LeCouplePage() {
                 {[
                   { title: "Les régimes matrimoniaux", slug: "regimes-matrimoniaux", desc: "Communauté, séparation de biens, participation aux acquêts..." },
                   { title: "Le PACS : définition et formation", slug: "pacs-definition-formation", desc: "Conditions, procédure et enregistrement du PACS." },
+                  { title: "Les effets du PACS", slug: "effets-pacs", desc: "Vie commune, aide matérielle, régime des biens et effets fiscaux." },
                   { title: "Rupture du PACS", slug: "rupture-pacs", desc: "Causes de dissolution, procédure et effets patrimoniaux." },
+                  { title: "Le concubinage", slug: "concubinage", desc: "Définition légale, éléments constitutifs et effets juridiques." },
+                  { title: "L'opposition au mariage", slug: "opposition-mariage", desc: "Qui peut s'opposer, quels motifs, quelle procédure ?" },
+                  { title: "La séparation de corps : effets", slug: "separation-corps-effets", desc: "Relâchement du lien conjugal, issues possibles et conversion en divorce." },
+                  { title: "La séparation de corps : procédure", slug: "separation-corps-procedure", desc: "Requête, demande reconventionnelle et cas de séparation." },
                 ].map((a) => (
                   <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all">
                     <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>

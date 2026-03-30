@@ -12,7 +12,12 @@ const data = expertises["divorce"];
 const divorceArticles = [
   { title: "Le coût d'une procédure de divorce", slug: "cout-procedure-divorce", desc: "Honoraires avocat, frais notaire et droits de partage selon le type de procédure." },
   { title: "De la pension alimentaire à la prestation compensatoire", slug: "prestation-compensatoire", desc: "Comprendre la différence et les critères de fixation." },
-  { title: "Achat d'un bien immobilier pendant le divorce", slug: "achat-immobilier-pendant-divorce", desc: "L'achat est possible selon le régime matrimonial des époux." },
+  { title: "Condition d'attribution de la prestation compensatoire", slug: "condition-attribution-prestation-compensatoire", desc: "La disparité créée par le divorce est la condition essentielle." },
+  { title: "Calcul de la prestation compensatoire", slug: "calcul-prestation-compensatoire", desc: "Critères de l'article 271 et méthodes d'évaluation." },
+  { title: "Les formes de prestation compensatoire", slug: "formes-prestation-compensatoire", desc: "Capital, rente ou prestation mixte : les différentes formes." },
+  { title: "Prestation compensatoire et fiscalité", slug: "prestation-compensatoire-fiscalite", desc: "Impôt sur le revenu et droits d'enregistrement selon la forme." },
+  { title: "Achat immobilier pendant le divorce", slug: "achat-immobilier-pendant-divorce", desc: "L'achat est possible selon le régime matrimonial des époux." },
+  { title: "Divorce et loyers impayés", slug: "divorce-loyers-impayes", desc: "Solidarité des époux pour le bail du domicile conjugal." },
   { title: "Divorce et impôts", slug: "divorce-impots", desc: "Déclaration de revenus et fiscalité en cas de divorce." },
   { title: "Divorce et titre de séjour", slug: "divorce-titre-sejour", desc: "Conséquences du divorce sur le titre de séjour." },
 ];

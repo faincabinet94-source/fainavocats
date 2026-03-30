@@ -171,8 +171,10 @@ export default function LesEnfantsPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 {[
                   { title: "La pension alimentaire destinée aux enfants", slug: "pension-alimentaire-enfants", desc: "Octroi, modalités de versement, fixation et révision." },
+                  { title: "Non-paiement de la pension alimentaire", slug: "non-paiement-pension-alimentaire", desc: "Paiement direct, recouvrement public et sanctions pénales." },
                   { title: "L'autorité parentale", slug: "autorite-parentale", desc: "Contenu, exercice conjoint ou unilatéral." },
                   { title: "L'adoption simple", slug: "adoption-simple", desc: "Conditions relatives à l'adoptant et à l'adopté." },
+                  { title: "La transmission du nom de famille", slug: "transmission-nom-famille-enfant", desc: "Règles pour les enfants nés avant et après 2005." },
                 ].map((a) => (
                   <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all">
                     <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
