@@ -3,6 +3,67 @@
   to = "/admin/index.html"
   status = 200
 
+# Anciennes URLs Squarespace → nouvelles URLs (301 permanent)
+[[redirects]]
+  from = "/devis-avocat-divorce"
+  to = "/devis/divorce"
+  status = 301
+
+[[redirects]]
+  from = "/honoraires-droit-de-la-famille"
+  to = "/honoraires/droit-de-la-famille"
+  status = 301
+
+[[redirects]]
+  from = "/avocat-droit-de-la-famille"
+  to = "/droit-de-la-famille"
+  status = 301
+
+[[redirects]]
+  from = "/consultation-avocat-en-ligne"
+  to = "/consultations"
+  status = 301
+
+[[redirects]]
+  from = "/consultation-avocat-en-ligne-divorce"
+  to = "/consultations"
+  status = 301
+
+[[redirects]]
+  from = "/famille/*"
+  to = "/fiches"
+  status = 301
+
+[[redirects]]
+  from = "/droit-de-la-famille/divorce"
+  to = "/divorce"
+  status = 301
+
+[[redirects]]
+  from = "/droit-de-la-famille/pension-alimentaire"
+  to = "/pension-alimentaire"
+  status = 301
+
+[[redirects]]
+  from = "/droit-de-la-famille/garde-enfants"
+  to = "/garde-enfants"
+  status = 301
+
+[[redirects]]
+  from = "/droit-de-la-famille/bareme-pension-alimentaire-2011.html"
+  to = "/fiches/pension-alimentaire-enfants"
+  status = 301
+
+[[redirects]]
+  from = "/presse"
+  to = "/actualites"
+  status = 301
+
+[[redirects]]
+  from = "/contact"
+  to = "/#contact"
+  status = 301
+
 [build]
   command = "npm run build"
   publish = ".next"
