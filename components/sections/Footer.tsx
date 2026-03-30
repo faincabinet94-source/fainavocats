@@ -55,14 +55,17 @@ export function Footer() {
               {t.footer.linksTitle}
             </h4>
             <div className="flex flex-col gap-3 text-gray-600">
-              <a href="#expertises" className="hover:text-[#362A24] transition-colors">
-                {t.footer.links.expertises}
+              <a href="/droit-de-la-famille" className="hover:text-[#362A24] transition-colors">
+                Droit de la famille
               </a>
               <a href="/consultations" className="hover:text-[#362A24] transition-colors">
                 Consultations
               </a>
               <a href="/devis" className="hover:text-[#362A24] transition-colors">
                 Devis
+              </a>
+              <a href="/honoraires" className="hover:text-[#362A24] transition-colors">
+                Honoraires
               </a>
               <a href="/paiement" className="hover:text-[#362A24] transition-colors">
                 Paiement

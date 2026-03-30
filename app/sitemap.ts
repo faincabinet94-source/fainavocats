@@ -25,6 +25,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }))
 
+  const fichesPages = [
+    'droit-de-la-famille',
+    'le-couple',
+    'les-enfants',
+    'etat-civil',
+  ]
+
+  const fichesEntries: MetadataRoute.Sitemap = fichesPages.map((slug) => ({
+    url: `https://www.fain-avocats.fr/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.85,
+  }))
+
   return [
     {
       url: 'https://www.fain-avocats.fr',
@@ -33,6 +47,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...expertiseEntries,
+    ...fichesEntries,
     {
       url: 'https://www.fain-avocats.fr/consultations',
       lastModified: new Date(),
@@ -50,6 +65,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.9,
+    },
+    {
+      url: 'https://www.fain-avocats.fr/honoraires',
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.8,
+    },
+    {
+      url: 'https://www.fain-avocats.fr/honoraires/droit-de-la-famille',
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.8,
     },
     {
       url: 'https://www.fain-avocats.fr/paiement',
