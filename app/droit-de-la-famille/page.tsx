@@ -140,7 +140,7 @@ export default function DroitDeLaFamillePage() {
               <p className="text-white/70 mb-8">
                 Retrouvez nos guides juridiques détaillés pour comprendre vos droits.
               </p>
-              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4">
                 <Link
                   href="/le-couple"
                   className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
@@ -164,6 +164,12 @@ export default function DroitDeLaFamillePage() {
                   className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
                 >
                   État civil &rarr;
+                </Link>
+                <Link
+                  href="/fiches"
+                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
+                >
+                  Toutes les fiches &rarr;
                 </Link>
               </div>
             </div>

@@ -132,6 +132,24 @@ export default function LeCouplePage() {
               </div>
             ))}
 
+            <div className="mb-12">
+              <h2 className="font-serif text-3xl text-[#1A1A1A] mb-6">
+                Nos articles détaillés
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                {[
+                  { title: "Les régimes matrimoniaux", slug: "regimes-matrimoniaux", desc: "Communauté, séparation de biens, participation aux acquêts..." },
+                  { title: "Le PACS : définition et formation", slug: "pacs-definition-formation", desc: "Conditions, procédure et enregistrement du PACS." },
+                  { title: "Rupture du PACS", slug: "rupture-pacs", desc: "Causes de dissolution, procédure et effets patrimoniaux." },
+                ].map((a) => (
+                  <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all">
+                    <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
+                    <p className="text-gray-500 text-sm">{a.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center">
               <h2 className="font-serif text-3xl mb-4">
                 Besoin d&apos;un conseil&nbsp;?

@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog'
+import { getAllFiches } from '@/lib/fiches'
  
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
@@ -39,6 +40,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.85,
   }))
 
+  const fiches = getAllFiches()
+  const ficheArticles: MetadataRoute.Sitemap = fiches.map((f) => ({
+    url: `https://www.fain-avocats.fr/fiches/${f.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'yearly',
+    priority: 0.7,
+  }))
+
   return [
     {
       url: 'https://www.fain-avocats.fr',
@@ -48,6 +57,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...expertiseEntries,
     ...fichesEntries,
+    ...ficheArticles,
     {
       url: 'https://www.fain-avocats.fr/consultations',
       lastModified: new Date(),

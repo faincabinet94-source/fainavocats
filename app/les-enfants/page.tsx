@@ -164,6 +164,24 @@ export default function LesEnfantsPage() {
               </div>
             </div>
 
+            <div className="mb-12">
+              <h2 className="font-serif text-3xl text-[#1A1A1A] mb-6">
+                Nos articles détaillés
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                {[
+                  { title: "La pension alimentaire destinée aux enfants", slug: "pension-alimentaire-enfants", desc: "Octroi, modalités de versement, fixation et révision." },
+                  { title: "L'autorité parentale", slug: "autorite-parentale", desc: "Contenu, exercice conjoint ou unilatéral." },
+                  { title: "L'adoption simple", slug: "adoption-simple", desc: "Conditions relatives à l'adoptant et à l'adopté." },
+                ].map((a) => (
+                  <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all">
+                    <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
+                    <p className="text-gray-500 text-sm">{a.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center">
               <h2 className="font-serif text-3xl mb-4">
                 Protégez les droits de vos enfants
