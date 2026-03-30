@@ -58,6 +58,15 @@ export function Footer() {
               <a href="#expertises" className="hover:text-[#362A24] transition-colors">
                 {t.footer.links.expertises}
               </a>
+              <a href="/consultations" className="hover:text-[#362A24] transition-colors">
+                Consultations
+              </a>
+              <a href="/devis" className="hover:text-[#362A24] transition-colors">
+                Devis
+              </a>
+              <a href="/paiement" className="hover:text-[#362A24] transition-colors">
+                Paiement
+              </a>
               <a href="/actualites" className="hover:text-[#362A24] transition-colors">
                 Actualités
               </a>

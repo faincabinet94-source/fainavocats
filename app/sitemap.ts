@@ -34,6 +34,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...expertiseEntries,
     {
+      url: 'https://www.fain-avocats.fr/consultations',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://www.fain-avocats.fr/devis',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://www.fain-avocats.fr/devis/divorce',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://www.fain-avocats.fr/paiement',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: 'https://www.fain-avocats.fr/actualites',
       lastModified: new Date(),
       changeFrequency: 'weekly',
