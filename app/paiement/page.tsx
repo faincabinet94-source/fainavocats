@@ -156,7 +156,7 @@ function PaiementContent() {
             </a>
 
             <h1 className="font-serif text-4xl md:text-5xl text-[#1A1A1A] mb-6 leading-tight">
-              Paiement d&apos;acompte
+              Paiement en ligne
             </h1>
 
             <p className="text-gray-700 text-lg leading-relaxed mb-12">
