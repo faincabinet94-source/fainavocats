@@ -135,41 +135,74 @@ export default function DroitDeLaFamillePage() {
               </div>
             </div>
 
-            <div className="bg-[#362A24] text-white p-10 rounded-lg mb-16 text-center">
-              <h2 className="font-serif text-3xl mb-4">Nos fiches pratiques</h2>
-              <p className="text-white/70 mb-8">
-                Retrouvez nos guides juridiques détaillés pour comprendre vos droits.
-              </p>
-              <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-4">
-                <Link
-                  href="/le-couple"
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
-                >
-                  Le couple &rarr;
-                </Link>
-                <Link
-                  href="/divorce"
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
-                >
-                  Divorce &rarr;
-                </Link>
-                <Link
-                  href="/les-enfants"
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
-                >
-                  Les enfants &rarr;
-                </Link>
-                <Link
-                  href="/etat-civil"
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
-                >
-                  État civil &rarr;
-                </Link>
+            {/* Carousel Nos fiches pratiques */}
+            <div className="mb-16">
+              <div className="text-center mb-8">
+                <h2 className="font-serif text-3xl text-[#1A1A1A] mb-3">Nos fiches pratiques</h2>
+                <p className="text-gray-500">
+                  Retrouvez nos guides juridiques détaillés pour comprendre vos droits.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  {
+                    href: "/le-couple",
+                    label: "Le couple",
+                    img: "https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=600&q=80",
+                    alt: "Le couple - droit de la famille",
+                    desc: "Mariage, PACS, régimes matrimoniaux et droits des conjoints.",
+                  },
+                  {
+                    href: "/divorce",
+                    label: "Divorce",
+                    img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80",
+                    alt: "Divorce - procédures et droits",
+                    desc: "Procédures, partage des biens, prestation compensatoire.",
+                  },
+                  {
+                    href: "/les-enfants",
+                    label: "Les enfants",
+                    img: "https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=600&q=80",
+                    alt: "Droit des enfants - garde et pension",
+                    desc: "Garde, autorité parentale, pension alimentaire.",
+                  },
+                  {
+                    href: "/fiches",
+                    label: "Toutes les fiches",
+                    img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80",
+                    alt: "Toutes les fiches pratiques juridiques",
+                    desc: "Accédez à l'ensemble de nos guides pratiques.",
+                  },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+                  >
+                    <div className="relative h-44 overflow-hidden">
+                      <img
+                        src={item.img}
+                        alt={item.alt}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-[#362A24]/30 group-hover:bg-[#362A24]/10 transition-colors duration-300" />
+                    </div>
+                    <div className="p-5">
+                      <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 flex items-center justify-between">
+                        {item.label}
+                        <span className="text-[#8B6B5E] group-hover:translate-x-1 transition-transform duration-200">→</span>
+                      </h3>
+                      <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="text-center mt-6">
                 <Link
                   href="/fiches"
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-white font-medium"
+                  className="inline-flex items-center gap-2 text-sm text-[#362A24] border border-[#362A24] px-6 py-3 rounded-full hover:bg-[#362A24] hover:text-white transition-all duration-300"
                 >
-                  Toutes les fiches &rarr;
+                  Voir toutes les fiches pratiques →
                 </Link>
               </div>
             </div>
