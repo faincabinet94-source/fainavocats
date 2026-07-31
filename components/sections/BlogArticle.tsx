@@ -96,6 +96,28 @@ export function BlogArticle({ post }: { post: BlogPost }) {
             <MarkdownContent content={post.content} />
           </div>
 
+          {[
+            "calcul-prestation-compensatoire-divorce",
+          ].includes(post.slug) && (
+            <div className="mt-10 bg-white border border-[#E2DDD4] p-8 md:p-10 rounded-lg flex flex-col sm:flex-row sm:items-center gap-6">
+              <div className="flex-1">
+                <h2 className="font-serif text-2xl text-[#1A1A1A] mb-2">
+                  Estimez le montant en ligne
+                </h2>
+                <p className="text-gray-700 leading-relaxed">
+                  Notre simulateur gratuit calcule une fourchette indicative
+                  selon six méthodes de calcul usuelles.
+                </p>
+              </div>
+              <Link
+                href="/outils/simulateur-prestation-compensatoire"
+                className="inline-flex items-center justify-center gap-2 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300 shrink-0"
+              >
+                Accéder au simulateur
+              </Link>
+            </div>
+          )}
+
           <div className="mt-12 pt-8 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <Link
               href="/actualites"

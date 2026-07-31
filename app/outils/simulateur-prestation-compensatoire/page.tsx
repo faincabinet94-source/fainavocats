@@ -64,12 +64,12 @@ export default function SimulateurPage() {
               montant d&apos;une prestation compensatoire relèvent de
               l&apos;appréciation souveraine du juge aux affaires familiales,
               selon les critères de l&apos;article 271 du Code civil. Pour en
-              comprendre les principes, consultez notre fiche{" "}
+              comprendre les principes, consultez notre guide complet{" "}
               <Link
-                href="/fiches/calcul-prestation-compensatoire"
+                href="/actualites/calcul-prestation-compensatoire-divorce"
                 className="text-[#362A24] underline underline-offset-2 hover:no-underline"
               >
-                Calcul de la prestation compensatoire
+                Calcul de la prestation compensatoire : le guide complet
               </Link>
               .
             </p>
