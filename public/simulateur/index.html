@@ -733,7 +733,16 @@ $('nbEnfants').addEventListener('input',()=>{construireEnfants();recalc();});
     document.body.classList.add('embed');
     var last = 0;
     function postH(){
-      var h = document.documentElement.scrollHeight;
+      // Mesurer la hauteur RÉELLE du contenu (indépendante de la taille de l'iframe)
+      // pour éviter la boucle d'agrandissement. On prend le bas du dernier élément.
+      var h = 0;
+      var kids = document.body.children;
+      for(var i=0;i<kids.length;i++){
+        var r = kids[i].getBoundingClientRect();
+        var bottom = r.bottom + window.scrollY;
+        if(bottom > h) h = bottom;
+      }
+      h = Math.ceil(h + 14); // petite marge basse
       if(Math.abs(h-last) > 2){ last = h; try{ parent.postMessage({fainSimHeight:h}, '*'); }catch(e){} }
     }
     if(window.ResizeObserver){ new ResizeObserver(postH).observe(document.body); }

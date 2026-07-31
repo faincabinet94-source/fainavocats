@@ -15,7 +15,7 @@ export function SimulateurEmbed() {
       if (e.origin !== window.location.origin) return;
       const data = e.data as { fainSimHeight?: number };
       if (data && typeof data.fainSimHeight === "number" && ref.current) {
-        ref.current.style.height = data.fainSimHeight + 24 + "px";
+        ref.current.style.height = data.fainSimHeight + "px";
       }
     }
     window.addEventListener("message", onMessage);

@@ -2,8 +2,16 @@ import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { SimulateurEmbed } from "@/components/SimulateurEmbed";
+import { getAllPosts } from "@/lib/blog";
 import Link from "next/link";
 import type { Metadata } from "next";
+
+const ARTICLES_PC = [
+  "calcul-prestation-compensatoire-divorce",
+  "prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats",
+  "prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp",
+  "la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d",
+];
 
 export const metadata: Metadata = {
   title:
@@ -16,6 +24,15 @@ export const metadata: Metadata = {
 };
 
 export default function SimulateurPage() {
+  const articles = getAllPosts()
+    .filter((p) => ARTICLES_PC.includes(p.slug))
+    .sort((a, b) => ARTICLES_PC.indexOf(a.slug) - ARTICLES_PC.indexOf(b.slug))
+    .map((p) => ({
+      slug: p.slug,
+      image: p.image,
+      title: p.title.replace(/\s*-\s*Fain Avocats\s*$/i, "").trim(),
+    }));
+
   return (
     <>
       <Navbar />
@@ -75,6 +92,35 @@ export default function SimulateurPage() {
             </p>
 
             <SimulateurEmbed />
+
+            {articles.length > 0 && (
+              <section className="mt-14">
+                <h2 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] mb-6">
+                  Nos articles sur la prestation compensatoire
+                </h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {articles.map((a) => (
+                    <Link
+                      key={a.slug}
+                      href={`/actualites/${a.slug}`}
+                      className="group flex items-center gap-4 bg-white border border-[#E2DDD4] rounded-lg p-3 hover:shadow-md transition-shadow"
+                    >
+                      {a.image && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={a.image}
+                          alt=""
+                          className="w-24 h-20 object-cover rounded-md shrink-0"
+                        />
+                      )}
+                      <span className="text-[15px] font-medium text-[#1A1A1A] leading-snug group-hover:text-[#362A24] transition-colors">
+                        {a.title}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center mt-12">
               <h2 className="font-serif text-3xl mb-4">
