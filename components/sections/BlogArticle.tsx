@@ -98,6 +98,9 @@ export function BlogArticle({ post }: { post: BlogPost }) {
 
           {[
             "calcul-prestation-compensatoire-divorce",
+            "la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d",
+            "prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats",
+            "prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp",
           ].includes(post.slug) && (
             <div className="mt-10 bg-white border border-[#E2DDD4] p-8 md:p-10 rounded-lg flex flex-col sm:flex-row sm:items-center gap-6">
               <div className="flex-1">
