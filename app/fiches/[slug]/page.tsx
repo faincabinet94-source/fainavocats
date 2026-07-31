@@ -86,6 +86,15 @@ export default function FichePage({ params }: { params: { slug: string } }) {
 
   const htmlContent = markdownToHtml(fiche.content);
 
+  const fichesAvecSimulateur = [
+    "calcul-prestation-compensatoire",
+    "prestation-compensatoire",
+    "condition-attribution-prestation-compensatoire",
+    "formes-prestation-compensatoire",
+    "prestation-compensatoire-fiscalite",
+  ];
+  const afficherSimulateur = fichesAvecSimulateur.includes(fiche.slug);
+
   return (
     <>
       <Navbar />
@@ -121,6 +130,26 @@ export default function FichePage({ params }: { params: { slug: string } }) {
             <div className="bg-white p-8 md:p-12 rounded-lg mb-12">
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
             </div>
+
+            {afficherSimulateur && (
+              <div className="bg-white border border-[#E2DDD4] p-8 md:p-10 rounded-lg mb-12 flex flex-col sm:flex-row sm:items-center gap-6">
+                <div className="flex-1">
+                  <h2 className="font-serif text-2xl text-[#1A1A1A] mb-2">
+                    Estimez le montant en ligne
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    Notre simulateur gratuit calcule une fourchette indicative
+                    selon six méthodes de calcul usuelles.
+                  </p>
+                </div>
+                <Link
+                  href="/outils/simulateur-prestation-compensatoire"
+                  className="inline-flex items-center justify-center gap-2 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#4a3a30] transition-all duration-300 shrink-0"
+                >
+                  Accéder au simulateur
+                </Link>
+              </div>
+            )}
 
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center">
               <h2 className="font-serif text-3xl mb-4">

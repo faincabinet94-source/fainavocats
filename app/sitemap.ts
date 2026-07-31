@@ -59,6 +59,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...fichesEntries,
     ...ficheArticles,
     {
+      url: 'https://www.fain-avocats.fr/outils/simulateur-prestation-compensatoire',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: 'https://www.fain-avocats.fr/consultations',
       lastModified: new Date(),
       changeFrequency: 'monthly',
