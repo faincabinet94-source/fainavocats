@@ -9,6 +9,7 @@ export interface Fiche {
   title: string;
   category: string;
   description: string;
+  image?: string;
   content: string;
 }
 
@@ -27,6 +28,7 @@ export function getAllFiches(): Fiche[] {
       title: data.title || "",
       category: data.category || "",
       description: data.description || "",
+      image: data.image || "",
       content,
     };
   });

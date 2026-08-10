@@ -28,6 +28,19 @@ const categoryConfig: Record<
   "etat-civil": { label: "État Civil", emoji: "📋", href: "/etat-civil" },
 };
 
+// Illustrations « droit de la famille » (bleu marine sur crème) réparties sur les fiches
+const ILLUSTRATIONS = [
+  "/images/blog/article-droit-famille.png",
+  "/images/blog/article-droit-famille-1780765985910.png",
+  "/images/blog/article-droit-famille-1780767440594.png",
+  "/images/blog/article-droit-famille-1780767675187.png",
+  "/images/blog/article-droit-famille-1780768097103.png",
+  "/images/blog/article-droit-famille-1780768586137.png",
+  "/images/blog/article-droit-famille-1780769152895.png",
+  "/images/blog/article-droit-famille-1780769208404.png",
+  "/images/blog/article-droit-famille-1780770812425.png",
+];
+
 export default function FichesPage() {
   const fiches = getAllFiches();
 
@@ -80,18 +93,26 @@ export default function FichesPage() {
                     </Link>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {items.map((f) => (
+                    {items.map((f, idx) => (
                       <Link
                         key={f.slug}
                         href={`/fiches/${f.slug}`}
-                        className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all"
+                        className="group bg-white p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4"
                       >
-                        <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">
-                          {f.title} &rarr;
-                        </h3>
-                        <p className="text-gray-500 text-sm text-justify">
-                          {f.description}
-                        </p>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={f.image || ILLUSTRATIONS[idx % ILLUSTRATIONS.length]}
+                          alt=""
+                          className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
+                        />
+                        <div>
+                          <h3 className="font-serif text-lg text-[#1A1A1A] mb-1 group-hover:text-[#362A24] transition-colors">
+                            {f.title} &rarr;
+                          </h3>
+                          <p className="text-gray-500 text-sm text-justify">
+                            {f.description}
+                          </p>
+                        </div>
                       </Link>
                     ))}
                   </div>
