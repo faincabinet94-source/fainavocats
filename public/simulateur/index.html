@@ -93,6 +93,18 @@
     body{font-size:12px}
     .carte{break-inside:avoid;box-shadow:none}
   }
+  /* ---- Mobile : empile les colonnes « Vous / Votre conjoint » pour éviter le débordement à droite ---- */
+  @media(max-width:560px){
+    html,body{overflow-x:hidden}
+    .wrap{padding:12px}
+    .colheads{grid-template-columns:1fr 1fr}
+    .colheads>div:first-child{display:none}
+    .ligne{grid-template-columns:1fr 1fr !important;row-gap:6px}
+    .ligne label{grid-column:1 / -1;margin-bottom:2px}
+    .ligne .mono{grid-column:1 / -1}
+    .ligne .radios{grid-column:1 / -1}
+    input[type=number],input[type=text],select{min-width:0}
+  }
 </style>
 </head>
 <body>
