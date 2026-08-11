@@ -70,6 +70,12 @@ export default function DivorcePage() {
         <section className="bg-[#F4F2EC] py-20">
           <Container>
             <div className="max-w-5xl mx-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/fiches/hero-divorce.jpg"
+                alt=""
+                className="w-full h-40 md:h-56 object-cover rounded-lg mb-10"
+              />
               <h2 className="font-serif text-3xl text-[#1A1A1A] mb-8 text-center">
                 Articles &amp; fiches pratiques sur le divorce
               </h2>

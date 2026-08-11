@@ -40,6 +40,13 @@ export default function EtatCivilPage() {
               <span className="text-[#362A24]">Modification de l&apos;état civil</span>
             </nav>
 
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/fiches/hero-etat-civil.jpg"
+              alt=""
+              className="w-full h-40 md:h-56 object-cover rounded-lg mb-8"
+            />
+
             <h1 className="font-serif text-4xl md:text-5xl text-[#1A1A1A] mb-8 leading-tight">
               Modification de l&apos;état civil
             </h1>

@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import fs from "fs";
+import path from "path";
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
@@ -43,6 +45,17 @@ const ILLUSTRATIONS = [
 
 export default function FichesPage() {
   const fiches = getAllFiches();
+
+  // Photos dédiées disponibles dans public/images/fiches (nommées par slug)
+  const photoDir = path.join(process.cwd(), "public/images/fiches");
+  const photoSlugs = new Set(
+    fs.existsSync(photoDir)
+      ? fs
+          .readdirSync(photoDir)
+          .filter((f) => f.endsWith(".jpg"))
+          .map((f) => f.replace(/\.jpg$/, ""))
+      : []
+  );
 
   const grouped = fiches.reduce(
     (acc, f) => {
@@ -101,7 +114,12 @@ export default function FichesPage() {
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={f.image || ILLUSTRATIONS[idx % ILLUSTRATIONS.length]}
+                          src={
+                            f.image ||
+                            (photoSlugs.has(f.slug)
+                              ? `/images/fiches/${f.slug}.jpg`
+                              : ILLUSTRATIONS[idx % ILLUSTRATIONS.length])
+                          }
                           alt=""
                           className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                         />
