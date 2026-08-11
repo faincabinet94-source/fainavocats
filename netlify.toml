@@ -64,6 +64,163 @@
   to = "/#contact"
   status = 301
 
+# Anciennes URLs Squarespace (404 Search Console) -> equivalents actuels
+[[redirects]]
+  from = "/actualites/divorce-consentement-mutuel-audience-juge"
+  to = "/actualites/divorce-par-consentement-mutuel-comment-se-passe-l-audience-chez-le-juge"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/la-prestation-compensatoire-na-pas-pour-objet-de-corriger-les-effets-du-choix-du-regime-de-la-separation-de-biens.html"
+  to = "/actualites/la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/pension-alimentaire-bareme-2013.html"
+  to = "/actualites/pension-alimentaire-bareme-2013-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/futurs-maries-reflechissez-bien.html"
+  to = "/actualites/futurs-maries-reflechissez-bien-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/divorce-sans-juge-le-nouveau-divorce-par-consentement-mutuel-est-arriv.html"
+  to = "/actualites/divorce-sans-juge-le-nouveau-divorce-par-consentement-mutuel"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/divorce-attention-a-belle-maman.html"
+  to = "/actualites/divorce-attention-a-belle-maman-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/les-divorces-ne-financeront-plus-la-baisse-de-lisf.html"
+  to = "/actualites/les-divorces-davantage-taxes-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/divorce-labstinence-sexuelle-peut-couter-cher.html"
+  to = "/actualites/divorce-l-abstinence-sexuelle-peut-couter-cher-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/adultere-evitez-la-saint-valentin.html"
+  to = "/actualites/adultere-interdit-le-jour-de-la-saint-valentin-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/bareme-pension-alimentaire-2011.html"
+  to = "/actualites/bareme-pension-alimentaire-2011-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/adaptation-droit-visite-aux-horaires-travail-pere.html"
+  to = "/actualites/l-adaptation-du-droit-de-visite-aux-horaires-de-travail-du-pere"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/prestation-compensatoire-nouveaux-criteres-de-fixation.html"
+  to = "/actualites/prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/droit-garde-reconnu-compagne-homosexuelle.html"
+  to = "/actualites/droit-de-garde-reconnu-a-la-compagne-homosexuelle-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/prestation-compensatoire-allocation-tierce-personne.html"
+  to = "/actualites/prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/annulation-mariage-escort-girl.html"
+  to = "/actualites/annulation-du-mariage-d-une-escort-girl-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/divorce-faute-preuve-sms.html"
+  to = "/actualites/divorce-pour-faute-cas-pertinents"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/le-prenom-titeuf-contraire-a-linteret-de-lenfant.html"
+  to = "/actualites/le-prenom-titeuf-contraire-a-l-interet-de-l-enfant-fain-avocats"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/le-bien-propre-dun-epoux-peut-etre-attribue-a-titre-de-prestation-compensatoire.html"
+  to = "/fiches/formes-prestation-compensatoire"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/prestation-compensatoire-et-modalites-de-versement.html"
+  to = "/fiches/formes-prestation-compensatoire"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/prestation-compensatoire-vie-commune-duree-mariage.html"
+  to = "/fiches/condition-attribution-prestation-compensatoire"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/droit-de-la-famille/divorces-maries-pacses-fin-de-la-triple-declaration-de-revenus.html"
+  to = "/fiches/divorce-impots"
+  status = 301
+
+[[redirects]]
+  from = "/formulaire-separation-corps"
+  to = "/fiches/separation-corps-procedure"
+  status = 301
+
+[[redirects]]
+  from = "/modification-de-ltat-civil"
+  to = "/etat-civil"
+  status = 301
+
+[[redirects]]
+  from = "/droit-de-la-famille/le-couple"
+  to = "/le-couple"
+  status = 301
+
+[[redirects]]
+  from = "/plan-du-site"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/presse-1"
+  to = "/actualites"
+  status = 301
+
+[[redirects]]
+  from = "/accueil"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/paiement-en-ligne-fain-avocats"
+  to = "/paiement"
+  status = 301
+
+[[redirects]]
+  from = "/mentions-lgales"
+  to = "/mentions-legales"
+  status = 301
+
+[[redirects]]
+  from = "/formulaire-de-renseignements-rc"
+  to = "/consultations"
+  status = 301
+
+[[redirects]]
+  from = "/dernires-actualits"
+  to = "/actualites"
+  status = 301
+
+
 [build]
   command = "npm run build"
   publish = ".next"
