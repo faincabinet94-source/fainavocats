@@ -2,7 +2,20 @@ import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import Link from "next/link";
+import fs from "fs";
+import path from "path";
 import type { Metadata } from "next";
+
+// Photos dédiées disponibles dans public/images/fiches (nommées par slug)
+const fichePhotoDir = path.join(process.cwd(), "public/images/fiches");
+const fichePhotos = new Set(
+  fs.existsSync(fichePhotoDir)
+    ? fs
+        .readdirSync(fichePhotoDir)
+        .filter((f) => f.endsWith(".jpg"))
+        .map((f) => f.replace(/\.jpg$/, ""))
+    : []
+);
 
 export const metadata: Metadata = {
   title: "Le Couple : Mariage, PACS, Concubinage | Avocat Paris - Fain Avocats",
@@ -154,9 +167,19 @@ export default function LeCouplePage() {
                   { title: "La séparation de corps : effets", slug: "separation-corps-effets", desc: "Relâchement du lien conjugal, issues possibles et conversion en divorce." },
                   { title: "La séparation de corps : procédure", slug: "separation-corps-procedure", desc: "Requête, demande reconventionnelle et cas de séparation." },
                 ].map((a) => (
-                  <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all">
-                    <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
-                    <p className="text-gray-500 text-sm">{a.desc}</p>
+                  <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4">
+                    {fichePhotos.has(a.slug) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/images/fiches/${a.slug}.jpg`}
+                        alt=""
+                        className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
+                      <p className="text-gray-500 text-sm">{a.desc}</p>
+                    </div>
                   </Link>
                 ))}
               </div>
