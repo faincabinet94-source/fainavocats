@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import fs from "fs";
+import path from "path";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
@@ -21,6 +23,17 @@ const divorceArticles = [
   { title: "Divorce et impôts", slug: "divorce-impots", desc: "Déclaration de revenus et fiscalité en cas de divorce." },
   { title: "Divorce et titre de séjour", slug: "divorce-titre-sejour", desc: "Conséquences du divorce sur le titre de séjour." },
 ];
+
+// Photos dédiées disponibles dans public/images/fiches (nommées par slug)
+const fichePhotoDir = path.join(process.cwd(), "public/images/fiches");
+const fichePhotos = new Set(
+  fs.existsSync(fichePhotoDir)
+    ? fs
+        .readdirSync(fichePhotoDir)
+        .filter((f) => f.endsWith(".jpg"))
+        .map((f) => f.replace(/\.jpg$/, ""))
+    : []
+);
 
 export const metadata: Metadata = {
   title: data.metaTitle,
@@ -81,9 +94,19 @@ export default function DivorcePage() {
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {divorceArticles.map((a) => (
-                  <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-6 rounded-lg hover:shadow-lg transition-all">
-                    <h3 className="font-serif text-lg text-[#1A1A1A] mb-2 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
-                    <p className="text-gray-500 text-sm text-justify">{a.desc}</p>
+                  <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4">
+                    {fichePhotos.has(a.slug) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/images/fiches/${a.slug}.jpg`}
+                        alt=""
+                        className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-serif text-lg text-[#1A1A1A] mb-1 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
+                      <p className="text-gray-500 text-sm text-justify">{a.desc}</p>
+                    </div>
                   </Link>
                 ))}
               </div>

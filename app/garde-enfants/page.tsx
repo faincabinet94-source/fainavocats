@@ -3,6 +3,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
 import { ExpertisePage } from "@/components/sections/ExpertisePage";
+import { Container } from "@/components/ui/Container";
 import { expertises } from "@/lib/expertises";
 
 const data = expertises["garde-enfants"];
@@ -51,6 +52,19 @@ export default function GardeEnfantsPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
+
+        <section className="bg-[#F4F2EC] pb-20">
+          <Container>
+            <div className="max-w-5xl mx-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/fiches/hero-garde-enfants.jpg"
+                alt="Résidence alternée et garde partagée"
+                className="w-full h-56 md:h-72 object-cover rounded-lg"
+              />
+            </div>
+          </Container>
+        </section>
       </main>
       <Footer />
       <FloatingCTA />
