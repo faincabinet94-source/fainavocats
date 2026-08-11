@@ -71,35 +71,78 @@ export default function DroitDeLaFamillePage() {
                 {
                   title: "Mariage et PACS",
                   desc: "Le droit de la famille encadre les conditions du mariage, définit les différents régimes matrimoniaux, ainsi que les partenariats civils de solidarité. Il définit les droits et les obligations des conjoints.",
+                  image: "/images/fiches/regimes-matrimoniaux.jpg",
+                  href: "/le-couple",
                 },
                 {
                   title: "Divorce et Séparation",
                   desc: "Lors d'une séparation ou d'un divorce, le droit de la famille va permettre de régler la répartition des biens, la garde des enfants, la pension alimentaire et les éventuelles prestations compensatoires.",
+                  image: "/images/fiches/hero-divorce.jpg",
+                  href: "/divorce",
                 },
                 {
                   title: "Filiation et Parentalité",
                   desc: "Il s'agit de la reconnaissance juridique des liens de parenté, incluant les procédures d'adoption, la reconnaissance de paternité et les droits des grands-parents.",
+                  image: "/images/fiches/adoption-simple.jpg",
                 },
                 {
                   title: "Garde des Enfants",
                   desc: "Le droit de la famille détermine les modalités de garde et de visite des enfants, en s'assurant que leur bien-être et leur intérêt supérieur sont respectés.",
+                  image: "/images/fiches/hero-garde-enfants.jpg",
+                  href: "/les-enfants",
                 },
                 {
                   title: "Pension Alimentaire",
                   desc: "Ce volet régule les obligations alimentaires entre parents et enfants, ainsi qu'entre ex-conjoints, afin d'assurer un soutien financier adapté.",
+                  image: "/images/fiches/pension-alimentaire-enfants.jpg",
                 },
                 {
                   title: "Protection des Mineurs",
                   desc: "Il comprend des mesures pour protéger les mineurs en situation de danger, incluant les procédures d'assistance éducative et de placement.",
+                  image: "/images/fiches/autorite-parentale.jpg",
+                  href: "/les-enfants",
                 },
-              ].map((item) => (
-                <div key={item.title} className="bg-white p-6 rounded-lg">
-                  <h3 className="font-serif text-xl text-[#1A1A1A] mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
+              ].map((item) => {
+                const inner = (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="w-full h-40 object-cover"
+                    />
+                    <div className="p-6">
+                      <h3 className="font-serif text-xl text-[#1A1A1A] mb-3 flex items-center justify-between gap-3 group-hover:text-[#362A24] transition-colors">
+                        <span>{item.title}</span>
+                        {item.href && (
+                          <span className="text-[#362A24]" aria-hidden="true">
+                            &rarr;
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </>
+                );
+                return item.href ? (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="group block bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all"
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div
+                    key={item.title}
+                    className="bg-white rounded-lg overflow-hidden"
+                  >
+                    {inner}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="bg-white p-10 rounded-lg mb-16">
