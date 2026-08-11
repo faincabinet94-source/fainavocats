@@ -83,15 +83,23 @@ export default function DivorcePage() {
         <section className="bg-[#F4F2EC] py-20">
           <Container>
             <div className="max-w-5xl mx-auto">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/fiches/hero-divorce.jpg"
-                alt=""
-                className="w-full h-40 md:h-56 object-cover rounded-lg mb-10"
-              />
-              <h2 className="font-serif text-3xl text-[#1A1A1A] mb-8 text-center">
-                Articles &amp; fiches pratiques sur le divorce
-              </h2>
+              {/* Header Divorce : bannière + titre par-dessus */}
+              <div className="relative rounded-lg overflow-hidden mb-10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/fiches/hero-divorce.jpg"
+                  alt=""
+                  className="w-full h-48 md:h-72 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/70 via-[#1A1A1A]/30 to-[#1A1A1A]/20 flex flex-col items-center justify-center text-center px-6">
+                  <span className="inline-block px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 text-white rounded-full mb-4">
+                    Divorce
+                  </span>
+                  <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight">
+                    Articles &amp; fiches pratiques sur le divorce
+                  </h2>
+                </div>
+              </div>
               <div className="grid md:grid-cols-2 gap-4">
                 {divorceArticles.map((a) => (
                   <Link key={a.slug} href={`/fiches/${a.slug}`} className="group bg-white p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4">
