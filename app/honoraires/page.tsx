@@ -111,7 +111,7 @@ export default function HonorairesPage() {
             </div>
 
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center">
-              <h2 className="font-serif text-3xl mb-4">
+              <h2 className="font-serif text-3xl mb-4 text-white">
                 Demander un devis
               </h2>
               <p className="text-white/70 mb-8">
