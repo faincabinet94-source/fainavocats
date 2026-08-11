@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: data.metaTitle,
     description: data.metaDescription,
-    url: "https://www.fain-avocats.fr/patrimoine-successions",
+    url: "https://fain-avocats.fr/patrimoine-successions",
     type: "website",
   },
 };
@@ -44,7 +44,7 @@ const jsonLd = {
   "@type": "LegalService",
   name: "Fain Avocats - Avocat Patrimoine et Successions Paris",
   description: data.metaDescription,
-  url: "https://www.fain-avocats.fr/patrimoine-successions",
+  url: "https://fain-avocats.fr/patrimoine-successions",
   provider: {
     "@type": "Attorney",
     name: "Fain Avocats",

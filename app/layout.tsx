@@ -19,7 +19,7 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.fain-avocats.fr"),
+  metadataBase: new URL("https://fain-avocats.fr"),
   title: "Fain Avocats | Avocat Droit de la Famille Paris 16 - Divorce & Patrimoine",
   description: "Cabinet d'avocats expert en droit de la famille à Paris 16ème (Avenue Victor Hugo). Divorce, garde d'enfants, pension alimentaire, successions. Premier entretien téléphonique gratuit. Intervention rapide et humaine.",
   keywords: ["Avocat divorce Paris 16", "Avocat droit famille Paris", "Meilleur avocat divorce Paris", "Cabinet avocat Victor Hugo", "Garde enfants Paris", "Pension alimentaire avocat"],
@@ -34,11 +34,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Fain Avocats | L'excellence en Droit de la Famille - Paris 16",
     description: "Cabinet spécialisé depuis 20 ans. Divorce, séparation, enfants. Une approche humaine et stratégique pour protéger vos intérêts.",
-    url: "https://www.fain-avocats.fr",
+    url: "https://fain-avocats.fr",
     siteName: "Fain Avocats",
     images: [
       {
-        url: "https://www.fain-avocats.fr/DSC01907.webp",
+        url: "https://fain-avocats.fr/DSC01907.webp",
         width: 1200,
         height: 630,
         alt: "Cabinet Fain Avocats Paris 16",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fain Avocats | Avocat Droit de la Famille Paris 16",
     description: "Cabinet expert en droit de la famille à Paris 16ème. Noté 4,7/5 sur 416 avis Google. Premier entretien téléphonique gratuit.",
-    images: ["https://www.fain-avocats.fr/DSC01907.webp"],
+    images: ["https://fain-avocats.fr/DSC01907.webp"],
   },
   robots: {
     index: true,
@@ -71,13 +71,13 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Attorney",
-      "@id": "https://www.fain-avocats.fr/#attorney",
+      "@id": "https://fain-avocats.fr/#attorney",
       name: "Fain Avocats",
       description: "Cabinet d'avocats expert en droit de la famille à Paris 16ème. Divorce, garde d'enfants, patrimoine, successions.",
-      url: "https://www.fain-avocats.fr",
+      url: "https://fain-avocats.fr",
       telephone: "+33140680237",
       email: "contact@fain-avocats.fr",
-      image: "https://www.fain-avocats.fr/DSC01907.webp",
+      image: "https://fain-avocats.fr/DSC01907.webp",
       priceRange: "€€",
       address: {
         "@type": "PostalAddress",

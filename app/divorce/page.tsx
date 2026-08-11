@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: data.metaTitle,
     description: data.metaDescription,
-    url: "https://www.fain-avocats.fr/divorce",
+    url: "https://fain-avocats.fr/divorce",
     type: "website",
   },
 };
@@ -52,7 +52,7 @@ const jsonLd = {
   "@type": "LegalService",
   name: "Fain Avocats - Avocat Divorce Paris",
   description: data.metaDescription,
-  url: "https://www.fain-avocats.fr/divorce",
+  url: "https://fain-avocats.fr/divorce",
   provider: {
     "@type": "Attorney",
     name: "Fain Avocats",

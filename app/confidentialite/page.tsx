@@ -33,7 +33,7 @@ export default function Confidentialite() {
             <section>
               <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">2. Données collectées</h2>
               <p>
-                Le site <strong>www.fain-avocats.fr</strong> ne collecte aucune donnée personnelle via un formulaire de contact. Les seules interactions possibles sont :
+                Le site <strong>fain-avocats.fr</strong> ne collecte aucune donnée personnelle via un formulaire de contact. Les seules interactions possibles sont :
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Appels téléphoniques</strong> : lorsque vous cliquez sur le numéro de téléphone, votre appareil lance un appel. Le cabinet ne collecte aucune donnée supplémentaire via le site.</li>

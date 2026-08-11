@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
   
   const blogEntries: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `https://www.fain-avocats.fr/actualites/${post.slug}`,
+    url: `https://fain-avocats.fr/actualites/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: 'yearly',
     priority: 0.6,
@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   const expertiseEntries: MetadataRoute.Sitemap = expertisePages.map((slug) => ({
-    url: `https://www.fain-avocats.fr/${slug}`,
+    url: `https://fain-avocats.fr/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.9,
@@ -34,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   const fichesEntries: MetadataRoute.Sitemap = fichesPages.map((slug) => ({
-    url: `https://www.fain-avocats.fr/${slug}`,
+    url: `https://fain-avocats.fr/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.85,
@@ -42,7 +42,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const fiches = getAllFiches()
   const ficheArticles: MetadataRoute.Sitemap = fiches.map((f) => ({
-    url: `https://www.fain-avocats.fr/fiches/${f.slug}`,
+    url: `https://fain-avocats.fr/fiches/${f.slug}`,
     lastModified: new Date(),
     changeFrequency: 'yearly',
     priority: 0.7,
@@ -50,7 +50,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: 'https://www.fain-avocats.fr',
+      url: 'https://fain-avocats.fr',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 1,
@@ -59,62 +59,62 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...fichesEntries,
     ...ficheArticles,
     {
-      url: 'https://www.fain-avocats.fr/outils/simulateur-prestation-compensatoire',
+      url: 'https://fain-avocats.fr/outils/simulateur-prestation-compensatoire',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: 'https://www.fain-avocats.fr/consultations',
+      url: 'https://fain-avocats.fr/consultations',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
-      url: 'https://www.fain-avocats.fr/devis',
+      url: 'https://fain-avocats.fr/devis',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
-      url: 'https://www.fain-avocats.fr/devis/divorce',
+      url: 'https://fain-avocats.fr/devis/divorce',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
-      url: 'https://www.fain-avocats.fr/honoraires',
+      url: 'https://fain-avocats.fr/honoraires',
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.8,
     },
     {
-      url: 'https://www.fain-avocats.fr/honoraires/droit-de-la-famille',
+      url: 'https://fain-avocats.fr/honoraires/droit-de-la-famille',
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.8,
     },
     {
-      url: 'https://www.fain-avocats.fr/paiement',
+      url: 'https://fain-avocats.fr/paiement',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
-      url: 'https://www.fain-avocats.fr/actualites',
+      url: 'https://fain-avocats.fr/actualites',
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     ...blogEntries,
     {
-      url: 'https://www.fain-avocats.fr/mentions-legales',
+      url: 'https://fain-avocats.fr/mentions-legales',
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
-      url: 'https://www.fain-avocats.fr/confidentialite',
+      url: 'https://fain-avocats.fr/confidentialite',
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.3,

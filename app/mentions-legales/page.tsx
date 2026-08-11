@@ -22,7 +22,7 @@ export default function MentionsLegales() {
             <section>
               <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">1. Éditeur du site</h2>
               <p>
-                Le site <strong>www.fain-avocats.fr</strong> est édité par :<br/>
+                Le site <strong>fain-avocats.fr</strong> est édité par :<br/>
                 <strong>Cabinet Fain Avocats</strong><br/>
                 Profession libérale réglementée — Avocat inscrit au Barreau de Paris<br/>
                 196 avenue victor hugo, 75116 paris<br/>

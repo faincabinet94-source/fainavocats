@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: data.metaTitle,
     description: data.metaDescription,
-    url: "https://www.fain-avocats.fr/garde-enfants",
+    url: "https://fain-avocats.fr/garde-enfants",
     type: "website",
   },
 };
@@ -44,7 +44,7 @@ const jsonLd = {
   "@type": "LegalService",
   name: "Fain Avocats - Avocat Garde d'Enfants Paris",
   description: data.metaDescription,
-  url: "https://www.fain-avocats.fr/garde-enfants",
+  url: "https://fain-avocats.fr/garde-enfants",
   provider: {
     "@type": "Attorney",
     name: "Fain Avocats",

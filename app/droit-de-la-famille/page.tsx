@@ -25,7 +25,7 @@ const jsonLd = {
   "@type": "LegalService",
   name: "Fain Avocats - Droit de la Famille",
   description: "Cabinet d'avocats spécialisé en droit de la famille à Paris",
-  url: "https://www.fain-avocats.fr/droit-de-la-famille",
+  url: "https://fain-avocats.fr/droit-de-la-famille",
   telephone: "+33140680237",
   address: {
     "@type": "PostalAddress",

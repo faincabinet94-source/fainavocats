@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: data.metaTitle,
     description: data.metaDescription,
-    url: "https://www.fain-avocats.fr/pension-alimentaire",
+    url: "https://fain-avocats.fr/pension-alimentaire",
     type: "website",
   },
 };
@@ -44,7 +44,7 @@ const jsonLd = {
   "@type": "LegalService",
   name: "Fain Avocats - Avocat Pension Alimentaire Paris",
   description: data.metaDescription,
-  url: "https://www.fain-avocats.fr/pension-alimentaire",
+  url: "https://fain-avocats.fr/pension-alimentaire",
   provider: {
     "@type": "Attorney",
     name: "Fain Avocats",

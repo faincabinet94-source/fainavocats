@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const origin = request.headers.get("origin") || "https://www.fain-avocats.fr";
+    const origin = request.headers.get("origin") || "https://fain-avocats.fr";
 
     const paymentData: Record<string, unknown> = {
       amount,
