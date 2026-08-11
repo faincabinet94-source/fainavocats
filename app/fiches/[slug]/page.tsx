@@ -4,6 +4,8 @@ import { Footer } from "@/components/sections/Footer";
 import { getAllFiches, getFicheBySlug } from "@/lib/fiches";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import fs from "fs";
+import path from "path";
 import type { Metadata } from "next";
 
 const categoryLabels: Record<string, { label: string; href: string }> = {
@@ -86,6 +88,13 @@ export default function FichePage({ params }: { params: { slug: string } }) {
 
   const htmlContent = markdownToHtml(fiche.content);
 
+  // Photo dédiée de la fiche (bandeau) si elle existe
+  const photoSrc = `/images/fiches/${fiche.slug}.jpg`;
+  const hasPhoto =
+    !!fiche.image ||
+    fs.existsSync(path.join(process.cwd(), "public", photoSrc));
+  const heroSrc = fiche.image || photoSrc;
+
   const fichesAvecSimulateur = [
     "calcul-prestation-compensatoire",
     "prestation-compensatoire",
@@ -123,9 +132,28 @@ export default function FichePage({ params }: { params: { slug: string } }) {
               <span className="text-[#362A24]">{fiche.title}</span>
             </nav>
 
-            <h1 className="font-serif text-3xl md:text-4xl text-[#1A1A1A] mb-8 leading-tight">
-              {fiche.title}
-            </h1>
+            {hasPhoto ? (
+              <div className="relative rounded-lg overflow-hidden mb-10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={heroSrc}
+                  alt=""
+                  className="w-full h-56 md:h-80 object-cover"
+                />
+                <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/35 to-[#1A1A1A]/5">
+                  <span className="inline-block self-start px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 text-white rounded-full mb-4">
+                    {cat.label}
+                  </span>
+                  <h1 className="font-serif text-3xl md:text-4xl text-white leading-tight max-w-3xl">
+                    {fiche.title}
+                  </h1>
+                </div>
+              </div>
+            ) : (
+              <h1 className="font-serif text-3xl md:text-4xl text-[#1A1A1A] mb-8 leading-tight">
+                {fiche.title}
+              </h1>
+            )}
 
             <div className="bg-white p-8 md:p-12 rounded-lg mb-12">
               <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
