@@ -84,6 +84,7 @@ export default function DroitDeLaFamillePage() {
                   title: "Filiation et Parentalité",
                   desc: "Il s'agit de la reconnaissance juridique des liens de parenté, incluant les procédures d'adoption, la reconnaissance de paternité et les droits des grands-parents.",
                   image: "/images/fiches/adoption-simple.jpg",
+                  href: "/les-enfants",
                 },
                 {
                   title: "Garde des Enfants",
@@ -95,6 +96,7 @@ export default function DroitDeLaFamillePage() {
                   title: "Pension Alimentaire",
                   desc: "Ce volet régule les obligations alimentaires entre parents et enfants, ainsi qu'entre ex-conjoints, afin d'assurer un soutien financier adapté.",
                   image: "/images/fiches/pension-alimentaire-enfants.jpg",
+                  href: "/pension-alimentaire",
                 },
                 {
                   title: "Protection des Mineurs",
