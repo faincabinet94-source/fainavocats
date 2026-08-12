@@ -147,6 +147,91 @@ export default function DroitDeLaFamillePage() {
               })}
             </div>
 
+            {/* Section mise en avant : Liquidation des régimes matrimoniaux */}
+            <section className="mb-16">
+              <div className="relative rounded-lg overflow-hidden mb-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/fiches/hero-liquidation-regimes.jpg"
+                  alt="Liquidation du régime matrimonial et partage du patrimoine des époux"
+                  className="w-full h-56 md:h-80 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/40 to-[#1A1A1A]/20 flex flex-col items-center justify-center text-center px-6">
+                  <span className="inline-block px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 text-white rounded-full mb-4">
+                    Patrimoine
+                  </span>
+                  <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight max-w-3xl">
+                    Liquidation des régimes matrimoniaux
+                  </h2>
+                  <p className="text-white/85 mt-3 max-w-2xl">
+                    Le partage du patrimoine des époux, souvent l&apos;étape la plus
+                    sensible d&apos;un divorce.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 md:p-10 rounded-lg">
+                <p className="text-gray-700 text-lg leading-relaxed mb-8">
+                  Lorsqu&apos;un mariage prend fin — par divorce ou par décès —, il
+                  faut <strong>liquider le régime matrimonial</strong>&nbsp;:
+                  déterminer ce qui appartient à chacun, régler les comptes entre les
+                  époux, puis partager les biens communs. Cette opération conditionne
+                  votre équilibre financier futur&nbsp;: elle mérite d&apos;être
+                  préparée avec l&apos;appui d&apos;un avocat.
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  {[
+                    {
+                      title: "Selon votre régime matrimonial",
+                      desc: "Communauté réduite aux acquêts (le régime légal), séparation de biens, participation aux acquêts ou communauté universelle : les règles de partage diffèrent radicalement. La première étape consiste à distinguer les biens propres des biens communs.",
+                    },
+                    {
+                      title: "Récompenses et créances entre époux",
+                      desc: "Lorsqu'un époux a financé un bien commun avec des fonds propres (ou l'inverse), des récompenses sont dues. Ces comptes, souvent techniques, peuvent modifier sensiblement le montant revenant à chacun.",
+                    },
+                    {
+                      title: "L'intervention du notaire",
+                      desc: "En présence d'un bien immobilier, l'acte de liquidation-partage est établi par notaire et donne lieu au droit de partage (2,5 % de l'actif net). Le logement peut être attribué à un époux moyennant une soulte, ou rester en indivision.",
+                    },
+                    {
+                      title: "En cas de désaccord",
+                      desc: "Faute d'accord amiable, le partage est tranché par le juge. Votre avocat défend vos intérêts sur l'évaluation des biens, l'attribution préférentielle du logement ou de l'entreprise, et la répartition des dettes.",
+                    },
+                  ].map((item) => (
+                    <div key={item.title}>
+                      <h3 className="font-serif text-xl text-[#1A1A1A] mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-col sm:flex-row flex-wrap gap-x-6 gap-y-3 items-start sm:items-center pt-6 border-t border-gray-100">
+                  <span className="text-sm text-gray-500">Pour aller plus loin&nbsp;:</span>
+                  <Link
+                    href="/fiches/regimes-matrimoniaux"
+                    className="text-sm text-[#362A24] font-medium hover:underline"
+                  >
+                    Les régimes matrimoniaux &rarr;
+                  </Link>
+                  <Link
+                    href="/fiches/achat-immobilier-pendant-divorce"
+                    className="text-sm text-[#362A24] font-medium hover:underline"
+                  >
+                    Achat immobilier pendant le divorce &rarr;
+                  </Link>
+                  <Link
+                    href="/patrimoine-successions"
+                    className="text-sm text-[#362A24] font-medium hover:underline"
+                  >
+                    Patrimoine &amp; successions &rarr;
+                  </Link>
+                </div>
+              </div>
+            </section>
+
             <div className="bg-white p-10 rounded-lg mb-16">
               <h2 className="font-serif text-3xl text-[#1A1A1A] mb-8">
                 Les finalités du droit de la famille
