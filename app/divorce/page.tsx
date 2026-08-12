@@ -24,6 +24,16 @@ const divorceArticles = [
   { title: "Divorce et titre de séjour", slug: "divorce-titre-sejour", desc: "Conséquences du divorce sur le titre de séjour." },
 ];
 
+// Articles sur la liquidation du régime matrimonial (peut pointer vers /actualites ou /fiches)
+const liquidationArticles = [
+  {
+    title: "Prêt commun et indemnité d'occupation : neutraliser la créance",
+    href: "/actualites/pret-commun-indemnite-occupation-neutraliser-creance-divorce",
+    image: "/images/blog/pret-commun-indemnite-occupation-neutraliser-creance-divorce-1786495187448.jpg",
+    desc: "Peut-on compenser la créance de l'époux qui rembourse seul le prêt avec l'indemnité d'occupation ? Conditions de validité et conséquences fiscales.",
+  },
+];
+
 // Photos dédiées disponibles dans public/images/fiches (nommées par slug)
 const fichePhotoDir = path.join(process.cwd(), "public/images/fiches");
 const fichePhotos = new Set(
@@ -111,6 +121,47 @@ export default function DivorcePage() {
                         className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                       />
                     )}
+                    <div>
+                      <h3 className="font-serif text-lg text-[#1A1A1A] mb-1 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
+                      <p className="text-gray-500 text-sm text-justify">{a.desc}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Section Liquidation des régimes matrimoniaux (même format) */}
+        <section className="bg-white py-20">
+          <Container>
+            <div className="max-w-5xl mx-auto">
+              {/* Header Liquidation : bannière + titre par-dessus */}
+              <div className="relative rounded-lg overflow-hidden mb-10">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/fiches/hero-liquidation-regimes.jpg"
+                  alt=""
+                  className="w-full h-48 md:h-72 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/40 to-[#1A1A1A]/20 flex flex-col items-center justify-center text-center px-6">
+                  <span className="inline-block px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 text-white rounded-full mb-4">
+                    Patrimoine
+                  </span>
+                  <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight">
+                    Liquidation des régimes matrimoniaux
+                  </h2>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {liquidationArticles.map((a) => (
+                  <Link key={a.href} href={a.href} className="group bg-[#F4F2EC] p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={a.image}
+                      alt=""
+                      className="w-20 h-20 object-cover rounded-md shrink-0 bg-white"
+                    />
                     <div>
                       <h3 className="font-serif text-lg text-[#1A1A1A] mb-1 group-hover:text-[#362A24] transition-colors">{a.title} &rarr;</h3>
                       <p className="text-gray-500 text-sm text-justify">{a.desc}</p>
