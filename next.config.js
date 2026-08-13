@@ -2,10 +2,16 @@
 const nextConfig = {
   async redirects() {
     return [
-      // Page liquidation créée puis consolidée sur /patrimoine-successions
+      // Liquidation du régime matrimonial : ancienne page patrimoine-successions
+      // et variante plurielle → URL canonique /liquidation-regime-matrimonial
+      {
+        source: '/patrimoine-successions',
+        destination: '/liquidation-regime-matrimonial',
+        permanent: true,
+      },
       {
         source: '/liquidation-regimes-matrimoniaux',
-        destination: '/patrimoine-successions',
+        destination: '/liquidation-regime-matrimonial',
         permanent: true,
       },
       // Anciennes URLs Squarespace → nouvelles URLs

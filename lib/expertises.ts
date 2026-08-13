@@ -274,8 +274,8 @@ export const expertises: Record<string, ExpertiseData> = {
     jsonLdType: "LegalService",
   },
 
-  "patrimoine-successions": {
-    slug: "patrimoine-successions",
+  "liquidation-regime-matrimonial": {
+    slug: "liquidation-regime-matrimonial",
     title: "Liquidation du régime matrimonial",
     heroTitle: "Avocat Liquidation du Régime Matrimonial à Paris",
     heroSubtitle:

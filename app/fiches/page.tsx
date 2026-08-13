@@ -30,7 +30,7 @@ const categoryConfig: Record<
   liquidation: {
     label: "Liquidation du régime matrimonial",
     emoji: "💶",
-    href: "/patrimoine-successions",
+    href: "/liquidation-regime-matrimonial",
   },
   "etat-civil": { label: "État Civil", emoji: "📋", href: "/etat-civil" },
 };

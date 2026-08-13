@@ -10,7 +10,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 const expertiseLinks = [
   "/divorce",
   "/garde-enfants",
-  "/patrimoine-successions",
+  "/liquidation-regime-matrimonial",
   "#contact",
   "#contact",
   "#contact",

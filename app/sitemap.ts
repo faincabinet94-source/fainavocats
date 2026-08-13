@@ -16,7 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'divorce',
     'garde-enfants',
     'pension-alimentaire',
-    'patrimoine-successions',
+    'liquidation-regime-matrimonial',
   ]
 
   const expertiseEntries: MetadataRoute.Sitemap = expertisePages.map((slug) => ({

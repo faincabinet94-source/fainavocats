@@ -35,7 +35,7 @@ const fichePhotos = new Set(
     : []
 );
 
-const data = expertises["patrimoine-successions"];
+const data = expertises["liquidation-regime-matrimonial"];
 
 export const metadata: Metadata = {
   title: data.metaTitle,
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: data.metaTitle,
     description: data.metaDescription,
-    url: "https://fain-avocats.fr/patrimoine-successions",
+    url: "https://fain-avocats.fr/liquidation-regime-matrimonial",
     type: "website",
   },
 };
@@ -54,7 +54,7 @@ const jsonLd = {
   "@type": "LegalService",
   name: "Fain Avocats - Avocat Liquidation du régime matrimonial Paris",
   description: data.metaDescription,
-  url: "https://fain-avocats.fr/patrimoine-successions",
+  url: "https://fain-avocats.fr/liquidation-regime-matrimonial",
   provider: {
     "@type": "Attorney",
     name: "Fain Avocats",

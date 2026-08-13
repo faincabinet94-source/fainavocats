@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Avocat Droit de la Famille Paris 16 | Divorce, Garde, Pension - Fain Avocats",
   description:
-    "Cabinet d'avocats spécialisé en droit de la famille à Paris 16ème. Divorce, garde d'enfants, pension alimentaire, PACS, succession. Maître Fain, avocat expérimenté depuis 2004.",
+    "Cabinet d'avocats en droit de la famille à Paris 16ème. Divorce, garde d'enfants, pension alimentaire, PACS, liquidation du régime matrimonial. Maître Fain, avocat en droit de la famille depuis 2004.",
   keywords: [
     "avocat droit de la famille paris",
     "avocat divorce paris 16",
@@ -223,10 +223,10 @@ export default function DroitDeLaFamillePage() {
                     Achat immobilier pendant le divorce &rarr;
                   </Link>
                   <Link
-                    href="/patrimoine-successions"
+                    href="/liquidation-regime-matrimonial"
                     className="text-sm text-[#362A24] font-medium hover:underline"
                   >
-                    Patrimoine &amp; successions &rarr;
+                    Liquidation du régime matrimonial &rarr;
                   </Link>
                 </div>
               </div>
