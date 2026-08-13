@@ -67,7 +67,7 @@ export default function DevisPage() {
                   Autres demandes &rarr;
                 </h3>
                 <p className="text-gray-600">
-                  Garde d&apos;enfants, pension alimentaire, succession, patrimoine. Contactez-nous pour une étude personnalisée.
+                  Garde d&apos;enfants, pension alimentaire, liquidation du régime matrimonial. Contactez-nous pour une étude personnalisée.
                 </p>
               </a>
             </div>
