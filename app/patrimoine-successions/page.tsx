@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import fs from "fs";
+import path from "path";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
@@ -6,8 +8,10 @@ import { ExpertisePage } from "@/components/sections/ExpertisePage";
 import { Container } from "@/components/ui/Container";
 import Link from "next/link";
 import { expertises } from "@/lib/expertises";
+import { getFichesByCategory } from "@/lib/fiches";
 
-const articlesPatrimoine = [
+// Fiches associées (autres catégories) toujours pertinentes pour la liquidation.
+const articlesLies = [
   {
     title: "Les régimes matrimoniaux",
     slug: "regimes-matrimoniaux",
@@ -18,12 +22,18 @@ const articlesPatrimoine = [
     slug: "achat-immobilier-pendant-divorce",
     desc: "Ce que permet le régime matrimonial des époux pendant la procédure.",
   },
-  {
-    title: "Prestation compensatoire et fiscalité",
-    slug: "prestation-compensatoire-fiscalite",
-    desc: "Régime fiscal selon la forme : capital, rente, impôt sur le revenu et droits d'enregistrement.",
-  },
 ];
+
+// Photos dédiées disponibles dans public/images/fiches (nommées par slug)
+const fichePhotoDir = path.join(process.cwd(), "public/images/fiches");
+const fichePhotos = new Set(
+  fs.existsSync(fichePhotoDir)
+    ? fs
+        .readdirSync(fichePhotoDir)
+        .filter((f) => f.endsWith(".jpg"))
+        .map((f) => f.replace(/\.jpg$/, ""))
+    : []
+);
 
 const data = expertises["patrimoine-successions"];
 
@@ -42,7 +52,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LegalService",
-  name: "Fain Avocats - Avocat Patrimoine et Successions Paris",
+  name: "Fain Avocats - Avocat Liquidation du régime matrimonial Paris",
   description: data.metaDescription,
   url: "https://fain-avocats.fr/patrimoine-successions",
   provider: {
@@ -58,10 +68,18 @@ const jsonLd = {
     },
   },
   areaServed: { "@type": "City", name: "Paris" },
-  serviceType: "Patrimoine, Successions et Indivision",
+  serviceType: "Liquidation du régime matrimonial",
 };
 
 export default function PatrimoineSuccessionsPage() {
+  const catFiches = getFichesByCategory("liquidation").map((f) => ({
+    title: f.title,
+    slug: f.slug,
+    desc: f.description,
+  }));
+  const seen = new Set(catFiches.map((f) => f.slug));
+  const fiches = [...catFiches, ...articlesLies.filter((a) => !seen.has(a.slug))];
+
   return (
     <>
       <Navbar />
@@ -76,21 +94,23 @@ export default function PatrimoineSuccessionsPage() {
           <Container>
             <div className="max-w-5xl mx-auto">
               <h2 className="font-serif text-3xl text-[#1A1A1A] mb-8 text-center">
-                Fiches pratiques sur le patrimoine
+                Fiches pratiques
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
-                {articlesPatrimoine.map((a) => (
+                {fiches.map((a) => (
                   <Link
                     key={a.slug}
                     href={`/fiches/${a.slug}`}
                     className="group bg-white p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`/images/fiches/${a.slug}.jpg`}
-                      alt=""
-                      className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
-                    />
+                    {fichePhotos.has(a.slug) && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/images/fiches/${a.slug}.jpg`}
+                        alt=""
+                        className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
+                      />
+                    )}
                     <div>
                       <h3 className="font-serif text-lg text-[#1A1A1A] mb-1 group-hover:text-[#362A24] transition-colors">
                         {a.title} &rarr;

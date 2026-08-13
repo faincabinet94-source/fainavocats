@@ -276,79 +276,80 @@ export const expertises: Record<string, ExpertiseData> = {
 
   "patrimoine-successions": {
     slug: "patrimoine-successions",
-    title: "Patrimoine & Successions",
-    heroTitle: "Avocat Patrimoine et Successions Paris",
+    title: "Liquidation du régime matrimonial",
+    heroTitle: "Avocat Liquidation du Régime Matrimonial à Paris",
     heroSubtitle:
-      "Liquidation de régime matrimonial, indivision, héritage. Nous protégeons votre patrimoine familial.",
+      "Partage des biens, récompenses, indemnité d'occupation, sortie d'indivision : nous sécurisons la liquidation de votre régime matrimonial lors du divorce.",
     metaTitle:
-      "Avocat Succession Paris 16 | Patrimoine & Héritage - Fain Avocats",
+      "Avocat Liquidation du Régime Matrimonial Paris 16 - Fain Avocats",
     metaDescription:
-      "Avocat spécialisé en successions et patrimoine à Paris 16. Liquidation de régime matrimonial, indivision, donation, héritage. Cabinet Fain Avocats. +33 1 40 68 02 37.",
+      "Avocat en liquidation du régime matrimonial à Paris 16 : partage des biens, récompenses, indemnité d'occupation, indivision post-communautaire. Cabinet Fain Avocats. +33 1 40 68 02 37.",
     keywords: [
-      "avocat succession Paris",
-      "avocat patrimoine Paris 16",
       "liquidation régime matrimonial avocat",
-      "indivision avocat Paris",
-      "avocat héritage Paris",
-      "partage succession avocat",
+      "partage des biens divorce",
+      "récompenses communauté",
+      "indemnité d'occupation divorce",
+      "indivision post-communautaire avocat Paris",
+      "avocat divorce patrimoine Paris 16",
     ],
     intro:
-      "Les questions de patrimoine et de succession sont souvent complexes et chargées d'émotion. Qu'il s'agisse de protéger vos biens lors d'un divorce, de régler une succession conflictuelle ou de sortir d'une indivision, chaque décision engage des sommes importantes. Fort de 20 ans d'expérience, le cabinet Fain Avocats vous accompagne avec expertise et discrétion.",
-    problemTitle: "Les enjeux patrimoniaux",
+      "Lors d'un divorce, la liquidation du régime matrimonial règle le partage du patrimoine des époux. C'est souvent l'étape la plus technique et la plus disputée : évaluation des biens, sort du logement, récompenses dues à la communauté ou à un époux, créances entre conjoints. Fort de plus de 20 ans d'expérience en droit de la famille, le cabinet Fain Avocats vous accompagne pour défendre vos intérêts patrimoniaux.",
+    problemTitle: "Les enjeux de la liquidation",
     problemText:
-      "Le patrimoine familial est souvent au centre des conflits. Une mauvaise anticipation ou un désaccord sur le partage peut avoir des conséquences financières majeures :",
+      "Un partage mal préparé peut avoir des conséquences financières durables. Les principaux points de tension :",
     problemPoints: [
-      "Liquidation du régime matrimonial lors d'un divorce",
-      "Partage d'une succession bloquée par un désaccord entre héritiers",
-      "Sortie d'indivision sur un bien immobilier",
-      "Contestation de donations ou de testaments",
-      "Protection du conjoint survivant et des enfants",
+      "Détermination du régime applicable (communauté, séparation de biens, participation aux acquêts)",
+      "Qualification des biens : propres ou communs",
+      "Récompenses dues entre un époux et la communauté",
+      "Indemnité d'occupation du logement pendant la procédure",
+      "Sortie de l'indivision post-communautaire sur un bien immobilier",
+      "Évaluation des biens et prise en compte du passif (emprunts en cours)",
     ],
     approachTitle: "Notre accompagnement",
     approachText:
-      "Nous travaillons en étroite collaboration avec des notaires et des experts-comptables pour vous apporter une solution globale et sécurisée.",
+      "Nous travaillons en lien étroit avec le notaire chargé des opérations pour établir un projet de liquidation clair et défendre votre position, à l'amiable comme devant le juge.",
     steps: [
       {
         title: "Audit patrimonial",
         description:
-          "Inventaire complet des biens, dettes, droits et obligations. Nous cartographions votre situation pour définir la meilleure stratégie.",
+          "Inventaire des biens, dettes et flux financiers du couple. Nous cartographions la masse à partager et identifions les récompenses et créances potentielles.",
       },
       {
-        title: "Stratégie juridique",
+        title: "Projet de liquidation",
         description:
-          "Élaboration d'un plan d'action : négociation amiable, médiation ou procédure judiciaire selon le contexte.",
+          "Élaboration, avec le notaire, d'un état liquidatif chiffré : qualification des biens, calcul des récompenses, valorisation des lots.",
       },
       {
         title: "Négociation ou contentieux",
         description:
-          "Nous négocions un partage équitable ou, en cas de blocage, saisissons le tribunal pour faire valoir vos droits.",
+          "Nous recherchons un partage amiable équilibré. En cas de blocage, nous saisissons le juge pour un partage judiciaire.",
       },
       {
         title: "Finalisation",
         description:
-          "Rédaction des actes, coordination avec le notaire et suivi jusqu'à l'exécution complète du partage.",
+          "Signature de l'acte de partage devant notaire et suivi jusqu'à l'exécution complète.",
       },
     ],
     faq: [
       {
-        question: "Comment se passe la liquidation du régime matrimonial ?",
+        question: "En quoi consiste la liquidation du régime matrimonial ?",
         answer:
-          "C'est l'opération qui consiste à partager les biens du couple lors du divorce. Selon votre régime (communauté, séparation de biens, participation aux acquêts), les règles diffèrent. Nous analysons votre contrat de mariage et établissons un projet de liquidation avec le notaire.",
+          "C'est l'opération qui partage les biens du couple à l'occasion du divorce. Selon votre régime (communauté, séparation de biens, participation aux acquêts), les règles de qualification et de partage diffèrent. Nous analysons votre contrat de mariage, le cas échéant, et établissons un projet de liquidation avec le notaire.",
       },
       {
-        question: "Un héritier bloque la succession, que faire ?",
+        question: "Qu'est-ce qu'une récompense ?",
         answer:
-          "En cas de blocage, vous pouvez saisir le tribunal judiciaire pour demander le partage judiciaire de la succession. Le juge peut désigner un notaire pour procéder aux opérations de liquidation-partage. Nous vous accompagnons dans cette procédure.",
+          "C'est une somme due entre un époux et la communauté lorsque des fonds propres ont profité à la communauté, ou l'inverse. Le calcul des récompenses est souvent un point clé — et litigieux — de la liquidation.",
       },
       {
-        question: "Comment sortir d'une indivision ?",
+        question: "Qu'est-ce que l'indemnité d'occupation ?",
         answer:
-          "Nul ne peut être contraint de rester en indivision. Vous pouvez demander le partage amiable ou, à défaut, saisir le tribunal. Nous négocions en priorité un accord et, si nécessaire, engageons la procédure judiciaire.",
+          "Lorsqu'un époux occupe seul, pendant la procédure, un logement dépendant de l'indivision, il peut être redevable d'une indemnité d'occupation envers l'indivision. Son montant et sa date de départ se discutent et peuvent peser lourd dans le partage final.",
       },
       {
-        question: "Peut-on contester un testament ?",
+        question: "Comment sortir d'une indivision après le divorce ?",
         answer:
-          "Oui, un testament peut être contesté pour vice de forme, insanité d'esprit du testateur, ou atteinte à la réserve héréditaire. Les délais pour agir sont stricts. Nous évaluons la solidité de votre contestation avant d'engager l'action.",
+          "Nul ne peut être contraint de rester en indivision. À défaut d'accord amiable (rachat de part, vente), vous pouvez demander le partage judiciaire. Nous privilégions la négociation et, si nécessaire, engageons la procédure.",
       },
     ],
     jsonLdType: "LegalService",

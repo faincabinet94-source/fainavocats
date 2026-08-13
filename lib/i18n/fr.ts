@@ -31,7 +31,7 @@ export const fr = {
     items: [
       { title: "Divorce & Séparation", desc: "Consentement mutuel, procédure contentieuse, rupture de PACS." },
       { title: "Garde d'Enfants", desc: "Résidence alternée, droit de visite, autorité parentale." },
-      { title: "Patrimoine & Successions", desc: "Liquidation de régime matrimonial, indivision, héritage." },
+      { title: "Liquidation du régime matrimonial", desc: "Partage des biens, récompenses, indemnité d'occupation, indivision." },
       { title: "Filiation & Adoption", desc: "Recherche de paternité, adoption simple et plénière." },
       { title: "Droit Pénal de la Famille", desc: "Violences conjugales, non-présentation d'enfant, abandon." },
       { title: "Médiation Familiale", desc: "Résolution amiable des conflits familiaux et patrimoniaux." }

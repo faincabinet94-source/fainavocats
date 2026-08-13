@@ -2,6 +2,12 @@
 const nextConfig = {
   async redirects() {
     return [
+      // Page liquidation créée puis consolidée sur /patrimoine-successions
+      {
+        source: '/liquidation-regimes-matrimoniaux',
+        destination: '/patrimoine-successions',
+        permanent: true,
+      },
       // Anciennes URLs Squarespace → nouvelles URLs
       {
         source: '/devis-avocat-divorce',
