@@ -27,6 +27,11 @@ const categoryConfig: Record<
   couple: { label: "Le Couple", emoji: "💍", href: "/le-couple" },
   enfants: { label: "Les Enfants", emoji: "👨‍👧‍👦", href: "/les-enfants" },
   divorce: { label: "Divorce", emoji: "⚖️", href: "/divorce" },
+  liquidation: {
+    label: "Liquidation du régime matrimonial",
+    emoji: "💶",
+    href: "/liquidation-regimes-matrimoniaux",
+  },
   "etat-civil": { label: "État Civil", emoji: "📋", href: "/etat-civil" },
 };
 

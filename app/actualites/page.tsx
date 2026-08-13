@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getAllPosts } from "@/lib/blog";
+import { getActualitesFeed } from "@/lib/blog";
 import { BlogList } from "@/components/sections/BlogList";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function ActualitesPage() {
-  const posts = getAllPosts();
+  const posts = getActualitesFeed();
 
   return (
     <>

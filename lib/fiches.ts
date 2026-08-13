@@ -10,6 +10,10 @@ export interface Fiche {
   category: string;
   description: string;
   image?: string;
+  // Date de publication (utilisée quand la fiche est aussi listée en Actualités).
+  date?: string;
+  // Si true, la fiche apparaît aussi dans le flux Actualités (sans dupliquer la page).
+  actualite?: boolean;
   content: string;
 }
 
@@ -29,6 +33,8 @@ export function getAllFiches(): Fiche[] {
       category: data.category || "",
       description: data.description || "",
       image: data.image || "",
+      date: data.date || "",
+      actualite: data.actualite === true || data.actualite === "true",
       content,
     };
   });

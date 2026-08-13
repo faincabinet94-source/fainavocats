@@ -14,7 +14,11 @@ function formatDate(dateStr: string) {
   });
 }
 
-export function BlogList({ posts }: { posts: BlogPost[] }) {
+export function BlogList({
+  posts,
+}: {
+  posts: (BlogPost & { href?: string })[];
+}) {
   return (
     <section className="py-12">
       <Container>
@@ -45,7 +49,7 @@ export function BlogList({ posts }: { posts: BlogPost[] }) {
               transition={{ duration: 0.5, delay: index * 0.08 }}
             >
               <Link
-                href={`/actualites/${post.slug}`}
+                href={post.href ?? `/actualites/${post.slug}`}
                 className="group block bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full"
               >
                 {post.image && (
