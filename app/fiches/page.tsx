@@ -37,15 +37,15 @@ const categoryConfig: Record<
 
 // Illustrations « droit de la famille » (bleu marine sur crème) réparties sur les fiches
 const ILLUSTRATIONS = [
-  "/images/blog/article-droit-famille.png",
-  "/images/blog/article-droit-famille-1780765985910.png",
-  "/images/blog/article-droit-famille-1780767440594.png",
-  "/images/blog/article-droit-famille-1780767675187.png",
-  "/images/blog/article-droit-famille-1780768097103.png",
-  "/images/blog/article-droit-famille-1780768586137.png",
-  "/images/blog/article-droit-famille-1780769152895.png",
-  "/images/blog/article-droit-famille-1780769208404.png",
-  "/images/blog/article-droit-famille-1780770812425.png",
+  "/images/blog/article-droit-famille.jpg",
+  "/images/blog/article-droit-famille-1780765985910.jpg",
+  "/images/blog/article-droit-famille-1780767440594.jpg",
+  "/images/blog/article-droit-famille-1780767675187.jpg",
+  "/images/blog/article-droit-famille-1780768097103.jpg",
+  "/images/blog/article-droit-famille-1780768586137.jpg",
+  "/images/blog/article-droit-famille-1780769152895.jpg",
+  "/images/blog/article-droit-famille-1780769208404.jpg",
+  "/images/blog/article-droit-famille-1780770812425.jpg",
 ];
 
 export default function FichesPage() {
