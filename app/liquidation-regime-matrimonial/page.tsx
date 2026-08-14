@@ -76,9 +76,15 @@ export default function PatrimoineSuccessionsPage() {
     title: f.title,
     slug: f.slug,
     desc: f.description,
+    image: f.image || "",
   }));
   const seen = new Set(catFiches.map((f) => f.slug));
-  const fiches = [...catFiches, ...articlesLies.filter((a) => !seen.has(a.slug))];
+  const fiches = [
+    ...catFiches,
+    ...articlesLies
+      .filter((a) => !seen.has(a.slug))
+      .map((a) => ({ ...a, image: "" })),
+  ];
 
   return (
     <>
@@ -103,10 +109,10 @@ export default function PatrimoineSuccessionsPage() {
                     href={`/fiches/${a.slug}`}
                     className="group bg-white p-4 rounded-lg hover:shadow-lg transition-all flex items-start gap-4"
                   >
-                    {fichePhotos.has(a.slug) && (
+                    {(a.image || fichePhotos.has(a.slug)) && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={`/images/fiches/${a.slug}.jpg`}
+                        src={a.image || `/images/fiches/${a.slug}.jpg`}
                         alt=""
                         className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                       />
