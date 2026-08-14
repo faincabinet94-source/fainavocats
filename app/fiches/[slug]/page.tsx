@@ -189,7 +189,7 @@ export default function FichePage({ params }: { params: { slug: string } }) {
               </h2>
               <p className="text-white/70 mb-8">
                 Contactez-nous pour une consultation personnalisée avec un
-                avocat spécialisé en droit de la famille.
+                avocat en droit de la famille.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a

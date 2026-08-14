@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Fain Avocats | L'excellence en Droit de la Famille - Paris 16",
-    description: "Cabinet spécialisé depuis 20 ans. Divorce, séparation, enfants. Une approche humaine et stratégique pour protéger vos intérêts.",
+    description: "Cabinet en droit de la famille depuis 20 ans. Divorce, séparation, enfants. Une approche humaine et stratégique pour protéger vos intérêts.",
     url: "https://fain-avocats.fr",
     siteName: "Fain Avocats",
     images: [

@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Modification État Civil | Changement Prénom Nom - Avocat Paris - Fain Avocats",
   description:
-    "Avocat spécialisé en modification de l'état civil à Paris : changement de prénom, changement de nom de famille, francisation du nom. Cabinet Fain Avocats, Paris 16ème.",
+    "Avocat en modification de l'état civil à Paris : changement de prénom, changement de nom de famille, francisation du nom. Cabinet Fain Avocats, Paris 16ème.",
   keywords: [
     "changement prénom avocat paris",
     "changement nom famille avocat",
@@ -137,7 +137,7 @@ export default function EtatCivilPage() {
                 Besoin d&apos;accompagnement&nbsp;?
               </h2>
               <p className="text-white/70 mb-8">
-                Un avocat spécialisé vous guide dans vos démarches de
+                Un avocat en droit de la famille vous guide dans vos démarches de
                 modification de l&apos;état civil.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -20,7 +20,7 @@ const fichePhotos = new Set(
 export const metadata: Metadata = {
   title: "Le Couple : Mariage, PACS, Concubinage | Avocat Paris - Fain Avocats",
   description:
-    "Guide juridique complet sur le couple : mariage, PACS, concubinage, régimes matrimoniaux, séparation de corps. Avocat spécialisé en droit de la famille Paris 16ème.",
+    "Guide juridique complet sur le couple : mariage, PACS, concubinage, régimes matrimoniaux, séparation de corps. Avocat en droit de la famille Paris 16ème.",
   keywords: [
     "avocat mariage paris",
     "avocat PACS paris",
@@ -128,7 +128,7 @@ export default function LeCouplePage() {
               Le droit de la famille encadre les différentes formes d&apos;union
               entre personnes&nbsp;: mariage, PACS et concubinage. Chaque statut
               juridique comporte des droits, des obligations et des conséquences
-              patrimoniales spécifiques. Un avocat spécialisé vous accompagne
+              patrimoniales spécifiques. Un avocat en droit de la famille vous accompagne
               dans toutes les étapes de la vie de couple.
             </p>
 

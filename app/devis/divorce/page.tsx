@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Devis Divorce en Ligne Gratuit | Avocat Divorce Paris - Fain Avocats",
   description:
-    "Demandez votre devis gratuit en ligne pour un divorce : consentement mutuel, divorce contentieux, séparation de corps. Avocat spécialisé Paris 16ème. Intervention dans toute la France.",
+    "Demandez votre devis gratuit en ligne pour un divorce : consentement mutuel, divorce contentieux, séparation de corps. Avocat en droit de la famille à Paris 16ème. Intervention dans toute la France.",
   keywords: [
     "devis divorce en ligne",
     "devis gratuit divorce",

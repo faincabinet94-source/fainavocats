@@ -128,7 +128,7 @@ export default function SimulateurPage() {
               </h2>
               <p className="text-white/70 mb-8">
                 Chaque situation est unique. Contactez le cabinet pour une
-                évaluation personnalisée par un avocat spécialisé en droit de la
+                évaluation personnalisée par un avocat en droit de la
                 famille.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

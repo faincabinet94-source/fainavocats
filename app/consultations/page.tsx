@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Consultation Avocat Divorce Paris | Consultation Juridique en Ligne - Fain Avocats",
-  description: "Consultation juridique en ligne en droit de la famille et divorce. Consultation au cabinet, en visioconférence ou par téléphone. Avocat spécialisé Paris 16ème. Prenez rendez-vous en ligne.",
+  description: "Consultation juridique en ligne en droit de la famille et divorce. Consultation au cabinet, en visioconférence ou par téléphone. Avocat en droit de la famille à Paris 16ème. Prenez rendez-vous en ligne.",
   keywords: ["consultation avocat divorce paris", "consultation juridique en ligne", "consultation avocat droit famille", "rendez-vous avocat paris 16", "consultation visio avocat divorce"],
 };
 
@@ -49,7 +49,7 @@ export default function ConsultationsPage() {
                 </h2>
 
                 <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                  Notre service de prise de rendez-vous en ligne vous offre la possibilité de planifier une consultation avec un avocat spécialisé en droit de la famille et divorce.
+                  Notre service de prise de rendez-vous en ligne vous offre la possibilité de planifier une consultation avec un avocat en droit de la famille et divorce.
                 </p>
 
                 <p className="text-gray-700 text-lg leading-relaxed mb-6">

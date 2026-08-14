@@ -20,7 +20,7 @@ const fichePhotos = new Set(
 export const metadata: Metadata = {
   title: "Avocat Droit des Enfants Paris | Garde, Pension, Adoption - Fain Avocats",
   description:
-    "Avocat spécialisé en droit des enfants à Paris : garde, pension alimentaire, autorité parentale, adoption, nom de famille. Cabinet Fain Avocats, Paris 16ème.",
+    "Avocat en droit des enfants à Paris : garde, pension alimentaire, autorité parentale, adoption, nom de famille. Cabinet Fain Avocats, Paris 16ème.",
   keywords: [
     "avocat garde enfants paris",
     "avocat pension alimentaire enfants",
@@ -219,7 +219,7 @@ export default function LesEnfantsPage() {
                 Protégez les droits de vos enfants
               </h2>
               <p className="text-white/70 mb-8">
-                Un avocat spécialisé vous accompagne pour défendre au mieux
+                Un avocat en droit de la famille vous accompagne pour défendre au mieux
                 l&apos;intérêt supérieur de vos enfants.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

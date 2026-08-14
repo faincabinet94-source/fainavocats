@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     "avocat garde enfants paris",
     "avocat pension alimentaire",
     "avocat PACS paris",
-    "avocat spécialisé famille",
+    "avocat en droit de la famille",
     "droit de la famille avocat",
   ],
 };
@@ -24,7 +24,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LegalService",
   name: "Fain Avocats - Droit de la Famille",
-  description: "Cabinet d'avocats spécialisé en droit de la famille à Paris",
+  description: "Cabinet d'avocats en droit de la famille à Paris",
   url: "https://fain-avocats.fr/droit-de-la-famille",
   telephone: "+33140680237",
   address: {
@@ -344,17 +344,17 @@ export default function DroitDeLaFamillePage() {
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
                 <Image
                   src="/fondateur-fain.png"
-                  alt="Maître Fain - Avocat spécialisé en droit de la famille à Paris"
+                  alt="Maître Fain - Avocat en droit de la famille à Paris"
                   fill
                   className="object-cover"
                 />
               </div>
               <div>
                 <h2 className="font-serif text-3xl text-[#1A1A1A] mb-6">
-                  L&apos;apport de l&apos;avocat spécialiste du droit de la famille
+                  L&apos;apport de l&apos;avocat en droit de la famille
                 </h2>
                 <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                  Le recours à un avocat spécialisé est essentiel compte tenu des
+                  Le recours à un avocat en droit de la famille est essentiel compte tenu des
                   règles complexes qui régissent le droit de la famille. Que vous soyez
                   confronté à un divorce, à une question de garde d&apos;enfants, à une
                   adoption ou à toute autre problématique familiale, un avocat
@@ -377,7 +377,7 @@ export default function DroitDeLaFamillePage() {
                       Assistance Personnalisée
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
-                      Chaque situation familiale étant unique, un avocat spécialisé
+                      Chaque situation familiale étant unique, un avocat en droit de la famille
                       vous offrira une assistance personnalisée, prenant en
                       considération les particularités de votre situation.
                     </p>
@@ -387,7 +387,7 @@ export default function DroitDeLaFamillePage() {
                       Négociation et Médiation
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
-                      Un avocat spécialisé est formé à la médiation et à la
+                      Un avocat en droit de la famille est formé à la médiation et à la
                       négociation, cherchant des solutions amiables pour éviter les
                       litiges prolongés.
                     </p>
@@ -397,7 +397,7 @@ export default function DroitDeLaFamillePage() {
                       Représentation et Défense
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
-                      En cas de litige, un avocat spécialisé vous représentera devant
+                      En cas de litige, un avocat en droit de la famille vous représentera devant
                       les tribunaux, assurant une défense solide de vos intérêts.
                     </p>
                   </div>

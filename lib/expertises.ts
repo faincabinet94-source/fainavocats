@@ -119,7 +119,7 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Garde d'Enfants Paris 16 | Résidence Alternée & Autorité Parentale",
     metaDescription:
-      "Avocat spécialisé en garde d'enfants à Paris 16. Résidence alternée, droit de visite, modification de garde. Cabinet Fain Avocats, 20 ans d'expérience. +33 1 40 68 02 37.",
+      "Avocat en droit de la famille pour la garde d'enfants à Paris 16. Résidence alternée, droit de visite, modification de garde. Cabinet Fain Avocats, 20 ans d'expérience. +33 1 40 68 02 37.",
     keywords: [
       "avocat garde enfants Paris",
       "résidence alternée avocat",
@@ -201,7 +201,7 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Pension Alimentaire Paris 16 | Fixation & Révision - Fain Avocats",
     metaDescription:
-      "Avocat spécialisé en pension alimentaire à Paris 16. Fixation, révision, recouvrement, prestation compensatoire. Cabinet Fain Avocats. +33 1 40 68 02 37.",
+      "Avocat en droit de la famille pour la pension alimentaire à Paris 16. Fixation, révision, recouvrement, prestation compensatoire. Cabinet Fain Avocats. +33 1 40 68 02 37.",
     keywords: [
       "avocat pension alimentaire Paris",
       "calcul pension alimentaire",
