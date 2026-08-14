@@ -169,6 +169,12 @@ export default function RootLayout({
       </head>
       <body className="font-sans bg-[#F4F2EC] text-[#1A1A1A] antialiased selection:bg-[#1A1A1A] selection:text-white">
         {children}
+        {/* Agent vocal IA IONOS (AI Frontdesk) */}
+        <Script
+          src="https://ionos.ai-voicereceptionist.com/widget/v1/embed.js"
+          data-agent-id="a327e0a2-8464-4750-b1b2-ed7c15cce267"
+          strategy="afterInteractive"
+        />
         <Script src="https://identity.netlify.com/v1/netlify-identity-widget.js" strategy="lazyOnload" />
         <Script id="netlify-identity-redirect" strategy="lazyOnload">{`
           if (window.netlifyIdentity) {
