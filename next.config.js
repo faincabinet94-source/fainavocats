@@ -14,6 +14,17 @@ const nextConfig = {
         destination: '/liquidation-regime-matrimonial',
         permanent: true,
       },
+      // Articles déplacés d'Actualités vers Compétence (fiche liquidation)
+      {
+        source: '/actualites/pret-commun-indemnite-occupation-neutraliser-creance-divorce',
+        destination: '/fiches/pret-commun-indemnite-occupation-neutraliser-creance-divorce',
+        permanent: true,
+      },
+      {
+        source: '/actualites/partage-2eme-pilier-suisse-divorce',
+        destination: '/fiches/partage-2eme-pilier-suisse-divorce',
+        permanent: true,
+      },
       // Anciennes URLs Squarespace → nouvelles URLs
       {
         source: '/devis-avocat-divorce',

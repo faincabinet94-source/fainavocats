@@ -12,6 +12,10 @@ const categoryLabels: Record<string, { label: string; href: string }> = {
   couple: { label: "Le couple", href: "/le-couple" },
   enfants: { label: "Les enfants", href: "/les-enfants" },
   divorce: { label: "Divorce", href: "/divorce" },
+  liquidation: {
+    label: "Liquidation du régime matrimonial",
+    href: "/liquidation-regime-matrimonial",
+  },
   "etat-civil": { label: "État civil", href: "/etat-civil" },
 };
 

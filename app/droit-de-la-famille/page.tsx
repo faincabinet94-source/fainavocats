@@ -149,12 +149,15 @@ export default function DroitDeLaFamillePage() {
 
             {/* Section mise en avant : Liquidation des régimes matrimoniaux */}
             <section className="mb-16">
-              <div className="relative rounded-lg overflow-hidden mb-8">
+              <Link
+                href="/liquidation-regime-matrimonial"
+                className="group relative block rounded-lg overflow-hidden mb-8"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/fiches/hero-liquidation-regimes.jpg"
                   alt="Liquidation du régime matrimonial et partage du patrimoine des époux"
-                  className="w-full h-56 md:h-80 object-cover"
+                  className="w-full h-56 md:h-80 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/40 to-[#1A1A1A]/20 flex flex-col items-center justify-center text-center px-6">
                   <span className="inline-block px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-white/15 text-white rounded-full mb-4">
@@ -168,7 +171,7 @@ export default function DroitDeLaFamillePage() {
                     sensible d&apos;un divorce.
                   </p>
                 </div>
-              </div>
+              </Link>
 
               <div className="bg-white p-8 md:p-10 rounded-lg">
                 <p className="text-gray-700 text-lg leading-relaxed mb-8">
@@ -192,7 +195,7 @@ export default function DroitDeLaFamillePage() {
                     },
                     {
                       title: "L'intervention du notaire",
-                      desc: "En présence d'un bien immobilier, l'acte de liquidation-partage est établi par notaire et donne lieu au droit de partage (2,5 % de l'actif net). Le logement peut être attribué à un époux moyennant une soulte, ou rester en indivision.",
+                      desc: "En présence d'un bien immobilier, l'acte de liquidation-partage est établi par notaire et donne lieu au droit de partage (1,1 % de l'actif net). Le logement peut être attribué à un époux moyennant une soulte, ou rester en indivision.",
                     },
                     {
                       title: "En cas de désaccord",

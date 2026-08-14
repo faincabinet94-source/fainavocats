@@ -28,7 +28,7 @@ const divorceArticles = [
 const liquidationArticles = [
   {
     title: "Prêt commun et indemnité d'occupation : neutraliser la créance",
-    href: "/actualites/pret-commun-indemnite-occupation-neutraliser-creance-divorce",
+    href: "/fiches/pret-commun-indemnite-occupation-neutraliser-creance-divorce",
     image: "/images/blog/pret-commun-indemnite-occupation-neutraliser-creance-divorce-1786495187448.jpg",
     desc: "Peut-on compenser la créance de l'époux qui rembourse seul le prêt avec l'indemnité d'occupation ? Conditions de validité et conséquences fiscales.",
   },
