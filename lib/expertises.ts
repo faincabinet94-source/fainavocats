@@ -274,6 +274,85 @@ export const expertises: Record<string, ExpertiseData> = {
     jsonLdType: "LegalService",
   },
 
+  "filiation-adoption": {
+    slug: "filiation-adoption",
+    title: "Filiation & Adoption",
+    heroTitle: "Avocat Filiation et Adoption Paris 16",
+    heroSubtitle:
+      "Établir, contester ou créer un lien de filiation. Des procédures encadrées par des délais stricts, où chaque mois compte.",
+    metaTitle:
+      "Avocat Filiation et Adoption Paris 16 | Reconnaissance, Contestation - Fain Avocats",
+    metaDescription:
+      "Avocat en droit de la famille à Paris 16 : établissement et contestation de filiation, recherche de paternité, adoption simple et plénière, adoption de l'enfant du conjoint. +33 1 40 68 02 37.",
+    keywords: [
+      "avocat filiation Paris",
+      "recherche de paternité avocat",
+      "contestation de paternité avocat Paris",
+      "avocat adoption Paris 16",
+      "adoption de l'enfant du conjoint",
+      "adoption simple adoption plénière",
+    ],
+    intro:
+      "La filiation est le lien juridique qui unit un enfant à ses parents. Elle emporte l'autorité parentale, l'obligation d'entretien et les droits successoraux. L'établir, la contester ou la créer par l'adoption relève de procédures distinctes, toutes soumises à des délais que l'écoulement du temps rend souvent irréversibles. Le cabinet Fain Avocats vous accompagne dans ces démarches, du premier examen de recevabilité jusqu'à la transcription du jugement.",
+    problemTitle: "Un lien qui ne se répare pas toujours",
+    problemText:
+      "Ces dossiers ont un point commun : le temps y joue contre celui qui attend. Les principales situations rencontrées :",
+    problemPoints: [
+      "Établir la paternité d'un père qui n'a pas reconnu l'enfant, ou qui refuse de le faire",
+      "Contester une filiation établie, lorsque la réalité biologique ne correspond pas à l'état civil",
+      "Faire reconnaître une filiation par la possession d'état, quand l'enfant a toujours été traité comme celui de la personne concernée",
+      "Adopter l'enfant de son conjoint, de son partenaire ou de son concubin, en choisissant entre adoption simple et adoption plénière",
+      "Sécuriser une adoption prononcée à l'étranger et sa transcription sur les registres français",
+    ],
+    approachTitle: "Notre accompagnement",
+    approachText:
+      "Nous commençons par vérifier la recevabilité de l'action, car un délai expiré ferme définitivement la voie judiciaire, quelle que soit la réalité des faits. Cette vérification conditionne tout le reste.",
+    steps: [
+      {
+        title: "Examen de la recevabilité",
+        description:
+          "Identification de l'action ouverte, du titulaire du droit d'agir et du délai applicable. C'est l'étape déterminante : elle décide de ce qui est encore possible.",
+      },
+      {
+        title: "Constitution du dossier",
+        description:
+          "Actes d'état civil, éléments de possession d'état, correspondances, témoignages. Nous réunissons ce qui permettra au juge de statuer.",
+      },
+      {
+        title: "Procédure devant le tribunal judiciaire",
+        description:
+          "Rédaction de l'assignation ou de la requête, représentation à l'audience, et demande d'expertise biologique lorsque la filiation est en cause.",
+      },
+      {
+        title: "Conséquences et transcription",
+        description:
+          "Nom de l'enfant, autorité parentale, contribution à l'entretien, droits successoraux : nous traitons les effets du jugement et veillons à sa transcription sur les registres d'état civil.",
+      },
+    ],
+    faq: [
+      {
+        question: "Le père de mon enfant refuse de le reconnaître, que puis-je faire ?",
+        answer:
+          "Une action en recherche de paternité peut être engagée devant le tribunal judiciaire. L'expertise biologique y est très largement admise, le juge ne pouvant l'écarter que pour un motif légitime. L'action obéit toutefois à un délai : plus elle est engagée tôt, plus la situation est simple à traiter.",
+      },
+      {
+        question: "Quelle différence entre adoption simple et adoption plénière ?",
+        answer:
+          "L'adoption plénière substitue un nouveau lien de filiation à celui d'origine, qu'elle efface, et elle est irrévocable. L'adoption simple ajoute un lien sans supprimer le précédent : l'adopté conserve ses droits dans sa famille d'origine, et l'adoption peut être révoquée pour motifs graves. Le choix dépend de la situation de l'enfant et de l'effet recherché.",
+      },
+      {
+        question: "Puis-je adopter l'enfant de mon conjoint ?",
+        answer:
+          "C'est l'une des situations les plus fréquentes. Les conditions varient selon votre lien avec le parent de l'enfant, selon que l'autre parent est ou non encore présent dans la filiation, et selon l'âge de l'enfant, qui doit consentir passé un certain seuil. Ces conditions ont évolué ces dernières années et méritent d'être vérifiées au cas par cas.",
+      },
+      {
+        question: "Peut-on contester une filiation déjà établie ?",
+        answer:
+          "Oui, mais les conditions sont strictes. Le droit d'agir dépend de la qualité du demandeur et de la manière dont la filiation a été établie ; surtout, une filiation confortée par une possession d'état prolongée devient très difficile à remettre en cause. Un examen préalable de recevabilité est indispensable avant toute démarche.",
+      },
+    ],
+    jsonLdType: "LegalService",
+  },
   "droit-penal-famille": {
     slug: "droit-penal-famille",
     title: "Droit Pénal de la Famille",

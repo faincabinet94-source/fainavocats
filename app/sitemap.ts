@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'garde-enfants',
     'pension-alimentaire',
     'liquidation-regime-matrimonial',
+    'filiation-adoption',
     'droit-penal-famille',
     'annulation-mariage',
   ]
