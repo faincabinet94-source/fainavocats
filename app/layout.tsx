@@ -21,8 +21,8 @@ const lato = Lato({
 export const metadata: Metadata = {
   metadataBase: new URL("https://fain-avocats.fr"),
   title: "Fain Avocats | Avocat Droit de la Famille Paris 16 - Divorce & Patrimoine",
-  description: "Cabinet d'avocats expert en droit de la famille à Paris 16ème (Avenue Victor Hugo). Divorce, garde d'enfants, pension alimentaire, liquidation du régime matrimonial. Premier entretien téléphonique gratuit. Intervention rapide et humaine.",
-  keywords: ["Avocat divorce Paris 16", "Avocat droit famille Paris", "Meilleur avocat divorce Paris", "Cabinet avocat Victor Hugo", "Garde enfants Paris", "Pension alimentaire avocat"],
+  description: "Cabinet d'avocats intervenant principalement en droit de la famille à Paris 16ème (Avenue Victor Hugo). Divorce, garde d'enfants, pension alimentaire, liquidation du régime matrimonial. Premier entretien téléphonique gratuit. Intervention rapide et humaine.",
+  keywords: ["Avocat divorce Paris 16", "Avocat droit famille Paris", "Avocat divorce consentement mutuel Paris", "Cabinet avocat Victor Hugo", "Garde enfants Paris", "Pension alimentaire avocat"],
   authors: [{ name: "Fain Avocats" }],
   creator: "Fain Avocats",
   publisher: "Fain Avocats",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Fain Avocats | Avocat Droit de la Famille Paris 16",
-    description: "Cabinet expert en droit de la famille à Paris 16ème. Noté 4,7/5 sur 416 avis Google. Premier entretien téléphonique gratuit.",
+    description: "Cabinet d'avocats en droit de la famille à Paris 16ème. Noté 4,7/5 sur 416 avis Google. Premier entretien téléphonique gratuit.",
     images: ["https://fain-avocats.fr/DSC01907.webp"],
   },
   robots: {
@@ -73,7 +73,7 @@ const jsonLd = {
       "@type": "Attorney",
       "@id": "https://fain-avocats.fr/#attorney",
       name: "Fain Avocats",
-      description: "Cabinet d'avocats expert en droit de la famille à Paris 16ème. Divorce, garde d'enfants, liquidation du régime matrimonial.",
+      description: "Cabinet d'avocats en droit de la famille à Paris 16ème. Divorce, garde d'enfants, liquidation du régime matrimonial.",
       url: "https://fain-avocats.fr",
       telephone: "+33140680237",
       email: "contact@fain-avocats.fr",

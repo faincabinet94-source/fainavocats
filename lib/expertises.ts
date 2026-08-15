@@ -37,13 +37,13 @@ export const expertises: Record<string, ExpertiseData> = {
     metaTitle:
       "Avocat Divorce Paris 16 | Consentement Mutuel & Contentieux - Fain Avocats",
     metaDescription:
-      "Cabinet Fain Avocats, expert en divorce à Paris 16ème. Divorce par consentement mutuel, contentieux, séparation de corps. Premier entretien téléphonique gratuit. +33 1 40 68 02 37.",
+      "Cabinet Fain Avocats, avocat en droit du divorce à Paris 16ème. Divorce par consentement mutuel, contentieux, séparation de corps. Premier entretien téléphonique gratuit. +33 1 40 68 02 37.",
     keywords: [
       "avocat divorce Paris",
       "avocat divorce Paris 16",
       "divorce consentement mutuel Paris",
       "divorce contentieux avocat",
-      "meilleur avocat divorce Paris",
+      "avocat liquidation régime matrimonial Paris",
       "séparation de corps avocat",
     ],
     intro:
