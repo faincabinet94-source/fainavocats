@@ -7,6 +7,8 @@ const FICHES_DIR = path.join(process.cwd(), "content/fiches");
 export interface Fiche {
   slug: string;
   title: string;
+  // Titre court reserve a la balise <title> quand le titre editorial est trop long.
+  metaTitle?: string;
   category: string;
   description: string;
   image?: string;
@@ -30,6 +32,7 @@ export function getAllFiches(): Fiche[] {
     return {
       slug: data.slug || filename.replace(/\.mdx$/, ""),
       title: data.title || "",
+      metaTitle: data.metaTitle || "",
       category: data.category || "",
       description: data.description || "",
       image: data.image || "",

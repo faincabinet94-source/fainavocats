@@ -11,6 +11,7 @@ export const en = {
     since: "Since 2003 • Paris 16",
     title1: "Fain",
     title2: "Partners",
+    titleTagline: "Family law solicitors in Paris 16",
     subtitle: "Family law firm in Paris 16th. Divorce, child custody, wealth protection. Excellence in defense to protect your interests.",
     cta1: "Schedule a Consultation",
     cta2: "Discover the firm",

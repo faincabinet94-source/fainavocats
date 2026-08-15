@@ -25,6 +25,9 @@ export function Hero() {
             <h1 className="font-serif text-6xl md:text-7xl lg:text-[7.5rem] leading-[1.05] tracking-tight text-[#1A1A1A] mb-8">
               {t.hero.title1} &amp;<br/>
               {t.hero.title2}
+              <span className="block font-sans font-light text-xl md:text-2xl lg:text-3xl tracking-normal text-gray-700 mt-6">
+                {t.hero.titleTagline}
+              </span>
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-800 font-normal leading-relaxed max-w-2xl mb-12">

@@ -25,6 +25,22 @@ const nextConfig = {
         destination: '/fiches/partage-2eme-pilier-suisse-divorce',
         permanent: true,
       },
+      // Doublons et slugs horodates corriges (audit SEO du 2026-08-15)
+      {
+        source: '/actualites/recompense-communaute-valeurs-mobilieres-divorce',
+        destination: '/fiches/recompense-communaute-valeurs-mobilieres-divorce',
+        permanent: true,
+      },
+      {
+        source: '/actualites/creance-concubin-refection-toiture-droits-recours-1780773629662',
+        destination: '/actualites/creance-concubin-refection-toiture-droits-recours',
+        permanent: true,
+      },
+      {
+        source: '/actualites/domicile-conjugal-divorce-droits-obligations-1780771227228',
+        destination: '/actualites/domicile-conjugal-divorce-droits-obligations',
+        permanent: true,
+      },
       // Anciennes URLs Squarespace → nouvelles URLs
       {
         source: '/devis-avocat-divorce',

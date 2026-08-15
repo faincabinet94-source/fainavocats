@@ -113,7 +113,7 @@ export default function PatrimoineSuccessionsPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={a.image || `/images/fiches/${a.slug}.jpg`}
-                        alt=""
+                        alt={a.title}
                         className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                       />
                     )}

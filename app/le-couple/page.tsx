@@ -116,7 +116,7 @@ export default function LeCouplePage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/fiches/hero-couple.jpg"
-              alt=""
+              alt="Le couple : mariage, PACS, concubinage"
               className="w-full h-40 md:h-56 object-cover rounded-lg mb-8"
             />
 
@@ -172,7 +172,7 @@ export default function LeCouplePage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={`/images/fiches/${a.slug}.jpg`}
-                        alt=""
+                        alt={a.title}
                         className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                       />
                     )}

@@ -76,7 +76,7 @@ export default function LesEnfantsPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/fiches/hero-enfants.jpg"
-              alt=""
+              alt="Le droit des enfants"
               className="w-full h-40 md:h-56 object-cover rounded-lg mb-8"
             />
 
@@ -201,7 +201,7 @@ export default function LesEnfantsPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={`/images/fiches/${a.slug}.jpg`}
-                        alt=""
+                        alt={a.title}
                         className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                       />
                     )}

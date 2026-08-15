@@ -134,7 +134,7 @@ export default function FichesPage() {
                               ? `/images/fiches/${f.slug}.jpg`
                               : ILLUSTRATIONS[idx % ILLUSTRATIONS.length])
                           }
-                          alt=""
+                          alt={f.title}
                           className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                         />
                         <div>

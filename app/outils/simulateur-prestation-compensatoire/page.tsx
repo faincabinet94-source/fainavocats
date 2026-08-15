@@ -109,7 +109,7 @@ export default function SimulateurPage() {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={a.image}
-                          alt=""
+                          alt={a.title}
                           className="w-24 h-20 object-cover rounded-md shrink-0"
                         />
                       )}

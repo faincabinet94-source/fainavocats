@@ -32,8 +32,11 @@ export async function generateMetadata({
   const fiche = getFicheBySlug(params.slug);
   if (!fiche) return {};
 
+  // Suffixe raccourci de 28 a 15 caracteres : les titles depassaient 90 caracteres
+  // et Google tronquait le debut, la partie utile (audit SEO du 2026-08-15).
+  // `metaTitle` (frontmatter, optionnel) permet de surcharger un titre trop long.
   return {
-    title: `${fiche.title} | Avocat Paris - Fain Avocats`,
+    title: `${fiche.metaTitle || fiche.title} | Fain Avocats`,
     description: fiche.description,
   };
 }
@@ -41,6 +44,8 @@ export async function generateMetadata({
 function markdownToHtml(md: string): string {
   let html = md
     .replace(/^### (.+)$/gm, '<h3 class="font-serif text-xl text-[#1A1A1A] mt-8 mb-3">$1</h3>')
+    // Un '# ' en tete de fiche produirait un second H1 (le titre en est deja un).
+    .replace(/^# (.+)$/gm, '<h2 class="font-serif text-2xl text-[#1A1A1A] mt-10 mb-4">$1</h2>')
     .replace(/^## (.+)$/gm, '<h2 class="font-serif text-2xl text-[#1A1A1A] mt-10 mb-4">$1</h2>')
     .replace(/^\- (.+)$/gm, '<li class="flex items-start gap-2 mb-2"><span class="text-[#362A24] mt-1 shrink-0">•</span><span>$1</span></li>')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
@@ -92,6 +97,19 @@ export default function FichePage({ params }: { params: { slug: string } }) {
 
   const htmlContent = markdownToHtml(fiche.content);
 
+  // Le fil d'Ariane etait affiche sans balisage (audit SEO du 2026-08-15).
+  // Construit depuis les memes valeurs que le fil visible, dans le meme ordre.
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://fain-avocats.fr" },
+      { "@type": "ListItem", position: 2, name: "Droit de la Famille", item: "https://fain-avocats.fr/droit-de-la-famille" },
+      { "@type": "ListItem", position: 3, name: cat.label, item: `https://fain-avocats.fr${cat.href}` },
+      { "@type": "ListItem", position: 4, name: fiche.title },
+    ],
+  };
+
   // Photo dédiée de la fiche (bandeau) si elle existe
   const photoSrc = `/images/fiches/${fiche.slug}.jpg`;
   const hasPhoto =
@@ -110,6 +128,10 @@ export default function FichePage({ params }: { params: { slug: string } }) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <Navbar />
       <main className="bg-[#F4F2EC] min-h-screen pt-32 pb-24">
         <Container>
@@ -141,7 +163,7 @@ export default function FichePage({ params }: { params: { slug: string } }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={heroSrc}
-                  alt=""
+                  alt={fiche.title}
                   className="w-full h-56 md:h-80 object-cover"
                 />
                 <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/35 to-[#1A1A1A]/5">

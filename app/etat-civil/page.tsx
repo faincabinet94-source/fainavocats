@@ -44,7 +44,7 @@ export default function EtatCivilPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/fiches/hero-etat-civil.jpg"
-              alt=""
+              alt="Modification de l'état civil"
               className="w-full h-40 md:h-56 object-cover rounded-lg mb-8"
             />
 
