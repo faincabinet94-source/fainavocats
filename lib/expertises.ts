@@ -274,6 +274,164 @@ export const expertises: Record<string, ExpertiseData> = {
     jsonLdType: "LegalService",
   },
 
+  "droit-penal-famille": {
+    slug: "droit-penal-famille",
+    title: "Droit Pénal de la Famille",
+    heroTitle: "Avocat Droit Pénal de la Famille Paris 16",
+    heroSubtitle:
+      "Violences conjugales, non-représentation d'enfant, abandon de famille. Le cabinet intervient aux côtés des victimes comme des personnes mises en cause.",
+    metaTitle:
+      "Avocat Droit Pénal de la Famille Paris 16 | Violences, Non-représentation - Fain Avocats",
+    metaDescription:
+      "Avocat en droit de la famille à Paris 16 pour les infractions familiales : violences conjugales, non-représentation d'enfant, abandon de famille, ordonnance de protection. +33 1 40 68 02 37.",
+    keywords: [
+      "avocat violences conjugales Paris",
+      "ordonnance de protection avocat",
+      "non-représentation d'enfant avocat",
+      "abandon de famille avocat Paris",
+      "avocat droit pénal de la famille Paris 16",
+      "plainte violences conjugales avocat",
+    ],
+    intro:
+      "Le conflit familial bascule parfois sur le terrain pénal. Violences au sein du couple, enfant non représenté à l'issue d'un droit de visite, pension impayée depuis plusieurs mois : ces situations relèvent du code pénal autant que du code civil, et les deux procédures avancent en parallèle. Le cabinet Fain Avocats intervient de part et d'autre de la barre — aux côtés des personnes qui subissent ces faits comme de celles qui en sont accusées.",
+    problemTitle: "Quand le civil rencontre le pénal",
+    problemText:
+      "Une même situation familiale peut se jouer devant deux juridictions en même temps, avec des logiques et des calendriers différents :",
+    problemPoints: [
+      "Violences au sein du couple : la qualification et la peine encourue varient selon l'incapacité de travail constatée, le statut de conjoint étant une circonstance aggravante",
+      "Ordonnance de protection : mesure civile obtenue en urgence devant le juge aux affaires familiales, indépendante de toute plainte pénale",
+      "Non-représentation d'enfant : délit qui suppose une décision de justice fixant le droit de visite, et dont l'appréciation dépend étroitement des circonstances",
+      "Abandon de famille : le défaut de paiement d'une pension pendant plus de deux mois est pénalement réprimé",
+      "Accusations formulées en pleine procédure de divorce : elles appellent une défense méthodique, fondée sur les pièces",
+    ],
+    approachTitle: "Notre accompagnement",
+    approachText:
+      "Nous articulons la stratégie pénale avec la procédure familiale en cours, car ce qui se décide devant l'une pèse souvent devant l'autre. Chaque dossier est apprécié sur ses pièces, sans position de principe.",
+    steps: [
+      {
+        title: "Analyse de la situation",
+        description:
+          "Examen des faits, des pièces disponibles et des procédures déjà engagées, pour identifier les qualifications en jeu et les délais applicables.",
+      },
+      {
+        title: "Mesures d'urgence",
+        description:
+          "Lorsque la situation l'exige : requête en ordonnance de protection devant le juge aux affaires familiales, dépôt de plainte, demande de mesures d'éloignement.",
+      },
+      {
+        title: "Défense ou constitution de partie civile",
+        description:
+          "Assistance en garde à vue, devant le juge d'instruction ou le tribunal correctionnel ; ou constitution de partie civile pour faire reconnaître le préjudice et en obtenir réparation.",
+      },
+      {
+        title: "Coordination avec le dossier familial",
+        description:
+          "Nous veillons à la cohérence entre l'instance pénale et la procédure de divorce ou de garde, notamment sur l'exercice de l'autorité parentale.",
+      },
+    ],
+    faq: [
+      {
+        question: "Faut-il déposer plainte pour obtenir une ordonnance de protection ?",
+        answer:
+          "Non. L'ordonnance de protection est une mesure civile, demandée au juge aux affaires familiales, qui peut être obtenue indépendamment de toute plainte pénale. Le juge statue à bref délai après avoir entendu les deux parties. Il peut notamment attribuer la jouissance du logement et interdire tout contact.",
+      },
+      {
+        question: "Mon ex-conjoint ne me rend pas les enfants, que puis-je faire ?",
+        answer:
+          "La non-représentation d'enfant suppose une décision de justice fixant les modalités de résidence ou de visite. Les faits se constatent utilement par un dépôt de plainte immédiat. Selon les circonstances, la voie pénale peut être engagée en parallèle d'une demande de modification devant le juge aux affaires familiales.",
+      },
+      {
+        question: "Que risque-t-on en cas de pension alimentaire impayée ?",
+        answer:
+          "Le défaut de paiement d'une pension fixée par décision de justice, pendant plus de deux mois, constitue le délit d'abandon de famille. Il existe par ailleurs des voies civiles de recouvrement, souvent plus rapides. Le choix entre les deux dépend de la situation du débiteur.",
+      },
+      {
+        question: "Je suis accusé à tort dans le cadre de mon divorce. Comment me défendre ?",
+        answer:
+          "Une accusation formulée pendant une séparation se combat sur les pièces : chronologie des faits, échanges écrits, témoignages, éléments matériels. Nous constituons le dossier de défense et assurons l'assistance à chaque étape, de l'audition libre ou de la garde à vue jusqu'à l'audience.",
+      },
+    ],
+    jsonLdType: "LegalService",
+  },
+  "annulation-mariage": {
+    slug: "annulation-mariage",
+    title: "Annulation de Mariage",
+    heroTitle: "Avocat Annulation de Mariage Paris 16",
+    heroSubtitle:
+      "Vice du consentement, mariage de complaisance, bigamie. Faire juger qu'un mariage n'a jamais valablement existé.",
+    metaTitle:
+      "Avocat Annulation de Mariage Paris 16 | Nullité du Mariage - Fain Avocats",
+    metaDescription:
+      "Avocat en droit de la famille à Paris 16 pour l'annulation de mariage : vice du consentement, erreur sur les qualités essentielles, mariage de complaisance, bigamie. +33 1 40 68 02 37.",
+    keywords: [
+      "avocat annulation mariage Paris",
+      "nullité du mariage avocat",
+      "annulation mariage vice du consentement",
+      "mariage de complaisance annulation",
+      "erreur sur les qualités essentielles mariage",
+      "avocat nullité mariage Paris 16",
+    ],
+    intro:
+      "L'annulation diffère profondément du divorce. Le divorce met fin à un mariage valable ; l'annulation fait juger que ce mariage n'a jamais valablement existé, faute d'une condition exigée au jour de sa célébration. Les cas sont limitativement prévus par la loi et les délais sont stricts. Le cabinet Fain Avocats examine si votre situation entre dans l'un de ces cas et vous accompagne devant le tribunal judiciaire.",
+    problemTitle: "Annulation ou divorce ?",
+    problemText:
+      "Le choix n'est pas libre : l'annulation suppose un vice existant au jour du mariage, et les conditions en sont strictement encadrées.",
+    problemPoints: [
+      "Vice du consentement : erreur sur la personne ou sur ses qualités essentielles, violence ou contrainte exercée sur l'un des époux",
+      "Absence de consentement réel : mariage contracté sans intention de fonder une union, dit mariage de complaisance",
+      "Empêchements tenant à l'état des personnes : mariage antérieur non dissous, lien de parenté ou d'alliance prohibé",
+      "Irrégularités de célébration : défaut de publicité, incompétence de l'officier d'état civil",
+      "Délais : cinq ans pour les nullités dites relatives, trente ans pour les nullités absolues — deux régimes qu'il faut identifier tôt",
+    ],
+    approachTitle: "Notre accompagnement",
+    approachText:
+      "Nous vérifions d'abord si l'annulation est juridiquement ouverte, car elle ne l'est pas dans la majorité des situations. Lorsqu'elle ne l'est pas, nous vous orientons vers la voie du divorce plutôt que d'engager une procédure vouée à l'échec.",
+    steps: [
+      {
+        title: "Qualification du vice",
+        description:
+          "Analyse des circonstances de la célébration et des éléments dont vous disposez, pour déterminer si un cas de nullité est caractérisé et lequel.",
+      },
+      {
+        title: "Vérification du délai",
+        description:
+          "Le régime de la nullité commande le délai pour agir. Cette vérification conditionne la recevabilité même de la demande.",
+      },
+      {
+        title: "Constitution du dossier de preuve",
+        description:
+          "Réunion des pièces : échanges, témoignages, actes d'état civil, éléments établissant l'absence d'intention matrimoniale ou l'erreur invoquée.",
+      },
+      {
+        title: "Procédure devant le tribunal judiciaire",
+        description:
+          "Rédaction de l'assignation, représentation à l'audience, et traitement des conséquences de l'annulation à l'égard des époux et des enfants.",
+      },
+    ],
+    faq: [
+      {
+        question: "Quelle différence entre annulation et divorce ?",
+        answer:
+          "Le divorce dissout un mariage valablement formé, pour l'avenir. L'annulation fait constater que le mariage n'a jamais valablement existé, en raison d'un vice présent au jour de la célébration. Les conditions de l'annulation sont limitativement prévues par la loi, ce qui la rend beaucoup plus rare que le divorce.",
+      },
+      {
+        question: "Un mensonge de mon conjoint suffit-il à annuler le mariage ?",
+        answer:
+          "Pas n'importe lequel. L'erreur doit porter sur la personne elle-même ou sur une qualité que l'on peut tenir pour essentielle, et il faut établir que cette erreur a été déterminante du consentement. Les tribunaux en font une appréciation stricte, au cas par cas.",
+      },
+      {
+        question: "Quel est le délai pour demander l'annulation ?",
+        answer:
+          "Il dépend du fondement invoqué. Les nullités relatives, qui protègent un époux, se prescrivent par cinq ans ; les nullités absolues, qui protègent l'ordre public, obéissent à un délai de trente ans. Identifier le bon fondement est donc la première étape, car un délai expiré rend la demande irrecevable.",
+      },
+      {
+        question: "Quelles conséquences pour les enfants ?",
+        answer:
+          "L'annulation est sans effet sur la filiation : les enfants conservent leur lien avec chacun de leurs parents, et les questions d'autorité parentale, de résidence et de contribution à l'entretien se règlent comme après une séparation. La loi protège par ailleurs l'époux de bonne foi, qui conserve le bénéfice des effets du mariage.",
+      },
+    ],
+    jsonLdType: "LegalService",
+  },
   "liquidation-regime-matrimonial": {
     slug: "liquidation-regime-matrimonial",
     title: "Liquidation du régime matrimonial",

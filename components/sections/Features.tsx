@@ -12,8 +12,8 @@ const expertiseLinks = [
   "/garde-enfants",
   "/liquidation-regime-matrimonial",
   "#contact",
-  "#contact",
-  "#contact",
+  "/droit-penal-famille",
+  "/annulation-mariage",
 ];
 
 export function Features() {

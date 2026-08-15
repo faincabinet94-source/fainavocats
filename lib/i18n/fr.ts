@@ -34,7 +34,7 @@ export const fr = {
       { title: "Liquidation du régime matrimonial", desc: "Partage des biens, récompenses, indemnité d'occupation, indivision." },
       { title: "Filiation & Adoption", desc: "Recherche de paternité, adoption simple et plénière." },
       { title: "Droit Pénal de la Famille", desc: "Violences conjugales, non-présentation d'enfant, abandon." },
-      { title: "Médiation Familiale", desc: "Résolution amiable des conflits familiaux et patrimoniaux." }
+      { title: "Annulation de Mariage", desc: "Vice du consentement, mariage de complaisance, bigamie." }
     ]
   },
   testimonials: {
