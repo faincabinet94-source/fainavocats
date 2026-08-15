@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Lato } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -18,6 +18,10 @@ const lato = Lato({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#362A24",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://fain-avocats.fr"),
   title: "Fain Avocats | Avocat Droit de la Famille Paris 16 - Divorce & Patrimoine",
@@ -26,6 +30,14 @@ export const metadata: Metadata = {
   authors: [{ name: "Fain Avocats" }],
   creator: "Fain Avocats",
   publisher: "Fain Avocats",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  manifest: "/site.webmanifest",
   formatDetection: {
     email: false,
     address: false,
