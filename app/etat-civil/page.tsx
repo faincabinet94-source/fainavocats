@@ -3,6 +3,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
 export const metadata: Metadata = {
   title: "Modification État Civil | Changement Prénom Nom - Avocat Paris - Fain Avocats",
@@ -158,6 +159,7 @@ export default function EtatCivilPage() {
           </div>
         </Container>
       </main>
+      <FichesCategorie category="etat-civil" titre="Fiches pratiques sur l'état civil" />
       <Footer />
     </>
   );

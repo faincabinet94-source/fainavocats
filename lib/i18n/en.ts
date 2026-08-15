@@ -34,7 +34,8 @@ export const en = {
       { title: "Wealth & Inheritance", desc: "Matrimonial regime liquidation, joint ownership, inheritance." },
       { title: "Filiation & Adoption", desc: "Paternity search, simple and plenary adoption." },
       { title: "Criminal Family Law", desc: "Domestic violence, non-presentation of a child, abandonment." },
-      { title: "Marriage Annulment", desc: "Defective consent, sham marriage, bigamy." }
+      { title: "Marriage Annulment", desc: "Defective consent, sham marriage, bigamy." },
+      { title: "Civil Status Change", desc: "Change of first name, surname, correction of records." }
     ]
   },
   testimonials: {

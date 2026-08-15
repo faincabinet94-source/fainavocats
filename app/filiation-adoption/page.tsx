@@ -4,6 +4,7 @@ import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
 import { ExpertisePage } from "@/components/sections/ExpertisePage";
 import { expertises } from "@/lib/expertises";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
 const data = expertises["filiation-adoption"];
 
@@ -51,6 +52,7 @@ export default function FiliationAdoptionPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
+        <FichesCategorie category="filiation-adoption" titre="Fiches pratiques sur la filiation et l'adoption" />
       </main>
       <Footer />
       <FloatingCTA />

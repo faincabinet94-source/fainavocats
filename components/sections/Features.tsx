@@ -14,6 +14,7 @@ const expertiseLinks = [
   "/filiation-adoption",
   "/droit-penal-famille",
   "/annulation-mariage",
+  "/etat-civil",
 ];
 
 export function Features() {

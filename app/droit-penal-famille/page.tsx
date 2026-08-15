@@ -4,6 +4,7 @@ import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
 import { ExpertisePage } from "@/components/sections/ExpertisePage";
 import { expertises } from "@/lib/expertises";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
 const data = expertises["droit-penal-famille"];
 
@@ -51,6 +52,7 @@ export default function DroitPenalFamillePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
+        <FichesCategorie category="droit-penal-famille" titre="Fiches pratiques en droit pénal de la famille" />
       </main>
       <Footer />
       <FloatingCTA />

@@ -4,6 +4,7 @@ import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
 import { ExpertisePage } from "@/components/sections/ExpertisePage";
 import { expertises } from "@/lib/expertises";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
 const data = expertises["annulation-mariage"];
 
@@ -51,6 +52,7 @@ export default function AnnulationMariagePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
+        <FichesCategorie category="annulation-mariage" titre="Fiches pratiques sur l'annulation de mariage" />
       </main>
       <Footer />
       <FloatingCTA />
