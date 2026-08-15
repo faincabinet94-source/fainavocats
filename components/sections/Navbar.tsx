@@ -1,7 +1,7 @@
 "use client";
 
 import { Container } from "@/components/ui/Container";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -96,6 +96,15 @@ export function Navbar() {
               ))}
 
               <a
+                href="/recherche"
+                aria-label="Rechercher un article"
+                title="Rechercher un article"
+                className="text-gray-500 hover:text-[#1A1A1A] transition-colors p-2 -m-2"
+              >
+                <Search className="w-[18px] h-[18px]" strokeWidth={1.75} />
+              </a>
+
+              <a
                 href="tel:+33140680237"
                 className="bg-[#362A24] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#2C221D] transition-colors"
               >
@@ -147,6 +156,18 @@ export function Navbar() {
               {item.name}
             </a>
           ))}
+
+          <a
+            href="/recherche"
+            className={cn(
+              "flex items-center gap-3 font-serif text-4xl text-[#1A1A1A] hover:text-[#362A24] transition-all duration-500 transform",
+              mobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+            )}
+            style={{ transitionDelay: `${navigation.length * 80}ms` }}
+          >
+            <Search className="w-7 h-7" strokeWidth={1.75} />
+            Rechercher
+          </a>
         </div>
 
         <div className={cn(
