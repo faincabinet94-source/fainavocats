@@ -98,7 +98,7 @@ export default function DivorcePage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/fiches/hero-divorce.jpg"
-                  alt=""
+                  alt="La procédure de divorce"
                   className="w-full h-48 md:h-72 object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/70 via-[#1A1A1A]/30 to-[#1A1A1A]/20 flex flex-col items-center justify-center text-center px-6">
@@ -117,7 +117,7 @@ export default function DivorcePage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={`/images/fiches/${a.slug}.jpg`}
-                        alt=""
+                        alt={a.title}
                         className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                       />
                     )}
@@ -141,7 +141,7 @@ export default function DivorcePage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/fiches/hero-liquidation-regimes.jpg"
-                  alt=""
+                  alt="La liquidation du régime matrimonial"
                   className="w-full h-48 md:h-72 object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/40 to-[#1A1A1A]/20 flex flex-col items-center justify-center text-center px-6">
@@ -159,7 +159,7 @@ export default function DivorcePage() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={a.image}
-                      alt=""
+                      alt={a.title}
                       className="w-20 h-20 object-cover rounded-md shrink-0 bg-white"
                     />
                     <div>

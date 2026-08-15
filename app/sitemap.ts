@@ -1,6 +1,11 @@
 import { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog'
 import { getAllFiches } from '@/lib/fiches'
+
+// `new Date()` faisait changer la date de TOUTES les URLs a chaque deploiement :
+// Google apprend alors a ignorer le signal (audit SEO du 2026-08-15).
+// Date de derniere refonte structurelle du site, a mettre a jour a la main.
+const SITE_LAST_MODIFIED = new Date('2026-08-15')
  
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
@@ -24,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const expertiseEntries: MetadataRoute.Sitemap = expertisePages.map((slug) => ({
     url: `https://fain-avocats.fr/${slug}`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_MODIFIED,
     changeFrequency: 'monthly',
     priority: 0.9,
   }))
@@ -38,7 +43,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const fichesEntries: MetadataRoute.Sitemap = fichesPages.map((slug) => ({
     url: `https://fain-avocats.fr/${slug}`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_MODIFIED,
     changeFrequency: 'monthly',
     priority: 0.85,
   }))
@@ -46,7 +51,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const fiches = getAllFiches()
   const ficheArticles: MetadataRoute.Sitemap = fiches.map((f) => ({
     url: `https://fain-avocats.fr/fiches/${f.slug}`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_MODIFIED,
     changeFrequency: 'yearly',
     priority: 0.7,
   }))
@@ -54,7 +59,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: 'https://fain-avocats.fr',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 1,
     },
@@ -63,62 +68,68 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...ficheArticles,
     {
       url: 'https://fain-avocats.fr/outils/simulateur-prestation-compensatoire',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: 'https://fain-avocats.fr/consultations',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: 'https://fain-avocats.fr/devis',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: 'https://fain-avocats.fr/devis/divorce',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: 'https://fain-avocats.fr/honoraires',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'yearly',
       priority: 0.8,
     },
     {
       url: 'https://fain-avocats.fr/honoraires/droit-de-la-famille',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'yearly',
       priority: 0.8,
     },
     {
       url: 'https://fain-avocats.fr/paiement',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
+      url: 'https://fain-avocats.fr/fiches',
+      lastModified: SITE_LAST_MODIFIED,
+      changeFrequency: 'monthly',
+      priority: 0.85,
+    },
+    {
       url: 'https://fain-avocats.fr/actualites',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     ...blogEntries,
     {
       url: 'https://fain-avocats.fr/mentions-legales',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: 'https://fain-avocats.fr/confidentialite',
-      lastModified: new Date(),
+      lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'yearly',
       priority: 0.3,
     },

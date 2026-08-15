@@ -110,7 +110,7 @@ export default function DroitDeLaFamillePage() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.image}
-                      alt=""
+                      alt={item.title}
                       className="w-full h-40 object-cover"
                     />
                     <div className="p-6">

@@ -36,8 +36,31 @@ export default function ArticlePage({ params }: Props) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 
+  // Balisage Article : absent jusqu'ici (audit SEO du 2026-08-15).
+  // Tous les champs proviennent du frontmatter, rien n'est invente.
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    dateModified: post.date,
+    inLanguage: "fr-FR",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://fain-avocats.fr/actualites/${post.slug}`,
+    },
+    author: { "@type": "Organization", name: post.author || "Fain Avocats" },
+    publisher: { "@id": "https://fain-avocats.fr/#attorney" },
+    ...(post.image ? { image: `https://fain-avocats.fr${post.image}` } : {}),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <Navbar />
       <main className="relative pt-32 pb-20 bg-[#F4F2EC] min-h-screen">
         <BlogArticle post={post} />

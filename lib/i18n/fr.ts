@@ -11,6 +11,8 @@ export const fr = {
     since: "Depuis 2003 • Paris 16",
     title1: "Fain",
     title2: "Avocats",
+    // Ligne integree au <h1> : sans elle le H1 ne portait que la marque.
+    titleTagline: "Avocat en droit de la famille à Paris 16",
     subtitle: "Cabinet d'avocats en droit de la famille à Paris 16ème. Divorce, garde d'enfants, patrimoine. Une défense d'excellence pour protéger vos intérêts.",
     cta1: "Prendre rendez-vous",
     cta2: "Découvrir le cabinet",

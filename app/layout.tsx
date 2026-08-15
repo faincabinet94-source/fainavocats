@@ -24,6 +24,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fain-avocats.fr"),
+  // Canonique auto-referente : Next resout "./" contre metadataBase + le chemin de la page.
+  alternates: { canonical: "./" },
   title: "Fain Avocats | Avocat Droit de la Famille Paris 16 - Divorce & Patrimoine",
   description: "Cabinet d'avocats intervenant principalement en droit de la famille à Paris 16ème (Avenue Victor Hugo). Divorce, garde d'enfants, pension alimentaire, liquidation du régime matrimonial. Premier entretien téléphonique gratuit. Intervention rapide et humaine.",
   keywords: ["Avocat divorce Paris 16", "Avocat droit famille Paris", "Avocat divorce consentement mutuel Paris", "Cabinet avocat Victor Hugo", "Garde enfants Paris", "Pension alimentaire avocat"],
@@ -111,12 +113,9 @@ const jsonLd = {
           closes: "19:00"
         }
       ],
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.7",
-        reviewCount: "416",
-        bestRating: "5"
-      },
+      // TODO Joackim : coller ici l'URL exacte de la fiche Google Business Profile
+      // et du profil LinkedIn du cabinet, puis decommenter. Ne pas deviner ces URLs.
+      // sameAs: ["<url Google Business Profile>", "<url LinkedIn>"],
       areaServed: {
         "@type": "City",
         name: "Paris"
@@ -124,43 +123,6 @@ const jsonLd = {
       knowsAbout: [
         "Divorce", "Droit de la famille", "Garde d'enfants",
         "Pension alimentaire", "Liquidation du régime matrimonial"
-      ]
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "Comment fonctionne la première prise de contact ?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Nous proposons un premier entretien téléphonique gratuit. Cela nous permet de comprendre votre situation et de vous confirmer si nous sommes le bon cabinet pour vous accompagner."
-          }
-        },
-        {
-          "@type": "Question",
-          name: "Quel est le coût d'une consultation au cabinet ?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Si une analyse approfondie de votre dossier est nécessaire, nous vous proposons une consultation au cabinet facturée 120€ TTC. Ce montant est déductible de nos honoraires si vous nous confiez votre dossier."
-          }
-        },
-        {
-          "@type": "Question",
-          name: "Quels sont les délais pour obtenir un rendez-vous ?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Nous nous engageons à vous proposer un créneau sous 24 à 48h ouvrées. En cas d'urgence (violences, enlèvement d'enfant), nous vous recevons dans la journée."
-          }
-        },
-        {
-          "@type": "Question",
-          name: "Comment sont fixés vos honoraires ?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Nous privilégions la transparence totale. Une convention d'honoraires écrite vous est systématiquement proposée avant toute démarche, le plus souvent sous forme de forfait pour que vous maîtrisiez votre budget."
-          }
-        }
       ]
     }
   ]

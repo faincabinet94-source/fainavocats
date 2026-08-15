@@ -18,7 +18,9 @@ function MarkdownContent({ content }: { content: string }) {
   const html = content
     .replace(/^### (.+)$/gm, '<h3 class="text-xl font-serif font-bold mt-8 mb-3 text-[#1A1A1A]">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-serif font-bold mt-10 mb-4 text-[#1A1A1A]">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-serif font-bold mt-10 mb-4 text-[#1A1A1A]">$1</h1>')
+    // Le titre de l'article est deja rendu en <h1> plus bas : un '# ' dans le
+    // Markdown produisait un second H1 (audit SEO du 2026-08-15). Rendu en h2.
+    .replace(/^# (.+)$/gm, '<h2 class="text-3xl font-serif font-bold mt-10 mb-4 text-[#1A1A1A]">$1</h2>')
     .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-[#362A24] pl-6 py-2 my-6 italic text-gray-700 bg-[#F4F2EC]">$1</blockquote>')
     .replace(/^- (.+)$/gm, '<li class="ml-6 mb-1 text-gray-700 list-disc">$1</li>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-[#1A1A1A]">$1</strong>')

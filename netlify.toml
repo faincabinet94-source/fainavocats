@@ -3,6 +3,22 @@
   to = "/admin/index.html"
   status = 200
 
+# Doublons et slugs horodates corriges (audit SEO du 2026-08-15)
+[[redirects]]
+  from = "/actualites/recompense-communaute-valeurs-mobilieres-divorce"
+  to = "/fiches/recompense-communaute-valeurs-mobilieres-divorce"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/creance-concubin-refection-toiture-droits-recours-1780773629662"
+  to = "/actualites/creance-concubin-refection-toiture-droits-recours"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/domicile-conjugal-divorce-droits-obligations-1780771227228"
+  to = "/actualites/domicile-conjugal-divorce-droits-obligations"
+  status = 301
+
 # Anciennes URLs Squarespace → nouvelles URLs (301 permanent)
 [[redirects]]
   from = "/devis-avocat-divorce"
