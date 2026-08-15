@@ -35,7 +35,8 @@ export const fr = {
       { title: "Filiation & Adoption", desc: "Recherche de paternité, adoption simple et plénière." },
       { title: "Droit Pénal de la Famille", desc: "Violences conjugales, non-présentation d'enfant, abandon." },
       { title: "Annulation de Mariage", desc: "Vice du consentement, mariage de complaisance, bigamie." },
-      { title: "Modification d'État Civil", desc: "Changement de prénom, de nom de famille, rectification d'acte." }
+      { title: "Modification d'État Civil", desc: "Changement de prénom, de nom de famille, rectification d'acte." },
+      { title: "Pension alimentaire et Prestation compensatoire", desc: "Fixation, révision, recouvrement, devoir de secours." }
     ]
   },
   testimonials: {

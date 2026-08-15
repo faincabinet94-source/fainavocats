@@ -15,6 +15,7 @@ const expertiseLinks = [
   "/droit-penal-famille",
   "/annulation-mariage",
   "/etat-civil",
+  "/pension-alimentaire",
 ];
 
 export function Features() {

@@ -11,6 +11,9 @@ export interface ExpertiseStep {
 export interface ExpertiseData {
   slug: string;
   title: string;
+  /** Titre décliné avec son article, pour insertion dans une phrase.
+   *  Ex. « les réponses aux questions concernant LA GARDE D'ENFANTS ». */
+  titreInline?: string;
   heroTitle: string;
   heroSubtitle: string;
   metaTitle: string;
@@ -31,6 +34,7 @@ export const expertises: Record<string, ExpertiseData> = {
   divorce: {
     slug: "divorce",
     title: "Divorce & Séparation",
+    titreInline: "le divorce et la séparation",
     heroTitle: "Avocat Divorce Paris 16",
     heroSubtitle:
       "Consentement mutuel, divorce contentieux, séparation de corps. Un accompagnement stratégique et humain pour protéger vos intérêts.",
@@ -113,6 +117,7 @@ export const expertises: Record<string, ExpertiseData> = {
   "garde-enfants": {
     slug: "garde-enfants",
     title: "Garde d'Enfants",
+    titreInline: "la garde d'enfants",
     heroTitle: "Avocat Garde d'Enfants Paris",
     heroSubtitle:
       "Résidence alternée, droit de visite, autorité parentale. Nous défendons l'intérêt de vos enfants avec détermination.",
@@ -194,7 +199,8 @@ export const expertises: Record<string, ExpertiseData> = {
 
   "pension-alimentaire": {
     slug: "pension-alimentaire",
-    title: "Pension Alimentaire",
+    title: "Pension alimentaire et Prestation compensatoire",
+    titreInline: "la pension alimentaire et la prestation compensatoire",
     heroTitle: "Avocat Pension Alimentaire Paris",
     heroSubtitle:
       "Fixation, révision, recouvrement. Nous veillons à ce que vos droits financiers soient pleinement respectés.",
@@ -270,6 +276,12 @@ export const expertises: Record<string, ExpertiseData> = {
         answer:
           "La pension alimentaire est versée pour les enfants. La prestation compensatoire est versée à l'ex-époux pour compenser la disparité de niveau de vie causée par le divorce. Elle peut être versée en capital ou sous forme de rente.",
       },
+      {
+        question:
+          "Le devoir de secours entre époux est-il une pension alimentaire ?",
+        answer:
+          "Oui. Pendant la procédure de divorce, le devoir de secours prend la forme d'une pension alimentaire due entre époux, distincte de celle versée pour les enfants. Au prononcé du divorce, ce devoir cesse et la prestation compensatoire prend le relais pour compenser la disparité de niveau de vie. En quelque sorte, le devoir de secours se transforme en prestation compensatoire une fois le divorce prononcé.",
+      },
     ],
     jsonLdType: "LegalService",
   },
@@ -277,6 +289,7 @@ export const expertises: Record<string, ExpertiseData> = {
   "filiation-adoption": {
     slug: "filiation-adoption",
     title: "Filiation & Adoption",
+    titreInline: "la filiation et l'adoption",
     heroTitle: "Avocat Filiation et Adoption Paris 16",
     heroSubtitle:
       "Établir, contester ou créer un lien de filiation. Des procédures encadrées par des délais stricts, où chaque mois compte.",
@@ -356,6 +369,7 @@ export const expertises: Record<string, ExpertiseData> = {
   "droit-penal-famille": {
     slug: "droit-penal-famille",
     title: "Droit Pénal de la Famille",
+    titreInline: "le droit pénal de la famille",
     heroTitle: "Avocat Droit Pénal de la Famille Paris 16",
     heroSubtitle:
       "Violences conjugales, non-représentation d'enfant, abandon de famille. Le cabinet intervient aux côtés des victimes comme des personnes mises en cause.",
@@ -435,6 +449,7 @@ export const expertises: Record<string, ExpertiseData> = {
   "annulation-mariage": {
     slug: "annulation-mariage",
     title: "Annulation de Mariage",
+    titreInline: "l'annulation de mariage",
     heroTitle: "Avocat Annulation de Mariage Paris 16",
     heroSubtitle:
       "Vice du consentement, mariage de complaisance, bigamie. Faire juger qu'un mariage n'a jamais valablement existé.",
@@ -514,6 +529,7 @@ export const expertises: Record<string, ExpertiseData> = {
   "liquidation-regime-matrimonial": {
     slug: "liquidation-regime-matrimonial",
     title: "Liquidation du régime matrimonial",
+    titreInline: "la liquidation du régime matrimonial",
     heroTitle: "Avocat Liquidation du Régime Matrimonial à Paris",
     heroSubtitle:
       "Partage des biens, récompenses, indemnité d'occupation, sortie d'indivision : nous sécurisons la liquidation de votre régime matrimonial lors du divorce.",

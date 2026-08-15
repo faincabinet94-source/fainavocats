@@ -6,6 +6,7 @@ import { ExpertisePage } from "@/components/sections/ExpertisePage";
 import { Container } from "@/components/ui/Container";
 import Link from "next/link";
 import { expertises } from "@/lib/expertises";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
 const articlesPension = [
   {
@@ -71,6 +72,7 @@ export default function PensionAlimentairePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
+        <FichesCategorie category="pension-alimentaire" titre="Fiches pratiques sur la pension alimentaire et la prestation compensatoire" />
 
         <section className="bg-[#F4F2EC] py-20">
           <Container>

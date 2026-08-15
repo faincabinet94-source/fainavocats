@@ -171,7 +171,7 @@ export function ExpertisePage({ data }: { data: ExpertiseData }) {
                 </h2>
                 <p className="text-gray-700 text-base leading-relaxed">
                   Les réponses aux questions les plus courantes concernant{" "}
-                  {data.title.toLowerCase()}.
+                  {data.titreInline ?? data.title.toLowerCase()}.
                 </p>
               </motion.div>
             </div>

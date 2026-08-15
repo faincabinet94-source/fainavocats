@@ -33,6 +33,15 @@ const categoryConfig: Record<
     href: "/liquidation-regime-matrimonial",
   },
   "etat-civil": { label: "État Civil", emoji: "📋", href: "/etat-civil" },
+  "garde-enfants": { label: "Garde d'enfants", emoji: "👨‍👧‍👦", href: "/garde-enfants" },
+  "pension-alimentaire": {
+    label: "Pension alimentaire et Prestation compensatoire",
+    emoji: "💶",
+    href: "/pension-alimentaire",
+  },
+  "filiation-adoption": { label: "Filiation & adoption", emoji: "👶", href: "/filiation-adoption" },
+  "droit-penal-famille": { label: "Droit pénal de la famille", emoji: "⚖️", href: "/droit-penal-famille" },
+  "annulation-mariage": { label: "Annulation de mariage", emoji: "📜", href: "/annulation-mariage" },
 };
 
 // Illustrations « droit de la famille » (bleu marine sur crème) réparties sur les fiches

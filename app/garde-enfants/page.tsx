@@ -6,6 +6,7 @@ import { ExpertisePage } from "@/components/sections/ExpertisePage";
 import { Container } from "@/components/ui/Container";
 import Link from "next/link";
 import { expertises } from "@/lib/expertises";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
 const articlesGarde = [
   {
@@ -71,6 +72,7 @@ export default function GardeEnfantsPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
+        <FichesCategorie category="garde-enfants" titre="Fiches pratiques sur la garde d'enfants" />
 
         <section className="bg-[#F4F2EC] pb-20">
           <Container>
