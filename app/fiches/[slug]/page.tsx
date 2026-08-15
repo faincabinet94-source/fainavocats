@@ -17,6 +17,17 @@ const categoryLabels: Record<string, { label: string; href: string }> = {
     href: "/liquidation-regime-matrimonial",
   },
   "etat-civil": { label: "État civil", href: "/etat-civil" },
+  // Categories ajoutees le 2026-08-15 (commit 1f353a2) mais absentes ici : 10 fiches
+  // retombaient sur le fallback, avec un fil d'Ariane affichant le slug brut et
+  // pointant vers /droit-de-la-famille. Aligne sur categoryConfig de app/fiches/page.tsx.
+  "garde-enfants": { label: "Garde d'enfants", href: "/garde-enfants" },
+  "pension-alimentaire": {
+    label: "Pension alimentaire et Prestation compensatoire",
+    href: "/pension-alimentaire",
+  },
+  "filiation-adoption": { label: "Filiation & adoption", href: "/filiation-adoption" },
+  "droit-penal-famille": { label: "Droit pénal de la famille", href: "/droit-penal-famille" },
+  "annulation-mariage": { label: "Annulation de mariage", href: "/annulation-mariage" },
 };
 
 export async function generateStaticParams() {
