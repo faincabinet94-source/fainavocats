@@ -26,7 +26,7 @@ export function ExpertisePage({ data }: { data: ExpertiseData }) {
               className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors mb-10"
             >
               <ArrowLeft className="w-4 h-4" />
-              Nos expertises
+              Nos domaines d&apos;intervention
             </Link>
 
             <div className="max-w-3xl">
