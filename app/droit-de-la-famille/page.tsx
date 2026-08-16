@@ -364,7 +364,7 @@ export default function DroitDeLaFamillePage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-serif text-lg text-[#1A1A1A] mb-2">
-                      Expertise Juridique et Compétence
+                      Compétence juridique
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
                       Un avocat en droit de la famille possède une connaissance
@@ -374,7 +374,7 @@ export default function DroitDeLaFamillePage() {
                   </div>
                   <div>
                     <h3 className="font-serif text-lg text-[#1A1A1A] mb-2">
-                      Assistance Personnalisée
+                      Assistance personnalisée
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
                       Chaque situation familiale étant unique, un avocat en droit de la famille

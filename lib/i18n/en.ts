@@ -7,7 +7,6 @@ export const en = {
     cta: "Schedule Consult"
   },
   hero: {
-    badge: "Among the top 12 family lawyers in Paris",
     since: "Since 2003 • Paris 16",
     title1: "Fain",
     title2: "Partners",
@@ -44,7 +43,7 @@ export const en = {
     title: "Hear From Our Clients",
     subtitle: "We believe that our clients' experience speaks volumes about the quality of our legal services and our dedication.",
     googleRating: "4.7",
-    googleReviews: "416 Google reviews",
+    googleReviews: "Over 400 Google reviews",
     items: [
       { text: "I highly recommend this law firm for the quality of their support during my divorce. A caring, serious, and human team that takes the time to understand the situation and explain each step clearly. Their efficiency and professionalism made all the difference in my case.", author: "mimi zemzem", role: "Google Review" },
       { text: "Maître Fain is a great lawyer, kind, human and very attentive. It's a very competent firm, I used their services twice and was never disappointed. Fast, serious, and flexible payment options.", author: "Jihane Louah", role: "Google Review" },

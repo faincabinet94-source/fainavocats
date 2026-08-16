@@ -7,7 +7,6 @@ export const fr = {
     cta: "Prendre RDV"
   },
   hero: {
-    badge: "Parmi les 12 meilleurs avocats de Paris en droit de la famille",
     since: "Depuis 2003 • Paris 16",
     title1: "Fain",
     title2: "Avocats",
@@ -45,7 +44,7 @@ export const fr = {
     title: "Ce que disent nos clients",
     subtitle: "L'expérience de nos clients témoigne de la qualité de nos services juridiques et de notre dévouement.",
     googleRating: "4,7",
-    googleReviews: "416 avis Google",
+    googleReviews: "Plus de 400 avis Google",
     items: [
       { text: "Je recommande vivement ce cabinet d'avocat pour la qualité de son accompagnement dans mon divorce. Equipe bienveillante, sérieuse, humaine qui prend le temps de comprendre la situation et d'expliquer chaque étape avec clarté. Leur efficacité et professionnalisme ont fait toute la différence dans mon dossier.", author: "mimi zemzem", role: "Avis Google" },
       { text: "Maître Fain est un super Avocat, gentil, humain et très à l'écoute. C'est un cabinet très compétent j'ai fais appel à leur services 2 fois et je n'ai jamais était deçu, rapide, serieux facilité de paiement.", author: "Jihane Louah", role: "Avis Google" },
@@ -92,7 +91,7 @@ export const fr = {
     contactTitle: "Contact",
     linksTitle: "Liens utiles",
     links: {
-      expertises: "Nos expertises",
+      expertises: "Nos domaines d'intervention",
       contact: "Prendre rendez-vous",
       legal: "Mentions légales",
       privacy: "Confidentialité"

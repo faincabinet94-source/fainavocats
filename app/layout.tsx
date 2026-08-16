@@ -64,7 +64,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Fain Avocats | Avocat Droit de la Famille Paris 16",
-    description: "Cabinet d'avocats en droit de la famille à Paris 16ème. Noté 4,7/5 sur 416 avis Google. Premier entretien téléphonique gratuit.",
+    description: "Cabinet d'avocats en droit de la famille à Paris 16ème. Noté 4,7/5 sur plus de 400 avis Google. Premier entretien téléphonique gratuit.",
     images: ["https://fain-avocats.fr/DSC01907.webp"],
   },
   robots: {
@@ -113,9 +113,10 @@ const jsonLd = {
           closes: "19:00"
         }
       ],
-      // TODO Joackim : coller ici l'URL exacte de la fiche Google Business Profile
-      // et du profil LinkedIn du cabinet, puis decommenter. Ne pas deviner ces URLs.
-      // sameAs: ["<url Google Business Profile>", "<url LinkedIn>"],
+      sameAs: [
+        "https://maps.google.com/?cid=3809691522538758505",
+        "https://www.linkedin.com/in/fainavocat/"
+      ],
       areaServed: {
         "@type": "City",
         name: "Paris"
