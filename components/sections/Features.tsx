@@ -72,24 +72,6 @@ export function Features() {
                   </motion.div>
                 );
               })}
-
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: t.expertises.items.length * 0.1 }}
-                className="pointer-events-none"
-              >
-                <Link
-                  href="/pension-alimentaire"
-                  className="pointer-events-auto group flex items-center gap-4 mt-4"
-                >
-                  <h3 className="text-3xl md:text-5xl font-serif text-[#C2A679] italic group-hover:text-white transition-colors">
-                    Pension alimentaire
-                  </h3>
-                  <ArrowRight className="w-6 h-6 text-white/0 group-hover:text-[#C2A679] -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
-                </Link>
-              </motion.div>
             </div>
 
             <motion.div 
