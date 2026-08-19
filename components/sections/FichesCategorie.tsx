@@ -28,7 +28,7 @@ export function FichesCategorie({
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`/images/fiches/${f.slug}.jpg`}
+                  src={f.image || `/images/fiches/${f.slug}.jpg`}
                   alt={f.title}
                   className="w-20 h-20 object-cover rounded-md shrink-0 bg-[#F4F2EC]"
                 />
