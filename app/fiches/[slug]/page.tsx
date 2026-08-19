@@ -58,9 +58,19 @@ function markdownToHtml(md: string): string {
     // Un '# ' en tete de fiche produirait un second H1 (le titre en est deja un).
     .replace(/^# (.+)$/gm, '<h2 class="font-serif text-2xl text-[#1A1A1A] mt-10 mb-4">$1</h2>')
     .replace(/^## (.+)$/gm, '<h2 class="font-serif text-2xl text-[#1A1A1A] mt-10 mb-4">$1</h2>')
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-[#362A24] pl-6 py-2 my-6 italic text-gray-700 bg-[#F4F2EC]">$1</blockquote>')
     .replace(/^\- (.+)$/gm, '<li class="flex items-start gap-2 mb-2"><span class="text-[#362A24] mt-1 shrink-0">•</span><span>$1</span></li>')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>");
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Liens Markdown : externes d'abord (nouvel onglet), puis internes (meme onglet).
+    .replace(
+      /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
+    )
+    .replace(
+      /\[([^\]]+)\]\((\/[^)\s]*)\)/g,
+      '<a href="$2" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
+    );
 
   const lines = html.split("\n");
   const result: string[] = [];
@@ -81,6 +91,7 @@ function markdownToHtml(md: string): string {
       if (
         line.trim() &&
         !line.startsWith("<h") &&
+        !line.startsWith("<blockquote") &&
         !line.startsWith("<ul") &&
         !line.startsWith("</ul")
       ) {
