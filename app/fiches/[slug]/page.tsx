@@ -3,6 +3,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { getAllFiches, getFicheBySlug } from "@/lib/fiches";
 import Link from "next/link";
+import { ArticlesLies } from "@/components/sections/ArticlesLies";
 import { notFound } from "next/navigation";
 import fs from "fs";
 import path from "path";
@@ -226,6 +227,12 @@ export default function FichePage({ params }: { params: { slug: string } }) {
                 </Link>
               </div>
             )}
+
+            <ArticlesLies
+              slug={fiche.slug}
+              category={fiche.category}
+              content={fiche.content}
+            />
 
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center">
               <h2 className="font-serif text-3xl mb-4 text-white">
