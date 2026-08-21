@@ -255,6 +255,34 @@
   status = 301
 
 
+# Billets courts de 2011-2015 absorbes dans les fiches du cluster prestation
+# compensatoire / pension alimentaire (2026-08-21).
+[[redirects]]
+  from = "/actualites/bareme-pension-alimentaire-2011-fain-avocats"
+  to = "/fiches/pension-alimentaire-enfants"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/pension-alimentaire-bareme-2013-fain-avocats"
+  to = "/fiches/pension-alimentaire-enfants"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats"
+  to = "/fiches/calcul-prestation-compensatoire"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp"
+  to = "/fiches/prestation-compensatoire"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d"
+  to = "/fiches/condition-attribution-prestation-compensatoire"
+  status = 301
+
+
 [build]
   command = "npm run build"
   publish = ".next"
