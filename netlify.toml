@@ -237,6 +237,24 @@
   status = 301
 
 
+# Articles retires le 2026-08-21 : contenu perime (taxe de 35 EUR supprimee en 2014,
+# hausse des droits de partage annulee). Rediriges vers la fiche sur le cout du divorce.
+[[redirects]]
+  from = "/actualites/les-divorces-davantage-taxes-fain-avocats"
+  to = "/fiches/cout-procedure-divorce"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/taxe-35-euros-sur-procedure-de-justice-fain-avocats"
+  to = "/fiches/cout-procedure-divorce"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/divorce-vers-une-annulation-de-la-hausse-des-droits-de-partage"
+  to = "/fiches/cout-procedure-divorce"
+  status = 301
+
+
 [build]
   command = "npm run build"
   publish = ".next"
