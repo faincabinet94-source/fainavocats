@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { getAllFiches } from "@/lib/fiches";
 import { getAllPosts } from "@/lib/blog";
+import { expertises } from "@/lib/expertises";
 
 // Liste des cibles de maillage interne, consommée par le pipeline n8n de
-// publication SEO. Le modèle choisissait jusqu'ici ses liens sur le seul nom
-// de fichier lu dans le sitemap, ce qui l'obligeait à deviner le sujet d'une
-// page. Il dispose désormais du titre et de la description de chacune.
+// publication SEO (workflow « SEO Auto-Publication via Airtable »).
 //
+// Le modèle choisissait jusqu'ici ses liens sur le seul nom de fichier lu dans
+// le sitemap, ce qui l'obligeait à deviner le sujet d'une page. Il dispose
+// désormais du titre et de la description de chacune.
+//
+// N'expose que des données déjà publiques : titres et descriptions meta.
 // Route statique : recalculée à chaque build, aucun coût à l'exécution.
 export const dynamic = "force-static";
 
@@ -18,72 +22,27 @@ type Cible = {
   type: "rubrique" | "fiche" | "actualite";
 };
 
-// Pages de rubrique. Elles ne viennent pas de content/, leur description est
-// donc tenue ici. Toute rubrique ajoutée au site doit être ajoutée ici aussi,
-// sinon le pipeline cessera de pointer vers elle.
-const RUBRIQUES: Cible[] = [
+// Les sept rubriques de compétence sont décrites dans lib/expertises.ts : on
+// les lit là-bas plutôt que de recopier leur description ici, sinon les deux
+// finissent par diverger et le modèle travaille sur un texte périmé.
+const RUBRIQUES_EXPERTISES: Cible[] = Object.values(expertises).map((e) => ({
+  chemin: `/${e.slug}`,
+  titre: e.title,
+  description: e.heroSubtitle,
+  categorie: e.slug,
+  type: "rubrique",
+}));
+
+// Pages de fond qui ne sont décrites ni dans content/ ni dans lib/expertises.ts.
+// C'est la seule liste à tenir à jour à la main : une page ajoutée ici devient
+// une cible de maillage, une page oubliée cesse d'en être une.
+const RUBRIQUES_HORS_EXPERTISES: Cible[] = [
   {
-    chemin: "/divorce",
-    titre: "Divorce",
+    chemin: "/droit-de-la-famille",
+    titre: "Droit de la famille",
     description:
-      "Les quatre cas de divorce, le déroulement de la procédure, les mesures provisoires et les conséquences patrimoniales.",
-    categorie: "divorce",
-    type: "rubrique",
-  },
-  {
-    chemin: "/garde-enfants",
-    titre: "Garde d'enfants",
-    description:
-      "Résidence des enfants, droit de visite et d'hébergement, autorité parentale, déplacement du domicile.",
-    categorie: "garde-enfants",
-    type: "rubrique",
-  },
-  {
-    chemin: "/pension-alimentaire",
-    titre: "Pension alimentaire et prestation compensatoire",
-    description:
-      "Fixation, révision et recouvrement de la contribution à l'entretien des enfants, et prestation compensatoire entre époux.",
-    categorie: "pension-alimentaire",
-    type: "rubrique",
-  },
-  {
-    chemin: "/liquidation-regime-matrimonial",
-    titre: "Liquidation du régime matrimonial",
-    description:
-      "Partage des biens communs ou indivis, récompenses, créances entre époux, indemnité d'occupation, rôle du notaire.",
-    categorie: "liquidation",
-    type: "rubrique",
-  },
-  {
-    chemin: "/filiation-adoption",
-    titre: "Filiation et adoption",
-    description:
-      "Établissement et contestation de la filiation, reconnaissance, adoption simple et plénière.",
-    categorie: "filiation-adoption",
-    type: "rubrique",
-  },
-  {
-    chemin: "/droit-penal-famille",
-    titre: "Droit pénal de la famille",
-    description:
-      "Violences conjugales et ordonnance de protection, non-représentation d'enfant, abandon de famille.",
-    categorie: "droit-penal-famille",
-    type: "rubrique",
-  },
-  {
-    chemin: "/annulation-mariage",
-    titre: "Annulation de mariage",
-    description:
-      "Nullité absolue et nullité relative du mariage, mariage blanc, vice du consentement, effets de l'annulation.",
-    categorie: "annulation-mariage",
-    type: "rubrique",
-  },
-  {
-    chemin: "/etat-civil",
-    titre: "État civil",
-    description:
-      "Changement de prénom et de nom, rectification des actes, transcription des actes étrangers.",
-    categorie: "etat-civil",
+      "Page d'ensemble : divorce, enfants, pensions, liquidation du régime matrimonial, filiation, état civil.",
+    categorie: "general",
     type: "rubrique",
   },
   {
@@ -103,18 +62,18 @@ const RUBRIQUES: Cible[] = [
     type: "rubrique",
   },
   {
-    chemin: "/droit-de-la-famille",
-    titre: "Droit de la famille",
+    chemin: "/etat-civil",
+    titre: "État civil",
     description:
-      "Page d'ensemble des domaines d'intervention du cabinet en droit de la famille.",
-    categorie: "general",
+      "Changement de prénom et de nom, rectification des actes, transcription des actes étrangers.",
+    categorie: "etat-civil",
     type: "rubrique",
   },
   {
     chemin: "/outils/simulateur-prestation-compensatoire",
     titre: "Simulateur de prestation compensatoire",
     description:
-      "Outil d'estimation du montant d'une prestation compensatoire à partir de la durée du mariage, de l'âge et des revenus.",
+      "Outil de calcul indicatif du montant d'une prestation compensatoire selon plusieurs méthodes usuelles.",
     categorie: "pension-alimentaire",
     type: "rubrique",
   },
@@ -145,7 +104,12 @@ export function GET() {
     type: "actualite",
   }));
 
-  const pages = [...RUBRIQUES, ...fiches, ...actualites];
+  const pages = [
+    ...RUBRIQUES_EXPERTISES,
+    ...RUBRIQUES_HORS_EXPERTISES,
+    ...fiches,
+    ...actualites,
+  ];
 
   return NextResponse.json({
     total: pages.length,
