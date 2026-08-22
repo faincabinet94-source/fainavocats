@@ -63,10 +63,16 @@ function markdownToHtml(md: string): string {
     .replace(/^\- (.+)$/gm, '<li class="flex items-start gap-2 mb-2"><span class="text-[#362A24] mt-1 shrink-0">•</span><span>$1</span></li>')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    // Liens Markdown : externes d'abord (nouvel onglet), puis internes (meme onglet).
+    // Liens Markdown : externes d'abord (nouvel onglet), puis mailto et tel,
+    // puis internes (meme onglet). mailto: n'etait traite par aucune des deux
+    // regles : la chaine Markdown restait affichee telle quelle sur la page.
     .replace(
       /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
       '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
+    )
+    .replace(
+      /\[([^\]]+)\]\(((?:mailto|tel):[^)\s]+)\)/g,
+      '<a href="$2" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
     )
     .replace(
       /\[([^\]]+)\]\((\/[^)\s]*)\)/g,
