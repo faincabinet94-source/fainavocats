@@ -25,13 +25,37 @@ function MarkdownContent({ content }: { content: string }) {
     .replace(/^- (.+)$/gm, '<li class="ml-6 mb-1 text-gray-700 list-disc">$1</li>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-[#1A1A1A]">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors" target="_blank" rel="noopener">$1</a>')
+    // Liens Markdown, dans cet ordre : externes (nouvel onglet), mailto et tel
+    // (meme onglet, sans target), puis internes (meme onglet).
+    // Une regle unique posait target="_blank" sur TOUS les liens, internes
+    // compris : le lecteur accumulait les onglets au lieu de circuler dans le
+    // site, ce qui va contre le but meme du maillage interne. Le rendu des
+    // fiches distinguait deja externes et internes, mais aucun des deux moteurs
+    // ne traitait mailto: — la chaine Markdown restait affichee telle quelle.
+    .replace(
+      /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
+    )
+    .replace(
+      /\[([^\]]+)\]\(((?:mailto|tel):[^)\s]+)\)/g,
+      '<a href="$2" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
+    )
+    .replace(
+      /\[([^\]]+)\]\((\/[^)\s]*)\)/g,
+      '<a href="$2" class="text-[#362A24] underline hover:text-[#1A1A1A] transition-colors">$1</a>'
+    )
     .replace(/^---$/gm, '<hr class="my-8 border-gray-200" />')
     .split('\n\n')
     .map((block) => {
       const trimmed = block.trim();
       if (!trimmed) return '';
-      if (trimmed.startsWith('<h') || trimmed.startsWith('<blockquote') || trimmed.startsWith('<li') || trimmed.startsWith('<hr')) {
+      // Les <li> etaient emis sans <ul> englobant : HTML invalide, meme si les
+      // classes Tailwind donnaient le rendu attendu. Le rendu des fiches
+      // enveloppe deja ses listes.
+      if (trimmed.startsWith('<li')) {
+        return `<ul class="mb-4">${trimmed}</ul>`;
+      }
+      if (trimmed.startsWith('<h') || trimmed.startsWith('<blockquote') || trimmed.startsWith('<hr')) {
         return trimmed;
       }
       return `<p class="text-gray-700 leading-relaxed mb-4">${trimmed}</p>`;
