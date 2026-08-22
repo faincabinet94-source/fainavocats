@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Honoraires Droit de la Famille | Tarifs Divorce Avocat Paris - Fain Avocats",
   description:
-    "Tarifs et honoraires en droit de la famille : divorce par consentement mutuel à partir de 500€, consultation 120€, taux horaire 200€. Facilités de paiement. Cabinet Fain Avocats Paris 16ème.",
+    "Tarifs et honoraires en droit de la famille : divorce par consentement mutuel à partir de 500€, consultation 120€, taux horaire 220€ HT. Facilités de paiement. Cabinet Fain Avocats Paris 16ème.",
   keywords: [
     "honoraires avocat divorce",
     "tarif divorce consentement mutuel",
@@ -97,7 +97,7 @@ export default function HonorairesFamillePage() {
                       Taux horaire pratiqué
                     </span>
                     <span className="font-serif text-xl text-[#362A24] font-semibold">
-                      200 € / heure
+                      220 € HT / heure
                     </span>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export default function HonorairesFamillePage() {
                   <p className="text-gray-600 italic">
                     Exemple&nbsp;: dans le cadre d&apos;un divorce contentieux,
                     les honoraires pourront être fixés de la manière
-                    suivante&nbsp;: <strong>2 000 € d&apos;honoraires fixe + 5 %
+                    suivante&nbsp;: <strong>2 000 € d&apos;honoraires fixe (en l&apos;absence de demande de fixation de mesures provisoires) + 5 %
                     du montant de la prestation compensatoire</strong>.
                   </p>
                 </div>

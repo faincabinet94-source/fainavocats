@@ -83,7 +83,7 @@
 # Anciennes URLs Squarespace (404 Search Console) -> equivalents actuels
 [[redirects]]
   from = "/actualites/divorce-consentement-mutuel-audience-juge"
-  to = "/actualites/divorce-par-consentement-mutuel-comment-se-passe-l-audience-chez-le-juge"
+  to = "/actualites/divorce-sans-juge-le-nouveau-divorce-par-consentement-mutuel"
   status = 301
 
 [[redirects]]
@@ -281,6 +281,18 @@
   from = "/actualites/la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d"
   to = "/fiches/condition-attribution-prestation-compensatoire"
   status = 301
+
+
+# Article de 2016 decrivant l'audience d'homologation et l'avocat commun,
+# procedure supprimee le 1er janvier 2017. Non recuperable : redirige vers son
+# successeur thematique (2026-08-22). La redirection Squarespace qui pointait
+# vers lui a ete rebranchee directement sur la destination finale, pour eviter
+# une chaine de deux sauts.
+[[redirects]]
+  from = "/actualites/divorce-par-consentement-mutuel-comment-se-passe-l-audience-chez-le-juge"
+  to = "/actualites/divorce-sans-juge-le-nouveau-divorce-par-consentement-mutuel"
+  status = 301
+  force = true
 
 
 [build]
