@@ -88,12 +88,12 @@
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/la-prestation-compensatoire-na-pas-pour-objet-de-corriger-les-effets-du-choix-du-regime-de-la-separation-de-biens.html"
-  to = "/actualites/la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d"
+  to = "/fiches/condition-attribution-prestation-compensatoire"
   status = 301
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/pension-alimentaire-bareme-2013.html"
-  to = "/actualites/pension-alimentaire-bareme-2013-fain-avocats"
+  to = "/fiches/pension-alimentaire-enfants"
   status = 301
 
 [[redirects]]
@@ -113,7 +113,7 @@
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/les-divorces-ne-financeront-plus-la-baisse-de-lisf.html"
-  to = "/actualites/les-divorces-davantage-taxes-fain-avocats"
+  to = "/fiches/cout-procedure-divorce"
   status = 301
 
 [[redirects]]
@@ -128,7 +128,7 @@
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/bareme-pension-alimentaire-2011.html"
-  to = "/actualites/bareme-pension-alimentaire-2011-fain-avocats"
+  to = "/fiches/pension-alimentaire-enfants"
   status = 301
 
 [[redirects]]
@@ -138,7 +138,7 @@
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/prestation-compensatoire-nouveaux-criteres-de-fixation.html"
-  to = "/actualites/prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats"
+  to = "/fiches/calcul-prestation-compensatoire"
   status = 301
 
 [[redirects]]
@@ -148,7 +148,7 @@
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/prestation-compensatoire-allocation-tierce-personne.html"
-  to = "/actualites/prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp"
+  to = "/fiches/prestation-compensatoire"
   status = 301
 
 [[redirects]]
