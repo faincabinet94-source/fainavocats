@@ -105,17 +105,17 @@ const nextConfig = {
       // Anciennes URLs Squarespace (404 Search Console) -> equivalents actuels
       {
         source: '/actualites/divorce-consentement-mutuel-audience-juge',
-        destination: '/actualites/divorce-par-consentement-mutuel-comment-se-passe-l-audience-chez-le-juge',
+        destination: '/actualites/divorce-sans-juge-le-nouveau-divorce-par-consentement-mutuel',
         permanent: true,
       },
       {
         source: '/actualites/droit-de-la-famille/la-prestation-compensatoire-na-pas-pour-objet-de-corriger-les-effets-du-choix-du-regime-de-la-separation-de-biens.html',
-        destination: '/actualites/la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d',
+        destination: '/fiches/condition-attribution-prestation-compensatoire',
         permanent: true,
       },
       {
         source: '/actualites/droit-de-la-famille/pension-alimentaire-bareme-2013.html',
-        destination: '/actualites/pension-alimentaire-bareme-2013-fain-avocats',
+        destination: '/fiches/pension-alimentaire-enfants',
         permanent: true,
       },
       {
@@ -135,7 +135,7 @@ const nextConfig = {
       },
       {
         source: '/actualites/droit-de-la-famille/les-divorces-ne-financeront-plus-la-baisse-de-lisf.html',
-        destination: '/actualites/les-divorces-davantage-taxes-fain-avocats',
+        destination: '/fiches/cout-procedure-divorce',
         permanent: true,
       },
       {
@@ -150,7 +150,7 @@ const nextConfig = {
       },
       {
         source: '/actualites/droit-de-la-famille/bareme-pension-alimentaire-2011.html',
-        destination: '/actualites/bareme-pension-alimentaire-2011-fain-avocats',
+        destination: '/fiches/pension-alimentaire-enfants',
         permanent: true,
       },
       {
@@ -160,7 +160,7 @@ const nextConfig = {
       },
       {
         source: '/actualites/droit-de-la-famille/prestation-compensatoire-nouveaux-criteres-de-fixation.html',
-        destination: '/actualites/prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats',
+        destination: '/fiches/calcul-prestation-compensatoire',
         permanent: true,
       },
       {
@@ -170,7 +170,7 @@ const nextConfig = {
       },
       {
         source: '/actualites/droit-de-la-famille/prestation-compensatoire-allocation-tierce-personne.html',
-        destination: '/actualites/prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp',
+        destination: '/fiches/prestation-compensatoire',
         permanent: true,
       },
       {
