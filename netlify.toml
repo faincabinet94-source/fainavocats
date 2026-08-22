@@ -298,3 +298,22 @@
 [build]
   command = "npm run build"
   publish = ".next"
+
+# Version de Node figee. Sans cette ligne, Netlify utilise sa version par
+# defaut et peut la relever sans preavis : le site casserait alors sans qu'une
+# seule ligne de code ait bouge. Releve dans le journal du deploiement du
+# 21/08/2026 a 23h28 : « Now using node v22.23.2 ».
+# On fige la majeure et non la version exacte, pour continuer de recevoir les
+# correctifs de la branche 22 sans jamais basculer sur une majeure suivante.
+[build.environment]
+  NODE_VERSION = "22"
+
+# La route /api/liens-internes sert au pipeline n8n la liste des cibles de
+# maillage interne. Elle n'expose que des titres et des descriptions deja
+# publics, mais c'est une reponse JSON qui n'a rien a faire dans l'index de
+# Google. Elle ne figure ni dans le sitemap ni dans aucun lien du site :
+# l'en-tete ferme la porte au cas ou.
+[[headers]]
+  for = "/api/liens-internes"
+  [headers.values]
+    X-Robots-Tag = "noindex"
