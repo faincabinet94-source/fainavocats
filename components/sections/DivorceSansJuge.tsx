@@ -62,7 +62,7 @@ const CHANGES = [
   {
     Icon: Users,
     title: "Un avocat par époux",
-    text: "L'avocat commun n'est plus possible. C'est une condition de validité de la convention, pas une précaution.",
+    text: "L'avocat commun n'est plus possible : chacun des époux doit obligatoirement avoir son propre avocat.",
   },
   {
     Icon: Stamp,
@@ -592,8 +592,8 @@ export function DivorceSansJuge() {
                       L&apos;avocat de votre conjoint
                     </div>
                     <p className="mb-3.5 mt-1 text-sm text-gray-500">
-                      Chaque époux doit avoir le sien : c&apos;est une condition de validité de la
-                      convention.
+                      Chacun des époux doit obligatoirement avoir le sien : l&apos;avocat commun
+                      n&apos;est plus possible.
                     </p>
                     <Segmented
                       value={avocat}

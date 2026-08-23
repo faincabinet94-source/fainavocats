@@ -5,7 +5,7 @@ export const FAQ_ITEMS = [
   {
     question: "Peut-on avoir un seul avocat pour les deux époux ?",
     answer:
-      "Non. Chaque époux doit avoir son propre avocat. L'avocat commun, possible dans l'ancienne procédure, ne l'est plus depuis 2017 : c'est une condition de validité de la convention.",
+      "Non. Chacun des époux doit obligatoirement avoir son propre avocat. L'avocat commun, possible dans l'ancienne procédure, ne l'est plus depuis 2017.",
   },
   {
     question: "Faut-il passer devant un juge ?",
