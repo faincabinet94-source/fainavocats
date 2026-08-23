@@ -15,11 +15,12 @@ import {
   Info,
   AlertTriangle,
   CheckCircle2,
-  Quote,
+  Star,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/utils";
 import { FAQ_ITEMS } from "@/lib/divorce-sans-juge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /* ------------------------------------------------------------------ *
  * Grille tarifaire — base Prospects, table « Produits ».
@@ -172,6 +173,7 @@ function Segmented({
 }
 
 export function DivorceSansJuge() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -883,26 +885,57 @@ export function DivorceSansJuge() {
         </Container>
       </section>
 
-      {/* ---------------- TÉMOIGNAGES ---------------- */}
+      {/* ---------------- AVIS GOOGLE ----------------
+           Avis réels, tirés de la même source que la page d'accueil (lib/i18n)
+           pour qu'ils ne puissent pas diverger. Pas de balisage aggregateRating :
+           Google n'affiche plus les étoiles auto-déclarées pour le type Attorney
+           et l'auto-déclaration est contraire à ses consignes. */}
       <section className="border-t border-gray-200 bg-[#EFEDE6] py-16 md:py-20">
         <Container>
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
             <h2 className="font-serif text-3xl text-[#1A1A1A] md:text-4xl">
-              Ils ont divorcé <span className="italic text-gray-500">sans juge</span>
+              Ce qu&apos;en disent <span className="italic text-gray-500">nos clients</span>
             </h2>
-            <span className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
-              [ TÉMOIGNAGES À CONFIRMER ]
-            </span>
+            <a
+              href="https://maps.google.com/?cid=3809691522538758505"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3"
+            >
+              <span className="font-serif text-3xl leading-none text-[#1A1A1A]">
+                {t.testimonials.googleRating}
+              </span>
+              <span className="flex text-[#FABB05]">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-current" />
+                ))}
+              </span>
+              <span className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500 transition-colors group-hover:text-[#1A1A1A]">
+                {t.testimonials.googleReviews}
+              </span>
+            </a>
           </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            {[0, 1].map((i) => (
-              <div key={i} className="rounded-lg border border-gray-200 bg-white p-9">
-                <Quote className="mb-4 h-7 w-7 text-[#C2A679]" strokeWidth={1.4} />
-                <p className="mb-5 text-left font-serif text-xl leading-relaxed text-[#1A1A1A] md:text-[1.4rem]">
-                  [TÉMOIGNAGE CLIENT À INSÉRER — texte réel, autorisé par la personne citée]
-                </p>
-                <div className="text-[13px] text-gray-500">[Prénom], [ville], [âge]</div>
-              </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {t.testimonials.items.map((item) => (
+              <figure
+                key={item.author}
+                className="flex flex-col justify-between rounded-lg border border-gray-200 bg-white p-8"
+              >
+                <div>
+                  <div className="mb-5 flex text-[#FABB05]">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                  <blockquote className="mb-6 text-left font-serif text-lg leading-relaxed text-[#1A1A1A]">
+                    {item.text}
+                  </blockquote>
+                </div>
+                <figcaption className="text-[13px] text-gray-500">
+                  {item.author} — {item.role}
+                </figcaption>
+              </figure>
             ))}
           </div>
         </Container>
