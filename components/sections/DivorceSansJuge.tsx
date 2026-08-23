@@ -426,7 +426,7 @@ export function DivorceSansJuge() {
                 className="inline-flex items-center gap-3 whitespace-nowrap rounded-full bg-[#362A24] px-8 py-4 text-sm text-white transition-colors hover:bg-[#2C221D]"
               >
                 <Phone className="h-4 w-4" />
-                Consultation gratuite — +33 1 40 68 02 37
+                +33 1 40 68 02 37
               </a>
               <a
                 href="#honoraires"
