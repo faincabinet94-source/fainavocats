@@ -31,14 +31,22 @@ import { useTranslation } from "@/hooks/useTranslation";
  * RC     : requête conjointe, lue comme les 1A.
  * Airtable fait foi : toute évolution se répercute ici.
  * ------------------------------------------------------------------ */
-const GRID_DCM: Record<string, Record<string, number>> = {
-  "1A": { "": 700, E: 950, B: 1200, EB: 1500 },
-  "2A": { "": 1200, E: 1500, B: 1800, EB: 2000 },
-};
+/* DCM 1A — le conjoint passe par le confrère partenaire : tarif additif, le socle
+   couvre déjà LES DEUX avocats. Honoraires en cours de révision (2026-08-23). */
+const DCM1A_SOCLE = 650;
+const SUP_CABINET = 120; // premier rendez-vous au cabinet plutôt qu'en ligne
+const SUP_ENFANTS = 250;
+const SUP_IMMO = 250;
+const SUP_PRESTA = 250;
+
+/* DCM 2A — le conjoint a son propre avocat : le prix ne couvre que notre client.
+   Grille inchangée pour l'instant. */
+const GRID_DCM2A: Record<string, number> = { "": 1200, E: 1500, B: 1800, EB: 2000 };
+
 const GRID_DC: Record<string, number> = { "": 2000, E: 3000, B: 3000, EB: 4000 };
 const GRID_RC: Record<string, number> = { "": 1800, E: 2000, B: 2200, EB: 2400 };
-const DEPOT = 49.44; // 41,20 € HT, tarif réglementé du notaire
-const PARTNER = 400; // intervention du confrère partenaire, branche 1A
+const DEPOT = 49.44;   // 41,20 € HT, tarif réglementé du notaire
+const CERTIF_66 = 300; // certificat européen, TTC, hors forfait
 
 const eur = (n: number) => n.toLocaleString("fr-FR") + " €";
 const eur2 = (n: number) =>
@@ -177,8 +185,10 @@ export function DivorceSansJuge() {
   const [step, setStep] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const [amiable, setAmiable] = useState(true);
-  const [avocat, setAvocat] = useState<"1A" | "2A">("1A");
+  const [conjointOk, setConjointOk] = useState(true);
+  const [accord, setAccord] = useState(true);
+  const [avocatChoisi, setAvocatChoisi] = useState<"1A" | "2A">("1A");
+  const [mode, setMode] = useState<"ligne" | "cabinet">("ligne");
   const [nats, setNats] = useState<Record<NatKey, boolean>>({
     FR: true,
     UE: false,
@@ -190,10 +200,16 @@ export function DivorceSansJuge() {
   const [transcrit, setTranscrit] = useState(false);
   const [enfants, setEnfants] = useState(false);
   const [immo, setImmo] = useState(false);
+  const [presta, setPresta] = useState(false);
 
   const foreign = (["UE", "MA", "DZ", "TN", "XX"] as NatKey[]).filter((k) => nats[k]);
   const hasForeign = foreign.length > 0;
   const suffix = (enfants ? "E" : "") + (immo ? "B" : "");
+
+  /* Des négociations à mener excluent le recours au confrère partenaire :
+     le conjoint doit alors être conseillé par un avocat indépendant. */
+  const avocat: "1A" | "2A" = accord ? avocatChoisi : "2A";
+  const partenaire = conjointOk && accord && avocat === "1A";
 
   const lines: { label: string; note: string; amount: string }[] = [];
   let headline: string;
@@ -201,7 +217,7 @@ export function DivorceSansJuge() {
   let sub: string;
   let sideNote: string;
 
-  if (!amiable) {
+  if (!conjointOk) {
     const hono = GRID_DC[suffix];
     headline = "Pour vous, votre avocat seul";
     amount = eur(hono);
@@ -218,84 +234,94 @@ export function DivorceSansJuge() {
     });
     sideNote =
       "Ordre de grandeur. Un divorce contentieux se chiffre au cas par cas, selon les points en litige et la durée de la procédure — nous l'affinons avec vous lors du premier entretien.";
-  } else {
-    const partner = avocat === "1A";
-    const base = GRID_DCM[avocat][suffix];
-    const hono = base + (partner ? PARTNER : 0);
-    const depot = partner ? DEPOT : DEPOT / 2;
-    headline = partner ? "Pour le couple, les deux avocats compris" : "Pour vous, votre avocat seul";
-    amount = eur2(hono + depot);
-    sub = partner
-      ? `soit ${eur2((hono + depot) / 2)} par époux${immo ? ", hors frais liés au bien" : ""}`
-      : `hors honoraires de l'avocat de votre conjoint${immo ? " et frais liés au bien" : ""}`;
-
-    if (partner) {
+  } else if (partenaire) {
+    let hono = DCM1A_SOCLE;
+    lines.push({
+      label: "Honoraires des deux avocats",
+      note: "Le vôtre et celui de votre conjoint, procédure en ligne",
+      amount: eur(DCM1A_SOCLE),
+    });
+    if (mode === "cabinet") {
+      hono += SUP_CABINET;
       lines.push({
-        label: "Honoraires des deux avocats",
-        note: "Le vôtre et celui de votre conjoint",
-        amount: eur(base),
-      });
-      lines.push({
-        label: "Intervention du confrère partenaire",
-        note: "Un cabinet distinct, comme l'exige la réglementation",
-        amount: eur(PARTNER),
-      });
-      lines.push({
-        label: "Dépôt de la convention",
-        note: "Tarif réglementé du notaire, 41,20 € HT — soit 24,72 € par époux",
-        amount: "49,44 €",
-      });
-    } else {
-      lines.push({
-        label: "Vos honoraires",
-        note: "Votre conjoint règle séparément ceux de son propre avocat",
-        amount: eur(hono),
-      });
-      lines.push({
-        label: "Votre part du dépôt",
-        note: "Moitié du tarif réglementé du notaire",
-        amount: "24,72 €",
+        label: "Premier rendez-vous au cabinet",
+        note: "196 avenue Victor Hugo, Paris 16",
+        amount: eur(SUP_CABINET),
       });
     }
-    if (nats.UE && transcrit) {
+    if (enfants) {
+      hono += SUP_ENFANTS;
       lines.push({
-        label: "Certificat européen, article 66",
-        note: "Hors forfait — délivré par le président du tribunal judiciaire",
-        amount: "500 € HT",
+        label: "Enfants à charge",
+        note: "Résidence, droit de visite, contribution à l'entretien et à l'éducation",
+        amount: eur(SUP_ENFANTS),
       });
     }
     if (immo) {
+      hono += SUP_IMMO;
       lines.push({
-        label: "État liquidatif",
-        note: "Émoluments du notaire, proportionnels à l'actif",
-        amount: "sur devis",
-      });
-      lines.push({
-        label: "Droit de partage",
-        note: "1,10 % de l'actif net partagé",
-        amount: "1,10 %",
+        label: "Bien immobilier en commun",
+        note: "Coordination de l'état liquidatif avec le notaire",
+        amount: eur(SUP_IMMO),
       });
     }
+    if (presta) {
+      hono += SUP_PRESTA;
+      lines.push({
+        label: "Prestation compensatoire",
+        note: "Évaluation et rédaction de la clause",
+        amount: eur(SUP_PRESTA),
+      });
+    }
+    lines.push({
+      label: "Dépôt de la convention",
+      note: "Tarif réglementé du notaire, 41,20 € HT — soit 24,72 € par époux",
+      amount: "49,44 €",
+    });
+    const total = hono + DEPOT;
+    headline = "Pour le couple, les deux avocats compris";
+    amount = eur2(total);
+    sub = `soit ${eur2(total / 2)} par époux${immo ? ", hors frais liés au bien" : ""}`;
+    sideNote = accord
+      ? "Vous êtes d'accord sur tout : la convention peut être rédigée sans phase de négociation, c'est le chemin le plus court."
+      : "";
+  } else {
+    const hono = GRID_DCM2A[suffix];
+    headline = "Pour vous, votre avocat seul";
+    amount = eur2(hono + DEPOT / 2);
+    sub = `hors honoraires de l'avocat de votre conjoint${immo ? " et frais liés au bien" : ""}`;
+    lines.push({
+      label: "Vos honoraires",
+      note: "Votre conjoint règle séparément ceux de son propre avocat",
+      amount: eur(hono),
+    });
+    lines.push({
+      label: "Votre part du dépôt",
+      note: "Moitié du tarif réglementé du notaire",
+      amount: "24,72 €",
+    });
+    sideNote = accord
+      ? "Votre conjoint ayant son propre avocat, chacun règle le sien."
+      : "Des points restent à négocier : votre conjoint doit être conseillé par un avocat indépendant du nôtre. Le recours à notre confrère partenaire n'est ouvert que lorsque tout est déjà arrêté.";
+  }
 
-    if (immo && enfants) {
-      sideNote =
-        "Un état liquidatif établi par un notaire devra être annexé à la convention, et chaque enfant mineur devra être informé de son droit à être entendu par le juge.";
-    } else if (immo) {
-      sideNote =
-        "Un état liquidatif établi par un notaire devra être annexé à la convention avant la signature. C'est ce point qui allonge le plus souvent le calendrier.";
-    } else if (enfants) {
-      sideNote =
-        "Chaque enfant mineur doit être informé par ses parents de son droit à être entendu par le juge. S'il demande son audition, le divorce bascule vers la procédure judiciaire.";
-    } else {
-      sideNote =
-        "C'est la configuration la plus directe : la convention, les quinze jours de réflexion, puis le dépôt chez le notaire.";
-    }
+  if (conjointOk && nats.UE && transcrit) {
+    lines.push({
+      label: "Certificat européen, article 66",
+      note: "Hors forfait — délivré par le président du tribunal judiciaire",
+      amount: eur(CERTIF_66),
+    });
+  }
+
+  if (conjointOk && !sideNote) {
+    sideNote =
+      "C'est la configuration la plus directe : la convention, les quinze jours de réflexion, puis le dépôt chez le notaire.";
   }
 
   /* Reconnaissance à l'étranger — l'orientation suit le régime le plus exigeant.
      Voir la note du coffre « reconnaissance-dcm-a-l-etranger ». */
   let advice: { warn: boolean; title: string; text: string; alt?: string } | null = null;
-  if (amiable && hasForeign) {
+  if (conjointOk && hasForeign) {
     const multi =
       foreign.length > 1
         ? " Plusieurs pays sont en présence : l'orientation ci-dessus suit le plus exigeant."
@@ -349,9 +375,9 @@ export function DivorceSansJuge() {
     }
     if (advice.warn) {
       advice.alt =
-        avocat === "1A"
-          ? `Requête conjointe : ${eur(GRID_RC[suffix] + PARTNER)} pour le couple, soit ${eur(
-              (GRID_RC[suffix] + PARTNER) / 2
+        partenaire
+          ? `Requête conjointe : ${eur(GRID_RC[suffix])} pour le couple, soit ${eur(
+              GRID_RC[suffix] / 2
             )} par époux.`
           : "Nous chiffrons la requête conjointe avec vous.";
     }
@@ -569,15 +595,14 @@ export function DivorceSansJuge() {
             <div className="flex flex-col gap-7 lg:w-[30rem] lg:shrink-0">
               <div>
                 <div className="text-[17px] text-[#1A1A1A]">
-                  S&apos;agit-il d&apos;un divorce amiable ?
+                  Votre conjoint accepte-t-il une procédure amiable ?
                 </div>
                 <p className="mb-3.5 mt-1 text-sm text-gray-500">
-                  Vous êtes d&apos;accord, votre conjoint et vous, sur la rupture et sur toutes
-                  ses conséquences.
+                  Le divorce sans juge suppose son accord sur le principe de la rupture.
                 </p>
                 <Segmented
-                  value={amiable}
-                  onChange={(v) => setAmiable(v)}
+                  value={conjointOk}
+                  onChange={(v) => setConjointOk(v)}
                   options={[
                     { label: "Oui", value: true },
                     { label: "Non", value: false },
@@ -585,25 +610,66 @@ export function DivorceSansJuge() {
                 />
               </div>
 
-              {amiable && (
+              {conjointOk && (
                 <>
                   <div>
                     <div className="text-[17px] text-[#1A1A1A]">
-                      L&apos;avocat de votre conjoint
+                      Êtes-vous d&apos;accord sur tous les termes ?
                     </div>
                     <p className="mb-3.5 mt-1 text-sm text-gray-500">
-                      Chacun des époux doit obligatoirement avoir le sien : l&apos;avocat commun
-                      n&apos;est plus possible.
+                      Résidence des enfants, pension, sort du logement, partage des biens :
+                      tout est-il déjà arrêté entre vous, ou reste-t-il des points à négocier ?
                     </p>
                     <Segmented
-                      value={avocat}
-                      onChange={(v) => setAvocat(v)}
+                      value={accord}
+                      onChange={(v) => setAccord(v)}
                       options={[
-                        { label: "Notre avocat partenaire", value: "1A" },
-                        { label: "Son propre avocat", value: "2A" },
+                        { label: "Oui, sur tout", value: true },
+                        { label: "Des points à négocier", value: false },
                       ]}
                     />
                   </div>
+
+                  {accord && (
+                    <div>
+                      <div className="text-[17px] text-[#1A1A1A]">
+                        L&apos;avocat de votre conjoint
+                      </div>
+                      <p className="mb-3.5 mt-1 text-sm text-gray-500">
+                        Chacun des époux doit obligatoirement avoir le sien : l&apos;avocat
+                        commun n&apos;est plus possible. Tout étant arrêté entre vous, votre
+                        conjoint peut être conseillé par notre confrère partenaire, d&apos;un
+                        cabinet distinct.
+                      </p>
+                      <Segmented
+                        value={avocatChoisi}
+                        onChange={(v) => setAvocatChoisi(v)}
+                        options={[
+                          { label: "Notre confrère partenaire", value: "1A" },
+                          { label: "Son propre avocat", value: "2A" },
+                        ]}
+                      />
+                    </div>
+                  )}
+
+                  {partenaire && (
+                    <div>
+                      <div className="text-[17px] text-[#1A1A1A]">
+                        En ligne, ou un premier rendez-vous au cabinet ?
+                      </div>
+                      <p className="mb-3.5 mt-1 text-sm text-gray-500">
+                        La procédure se mène entièrement à distance si vous le souhaitez.
+                      </p>
+                      <Segmented
+                        value={mode}
+                        onChange={(v) => setMode(v)}
+                        options={[
+                          { label: "En ligne", value: "ligne" },
+                          { label: "Rendez-vous au cabinet", value: "cabinet" },
+                        ]}
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <div className="text-[17px] text-[#1A1A1A]">Les nationalités du couple</div>
@@ -691,6 +757,24 @@ export function DivorceSansJuge() {
                   ]}
                 />
               </div>
+
+              {partenaire && (
+                <div>
+                  <div className="text-[17px] text-[#1A1A1A]">Une prestation compensatoire</div>
+                  <p className="mb-3.5 mt-1 text-sm text-gray-500">
+                    Une somme versée par l&apos;un des époux à l&apos;autre pour compenser
+                    l&apos;écart de niveau de vie que crée le divorce.
+                  </p>
+                  <Segmented
+                    value={presta}
+                    onChange={(v) => setPresta(v)}
+                    options={[
+                      { label: "Non", value: false },
+                      { label: "Oui", value: true },
+                    ]}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Résultat */}
