@@ -446,10 +446,11 @@ export function DivorceSansJuge() {
               </span>
             </div>
             <p className="max-w-3xl text-left text-xl leading-relaxed text-gray-700 md:text-[1.375rem]">
-              Le divorce sans juge est un divorce par consentement mutuel réglé par acte
-              d&apos;avocat. Chaque époux a son propre avocat. La convention est signée après un
-              délai de réflexion de quinze jours, puis déposée au rang des minutes d&apos;un
-              notaire — c&apos;est ce dépôt qui dissout le mariage, sans audience ni jugement.
+              Le divorce sans juge est un divorce amiable : le divorce par consentement mutuel
+              réglé par acte d&apos;avocat. Chaque époux a son propre avocat. La convention est
+              signée après un délai de réflexion de quinze jours, puis déposée au rang des
+              minutes d&apos;un notaire — c&apos;est ce dépôt qui dissout le mariage, sans
+              audience ni jugement.
             </p>
           </div>
         </Container>
