@@ -67,6 +67,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...fichesEntries,
     ...ficheArticles,
     {
+      url: 'https://fain-avocats.fr/divorce-sans-juge',
+      lastModified: new Date('2026-08-23'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: 'https://fain-avocats.fr/outils/simulateur-prestation-compensatoire',
       lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',
