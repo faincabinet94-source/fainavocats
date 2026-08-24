@@ -70,7 +70,7 @@ export async function POST(request: Request) {
   if (!webhook) {
     console.error("[devis] N8N_DEVIS_WEBHOOK_URL absente");
     return NextResponse.json(
-      { message: "Le formulaire n'est pas encore relié. Appelez-nous au +33 1 40 68 02 37" },
+      { message: "Le formulaire n'est pas encore relié" },
       { status: 503 }
     );
   }

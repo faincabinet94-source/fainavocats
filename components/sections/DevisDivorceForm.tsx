@@ -318,7 +318,7 @@ export function DevisDivorceForm() {
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.7} />
             <div className="text-sm leading-relaxed">
               <div className="mb-1 font-bold">Votre demande n&apos;est pas partie</div>
-              {erreur}. Réessayez, ou appelez-nous au{" "}
+              {erreur}. Appelez-nous au{" "}
               <a href="tel:+33140680237" className="underline">
                 +33 1 40 68 02 37
               </a>
