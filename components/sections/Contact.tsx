@@ -62,7 +62,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">{t.contact.addressTitle}</h3>
-                  <p className="text-[#1A1A1A] font-medium">196 avenue victor hugo, 75116 paris</p>
+                  <p className="text-[#1A1A1A] font-medium">196 avenue Victor Hugo, 75116 Paris</p>
                 </div>
               </div>
 

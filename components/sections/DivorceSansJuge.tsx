@@ -33,11 +33,12 @@ import { useTranslation } from "@/hooks/useTranslation";
  * ------------------------------------------------------------------ */
 /* DCM 1A — le conjoint passe par le confrère partenaire : tarif additif, le socle
    couvre déjà LES DEUX avocats. Honoraires en cours de révision (2026-08-23). */
-const DCM1A_SOCLE = 650;
 const SUP_CABINET = 120; // premier rendez-vous au cabinet plutôt qu'en ligne
-const SUP_ENFANTS = 250;
-const SUP_IMMO = 250;
 const SUP_PRESTA = 250;
+/* Grille 1A — les deux avocats compris. Reprend exactement la table Produits
+   de la base Prospects (DCM1A / 1AE / 1AB / 1AEB). Additive depuis le 2026-08-24 :
+   enfants +250, immobilier +350, prestation compensatoire +250, sans exception. */
+const GRID_DCM1A: Record<string, number> = { "": 650, E: 900, B: 1000, EB: 1250 };
 
 /* DCM 2A — le conjoint a son propre avocat : le prix ne couvre que notre client.
    Grille inchangée pour l'instant. */
@@ -235,34 +236,39 @@ export function DivorceSansJuge() {
     sideNote =
       "Ordre de grandeur. Un divorce contentieux se chiffre au cas par cas, selon les points en litige et la durée de la procédure — nous l'affinons avec vous lors du premier entretien.";
   } else if (partenaire) {
-    let hono = DCM1A_SOCLE;
-    lines.push({
-      label: "Honoraires des deux avocats",
-      note: "Le vôtre et celui de votre conjoint, procédure en ligne",
-      amount: eur(DCM1A_SOCLE),
-    });
+    const socle = GRID_DCM1A[""];
+    let hono = GRID_DCM1A[suffix];
     if (mode === "cabinet") {
       hono += SUP_CABINET;
       lines.push({
         label: "Premier rendez-vous au cabinet",
-        note: "196 avenue Victor Hugo, Paris 16",
+        note: "196 avenue Victor Hugo, PARIS 16",
         amount: eur(SUP_CABINET),
       });
+    } else {
+      lines.push({
+        label: "Lancement de la procédure en ligne",
+        note: "Sans frais : tout se fait à distance, à votre rythme",
+        amount: eur(0),
+      });
     }
+    lines.push({
+      label: "Honoraires des deux avocats",
+      note: "Le vôtre et celui de votre conjoint",
+      amount: eur(socle),
+    });
     if (enfants) {
-      hono += SUP_ENFANTS;
       lines.push({
         label: "Enfants à charge",
         note: "Résidence, droit de visite, contribution à l'entretien et à l'éducation",
-        amount: eur(SUP_ENFANTS),
+        amount: eur(GRID_DCM1A.E - socle),
       });
     }
     if (immo) {
-      hono += SUP_IMMO;
       lines.push({
         label: "Bien immobilier en commun",
         note: "Coordination de l'état liquidatif avec le notaire",
-        amount: eur(SUP_IMMO),
+        amount: eur(GRID_DCM1A.B - socle),
       });
     }
     if (presta) {

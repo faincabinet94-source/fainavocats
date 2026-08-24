@@ -15,7 +15,7 @@ export const en = {
     cta1: "Schedule a Consultation",
     cta2: "Discover the firm",
     availability: "Available 24/7",
-    address: "196 avenue victor hugo, 75116 paris",
+    address: "196 avenue Victor Hugo, 75116 Paris",
     barreau: "Lawyers at the Paris Bar"
   },
   welcome: {

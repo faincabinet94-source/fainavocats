@@ -107,6 +107,21 @@ export default function HonorairesPage() {
                   </h3>
                   <span className="text-[#362A24] text-2xl">&rarr;</span>
                 </Link>
+                <Link
+                  href="/divorce-sans-juge"
+                  className="group bg-white p-8 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-between gap-6"
+                >
+                  <div>
+                    <h3 className="font-serif text-2xl text-[#1A1A1A] group-hover:text-[#362A24] transition-colors">
+                      Divorce sans juge : chiffrer votre budget
+                    </h3>
+                    <p className="mt-2 text-gray-600 leading-relaxed">
+                      Le d&eacute;tail du forfait pour un divorce par consentement mutuel, et un
+                      simulateur qui l&apos;adapte &agrave; votre situation.
+                    </p>
+                  </div>
+                  <span className="text-[#362A24] text-2xl shrink-0">&rarr;</span>
+                </Link>
               </div>
             </div>
 
