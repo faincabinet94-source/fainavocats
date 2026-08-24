@@ -351,8 +351,7 @@ export function DevisDivorceForm() {
         </div>
 
         <p className="text-left text-[13px] text-gray-500">
-          Le devis est gratuit et sans engagement. Les honoraires définitifs font l&apos;objet
-          d&apos;une convention d&apos;honoraires écrite, signée avant toute intervention.
+          Le devis est gratuit et sans engagement.
         </p>
       </div>
     </form>

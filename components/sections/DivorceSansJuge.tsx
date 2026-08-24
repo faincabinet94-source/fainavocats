@@ -844,9 +844,8 @@ export function DivorceSansJuge() {
               </div>
 
               <p className="mt-5 text-left text-[13px] text-gray-500">
-                Un point de départ, pas un devis. Le montant définitif dépend de votre situation
-                et fait l&apos;objet d&apos;une convention d&apos;honoraires écrite, signée avant
-                toute intervention.
+                Un point de départ, pas un devis. Le montant définitif dépend de votre
+                situation, que nous examinons ensemble.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
