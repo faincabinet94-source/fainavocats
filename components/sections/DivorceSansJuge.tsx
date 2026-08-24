@@ -280,6 +280,11 @@ export function DivorceSansJuge() {
       });
     }
     lines.push({
+      label: "Rendez-vous de signature",
+      note: "Au cabinet de Maître FAIN, PARIS 16",
+      amount: eur(0),
+    });
+    lines.push({
       label: "Dépôt de la convention",
       note: "Tarif réglementé du notaire, 41,20 € HT — soit 24,72 € par époux",
       amount: "49,44 €",
