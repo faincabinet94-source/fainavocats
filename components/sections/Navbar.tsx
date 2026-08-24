@@ -78,18 +78,18 @@ export function Navbar() {
         <Container>
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a href="/" className="relative z-50 group">
+            <a href="/" className="relative z-50 group shrink-0 mr-6">
               <LogoFain size="sm" className="group-hover:opacity-70 transition-opacity" />
             </a>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-12">
+            <div className="hidden lg:flex items-center gap-5 xl:gap-8 2xl:gap-10">
               {navigation.map((item) => (
                 <a
                   key={item.name}
                   href={item.href.startsWith("#") ? `/#${item.href.slice(1)}` : item.href}
                   onClick={(e) => handleAnchorClick(e, item.href)}
-                  className="relative text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors py-2 group"
+                  className="relative whitespace-nowrap text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors py-2 group"
                 >
                   {item.name}
                   <span className="absolute bottom-0 left-0 w-0 h-px bg-[#1A1A1A] transition-all duration-300 group-hover:w-full"></span>
@@ -107,7 +107,7 @@ export function Navbar() {
 
               <a
                 href="tel:+33140680237"
-                className="bg-[#362A24] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#2C221D] transition-colors"
+                className="shrink-0 whitespace-nowrap bg-[#362A24] text-white px-5 xl:px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#2C221D] transition-colors"
               >
                 {t.nav.cta}
               </a>
@@ -115,7 +115,7 @@ export function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden z-50 p-2 -mr-2 text-[#1A1A1A] hover:bg-gray-100 rounded-full transition-colors"
+              className="lg:hidden z-50 p-2 -mr-2 text-[#1A1A1A] hover:bg-gray-100 rounded-full transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Menu"
             >
@@ -128,7 +128,7 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-[#F4F2EC] z-[60] flex flex-col justify-between transition-all duration-500 md:hidden",
+          "fixed inset-0 bg-[#F4F2EC] z-[60] flex flex-col justify-between transition-all duration-500 lg:hidden",
           mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
       >
