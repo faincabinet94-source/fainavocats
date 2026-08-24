@@ -7,6 +7,14 @@ import { NextResponse } from "next/server";
  * Variables attendues côté Netlify :
  *   N8N_DEVIS_WEBHOOK_URL    l'URL du webhook
  *   N8N_DEVIS_WEBHOOK_SECRET  (optionnel) valeur envoyée en en-tête X-Devis-Secret
+ *
+ * Les deux sont enregistrées en « secret », contexte production. Ce n'est pas un
+ * choix : le connecteur Netlify accepte une variable non secrète, répond
+ * « upserted », et ne l'enregistre pas. Constaté le 2026-08-24, le formulaire est
+ * resté en panne en production sans que rien ne le signale — le build passait,
+ * la page s'affichait, seul l'envoi échouait. Vérifier après toute création.
+ *
+ * Une variable d'environnement ne s'applique qu'après un nouveau déploiement.
  */
 
 export const runtime = "nodejs";
