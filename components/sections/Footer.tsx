@@ -64,7 +64,7 @@ export function Footer() {
               {t.footer.contactTitle}
             </h4>
             <div className="space-y-3 text-gray-600">
-              <p>196 avenue victor hugo<br/>75116 Paris</p>
+              <p>196 avenue Victor Hugo<br/>75116 Paris</p>
               <p>
                 <a href="tel:+33140680237" className="hover:text-[#362A24] transition-colors">
                   +33 1 40 68 02 37

@@ -25,7 +25,7 @@ export default function MentionsLegales() {
                 Le site <strong>fain-avocats.fr</strong> est édité par :<br/>
                 <strong>Cabinet Fain Avocats</strong><br/>
                 Profession libérale réglementée — Avocat inscrit au Barreau de Paris<br/>
-                196 avenue victor hugo, 75116 paris<br/>
+                196 avenue Victor Hugo, 75116 Paris<br/>
                 Téléphone : +33 1 40 68 02 37<br/>
                 Email : contact@fain-avocats.fr
               </p>

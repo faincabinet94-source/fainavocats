@@ -59,6 +59,7 @@ export function Navbar() {
     { name: t.nav.cabinet, href: "#cabinet" },
     { name: "Compétences", href: "/droit-de-la-famille" },
     { name: "Consultations", href: "/consultations" },
+    { name: "Divorce sans juge", href: "/divorce-sans-juge" },
     { name: "Honoraires", href: "/honoraires" },
     { name: "Actualités", href: "/actualites" },
     { name: t.nav.contact, href: "#contact" },

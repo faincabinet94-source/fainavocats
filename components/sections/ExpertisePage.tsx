@@ -264,7 +264,7 @@ export function ExpertisePage({ data }: { data: ExpertiseData }) {
               +33 1 40 68 02 37
             </a>
             <p className="mt-4 text-xs font-bold uppercase tracking-widest text-white/40">
-              196 avenue victor hugo, 75116 paris
+              196 avenue Victor Hugo, 75116 Paris
             </p>
           </motion.div>
         </Container>

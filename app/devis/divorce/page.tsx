@@ -1,6 +1,7 @@
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
+import { DevisDivorceForm } from "@/components/sections/DevisDivorceForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -54,13 +55,8 @@ export default function DevisDivorcePage() {
               réponse sous 24 à 48 heures.
             </p>
 
-            <div className="bg-white p-6 md:p-10 rounded-lg mb-12">
-              <iframe
-                src="https://www.cognitoforms.com/f/7odepi9SUkCmb7Yrf3m2Cg?id=12"
-                style={{ border: 0, width: "100%" }}
-                height="700"
-                title="Formulaire de devis divorce"
-              />
+            <div className="mb-12">
+              <DevisDivorceForm />
             </div>
 
             <div className="bg-[#362A24] text-white p-10 rounded-lg text-center">

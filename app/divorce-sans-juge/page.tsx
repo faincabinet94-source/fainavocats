@@ -49,7 +49,7 @@ const jsonLd = {
         email: "contact@fain-avocats.fr",
         address: {
           "@type": "PostalAddress",
-          streetAddress: "196 Avenue Victor Hugo",
+          streetAddress: "196 avenue Victor Hugo",
           addressLocality: "Paris",
           postalCode: "75116",
           addressCountry: "FR",
