@@ -7,6 +7,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const amounts = [
+  { label: "250 €", value: 25000 },
   { label: "500 €", value: 50000 },
   { label: "1 000 €", value: 100000 },
   { label: "1 500 €", value: 150000 },

@@ -67,6 +67,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...fichesEntries,
     ...ficheArticles,
     {
+      url: 'https://fain-avocats.fr/commencer-ma-procedure',
+      lastModified: new Date('2026-08-27'),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: 'https://fain-avocats.fr/divorce-sans-juge',
       lastModified: new Date('2026-08-23'),
       changeFrequency: 'monthly',
