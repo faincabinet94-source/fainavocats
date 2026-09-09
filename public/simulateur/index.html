@@ -187,15 +187,31 @@
       <h2><span class="num">4</span> Revenus &amp; charges</h2>
       <div class="aide">Montants <b>annuels</b>.</div>
       <div class="colheads"><div></div><div class="cm">Vous</div><div class="ce">Votre conjoint</div></div>
-      <div class="ligne"><label>Revenus professionnels annuels</label>
+      <div class="ligne"><label>Revenus annuels nets imposables <i>(salaires, BIC/BNC, retraite, chômage…)</i></label>
         <input type="number" id="revProMari" class="cm" min="0" step="1000">
         <input type="number" id="revProEpouse" class="ce" min="0" step="1000"></div>
-      <div class="ligne"><label>Revenus de substitution annuels <i>(retraite, chômage…)</i></label>
-        <input type="number" id="revSubMari" class="cm" min="0" step="1000">
-        <input type="number" id="revSubEpouse" class="ce" min="0" step="1000"></div>
+      <div class="aide" id="assietteBrute">Toutes ressources confondues, montant net imposable de l’avis d’imposition.</div>
       <div class="ligne"><label>Impôt sur le revenu annuel</label>
         <input type="number" id="impotMari" class="cm" min="0" step="500">
         <input type="number" id="impotEpouse" class="ce" min="0" step="500"></div>
+
+      <details class="avance">
+        <summary>Conversion en brut et projection à la retraite — facultatif</summary>
+        <div class="aide">Les tables de capacité d’épargne du classeur d’origine sont calibrées sur le
+          <b>revenu brut</b>. Le net imposable saisi ci-dessus est donc converti avant calcul.</div>
+        <div class="ligne"><label>Coefficient net imposable → brut</label>
+          <input type="number" id="coefBrut" class="mono" min="1" max="2" step="0.01" value="1.25"></div>
+        <div class="aide">1,25 par défaut (salaires) ; environ 1,10 pour des pensions de retraite.
+          Saisir 1 pour raisonner directement en brut.</div>
+        <div class="colheads"><div></div><div class="cm">Vous</div><div class="ce">Votre conjoint</div></div>
+        <div class="ligne"><label>Revenu net imposable prévisible à la retraite</label>
+          <input type="number" id="revRetrMari" class="cm" min="0" step="1000">
+          <input type="number" id="revRetrEpouse" class="ce" min="0" step="1000"></div>
+        <div class="aide">N’influe que sur la méthode 6 (Me Depondt). Renseigné, le revenu retenu est la moyenne
+          pondérée sur l’espérance de vie (activité jusqu’à 64 ans, puis retraite) ; laissé vide, le revenu
+          actuel est réputé maintenu jusqu’au décès. Sans effet pour une partie déjà retraitée, dont le
+          revenu saisi est déjà la pension.</div>
+      </details>
     </div>
 
     <!-- Patrimoine -->
@@ -286,6 +302,17 @@
       <li><b>5. M. Dominique Martin Saint Léon</b> : demi-différentiel des « conditions de vie » mensuelles × barème de points (âge du créancier + durée du mariage).</li>
       <li><b>6. Me Axel Depondt</b> : capacité d'épargne appliquée aux revenus globalisés (activité + patrimoine) sur 8 ans, corrigée selon le nombre d'enfants, l'âge du créancier et la durée du mariage.</li>
     </ul>
+    <h3>Assiette de revenus retenue</h3>
+    <ul>
+      <li>Les revenus sont saisis en <b>net imposable</b>, toutes ressources confondues — salaires, BIC/BNC,
+        pensions de retraite, allocations chômage. Une partie déjà retraitée porte donc sa pension sur cette ligne.</li>
+      <li>Les tables de capacité d'épargne du classeur d'origine étant établies sur le <b>revenu brut</b>,
+        le montant saisi est converti au moyen d'un coefficient (1,25 par défaut, modifiable dans les
+        paramètres avancés). L'assiette brute effectivement retenue est affichée sous la saisie.</li>
+      <li>La méthode 6 accepte en outre un <b>revenu prévisible à la retraite</b> : renseigné, le revenu retenu
+        devient la moyenne pondérée sur l'espérance de vie résiduelle ; laissé vide, le revenu actuel est réputé
+        maintenu. Les cinq autres méthodes raisonnent sur la situation actuelle.</li>
+    </ul>
     <p class="disc">Méthodes réunies dans le simulateur de l'Étude notariale de Me Alexandra Cousin / Me Xavier Amar (Paris),
       transcrites fidèlement. Table de mortalité INSEE 2006-2008. Cet outil est une aide à l'évaluation et ne se
       substitue pas à l'analyse juridique du dossier.</p>
@@ -370,6 +397,31 @@ function tauxEpargne(revenuAnnuel){
   return d1 - ((c1 - R)/largeur) * (d1 - d0);
 }
 
+/* ---------- Méthode Depondt : projection sur l'espérance de vie ---------- */
+// Années d'activité restantes, bornées à [0 ; espérance de vie].
+// Une partie déjà retraitée n'a plus d'années d'activité : 0, et non un nombre négatif.
+function anneesActiviteDp(age, retraite, esp){
+  return Math.max(0, Math.min(esp||0, (retraite||0) - (age||0)));
+}
+// Années passées à la retraite = solde de l'espérance de vie résiduelle.
+function anneesRetraiteDp(age, retraite, esp){
+  return Math.max(0, (esp||0) - anneesActiviteDp(age, retraite, esp));
+}
+// Revenu annuel moyen sur l'espérance de vie résiduelle.
+//  - partie déjà retraitée : le revenu saisi EST la pension, il vaut pour toute la période ;
+//  - revenu de retraite non renseigné : le revenu actuel est réputé maintenu jusqu'au décès ;
+//  - revenu de retraite renseigné : moyenne pondérée activité / retraite.
+// La fonction est continue en revRetr → revPro : renseigner une retraite égale au revenu actuel
+// redonne exactement le résultat du champ laissé vide.
+function revenuMoyenDepondt(revPro, revRetr, age, retraite, esp){
+  const R = revPro||0;
+  const W = anneesActiviteDp(age, retraite, esp);
+  if(W <= 0) return R;
+  if(!(revRetr > 0)) return R;
+  const Rt = anneesRetraiteDp(age, retraite, esp);
+  return ((R*W) + ((revRetr||0)*Rt)) / (esp||1);
+}
+
 /* ---------- Moteur principal ---------- */
 /*
   Objet d'entrée `e` attendu (toutes valeurs numériques, 0 par défaut) :
@@ -382,8 +434,8 @@ function tauxEpargne(revenuAnnuel){
     ageIndep                : âge d'indépendance financière prévisible (déf. 25)
     pensionParent           : 'mari' | 'epouse' | ''  (qui verse la pension enfants)
     enfants                 : [{age, pension}] (pension alimentaire mensuelle par enfant)
-    revProMari, revProEpouse: revenus professionnels ANNUELS
-    revSubMari, revSubEpouse: revenus de substitution ANNUELS
+    revProMari, revProEpouse: revenus ANNUELS bruts (toutes ressources : activité, retraite, chômage)
+    revRetrMari, revRetrEpouse: revenu ANNUEL brut prévisible à la retraite (facultatif, méthode Depondt)
     droitsMari, droitsEpouse: droits dans la liquidation
     biensMari, biensEpouse  : biens personnels en pleine propriété
     patProMari, patProEpouse: patrimoine professionnel productif de revenus
@@ -477,20 +529,17 @@ function calculer(e){
   R.saintleonCorrAge = corrAgeSL; R.saintleonCorrDuree = corrDureeSL;
 
   // ================= MÉTHODE DE MAÎTRE AXEL DEPONDT =================
-  // Revenus professionnels jusqu'à la retraite
-  const dp_C3 = (e.revProMari||0)   * ((e.retraiteMari||0)-(e.ageMari||0));
-  const dp_F3 = (e.revProEpouse||0) * ((e.retraiteEpouse||0)-(e.ageEpouse||0));
-  // Revenus de substitution (de la retraite jusqu'au décès)
-  const dp_C4 = (e.retraiteMari < e.ageMari)
-      ? (e.revSubMari||0)*espMari
-      : (e.revSubMari||0)*((espMari - (e.retraiteMari||0)) + (e.ageMari||0));
-  const dp_F4 = (e.retraiteEpouse < e.ageEpouse)
-      ? (e.revSubEpouse||0)*espEpouse
-      : (e.revSubEpouse||0)*((espEpouse - (e.retraiteEpouse||0)) + (e.ageEpouse||0));
-  const dp_C5 = dp_C3 + dp_C4;                                         // total revenus d'activité
+  // Revenus d'activité jusqu'à la retraite (jamais négatif : 0 si la partie est déjà retraitée)
+  const dp_C3 = (e.revProMari||0)   * anneesActiviteDp(e.ageMari,   e.retraiteMari,   espMari);
+  const dp_F3 = (e.revProEpouse||0) * anneesActiviteDp(e.ageEpouse, e.retraiteEpouse, espEpouse);
+  // Revenu prévisible à la retraite (de la retraite jusqu'au décès)
+  const dp_C4 = (e.revRetrMari||0)   * anneesRetraiteDp(e.ageMari,   e.retraiteMari,   espMari);
+  const dp_F4 = (e.revRetrEpouse||0) * anneesRetraiteDp(e.ageEpouse, e.retraiteEpouse, espEpouse);
+  const dp_C5 = dp_C3 + dp_C4;                                         // total revenus sur l'espérance de vie
   const dp_F5 = dp_F3 + dp_F4;
-  const dp_C6 = (e.revSubMari>0)   ? (dp_C5/(espMari||1))   : (e.revProMari||0);   // revenu moyen annuel d'activité
-  const dp_F6 = (e.revSubEpouse>0) ? (dp_F5/(espEpouse||1)) : (e.revProEpouse||0);
+  // Revenu moyen annuel sur l'espérance de vie résiduelle.
+  const dp_C6 = revenuMoyenDepondt(e.revProMari, e.revRetrMari, e.ageMari, e.retraiteMari, espMari);
+  const dp_F6 = revenuMoyenDepondt(e.revProEpouse, e.revRetrEpouse, e.ageEpouse, e.retraiteEpouse, espEpouse);
   const dp_C10 = (e.droitsMari||0)+(e.biensMari||0)-(e.patProMari||0);            // patrimoine privé
   const dp_F10 = (e.droitsEpouse||0)+(e.biensEpouse||0)-(e.patProEpouse||0);
   const dp_C11 = dp_C10 * rdt;                                         // revenus du patrimoine privé
@@ -575,7 +624,7 @@ const eur = x => (isFinite(x)?Math.round(x):0).toLocaleString('fr-FR') + ' €';
 
 const CHAMPS = ['dureeMariage','ageMari','ageEpouse',
   'nbEnfants','secoursMontant','revProMari','revProEpouse',
-  'revSubMari','revSubEpouse','impotMari','impotEpouse','droitsMari','droitsEpouse',
+  'revRetrMari','revRetrEpouse','coefBrut','impotMari','impotEpouse','droitsMari','droitsEpouse',
   'biensMari','biensEpouse',
   'npValMari','npValEpouse','npAgeMari','npAgeEpouse'];
 const SELECTS = ['sexeMari','sexeEpouse','npSexeMari','npSexeEpouse'];
@@ -584,10 +633,17 @@ const SELECTS = ['sexeMari','sexeEpouse','npSexeMari','npSexeEpouse'];
 const RETRAITE_DEFAUT = 64;   // âge de départ à la retraite
 const AGE_INDEP_DEFAUT = 25;  // âge d'indépendance financière des enfants
 const RENDEMENT_DEFAUT = 0.03; // rendement du patrimoine
+const COEF_BRUT_DEFAUT = 1.25; // passage du revenu net imposable au revenu brut
 
 const prises = {m1:true,m2:true,m3:true,m4:true,saintleon:true,depondt:true};
 
 function num(id){ const v=parseFloat($(id).value); return isFinite(v)?v:0; }
+// Coefficient de passage du net imposable au brut (1,25 par défaut, bornes de sécurité 1 à 2).
+function coefficientBrut(){
+  const v = parseFloat($('coefBrut').value);
+  if(!isFinite(v) || v < 1) return COEF_BRUT_DEFAUT;
+  return Math.min(2, v);
+}
 function radioVal(name){ const el=document.querySelector(`input[name=${name}]:checked`); return el?el.value:''; }
 
 function construireEnfants(){
@@ -619,6 +675,9 @@ function collecte(){
   const secoursPar  = radioVal('secoursPar');             // 'mari' | 'epouse'
   const montant     = num('secoursMontant');
   const secoursActif = (secoursFixe==='oui' && montant>0);
+  // Les montants de revenus sont saisis en NET IMPOSABLE ; les tables de capacité d'épargne
+  // du classeur d'origine sont calibrées sur le BRUT. Conversion à la frontière du moteur.
+  const coef = coefficientBrut();
   return {
     dureeMariage:num('dureeMariage'), ageMari:num('ageMari'), ageEpouse:num('ageEpouse'),
     sexeMari:$('sexeMari').value, sexeEpouse:$('sexeEpouse').value,
@@ -627,8 +686,9 @@ function collecte(){
     secoursEpouse:(secoursActif && secoursPar==='epouse') ? montant : 0,
     secoursActif:secoursActif,
     nbEnfants:num('nbEnfants'), ageIndep:AGE_INDEP_DEFAUT, pensionParent:pp, enfants:lireEnfants(),
-    revProMari:num('revProMari'), revProEpouse:num('revProEpouse'),
-    revSubMari:num('revSubMari'), revSubEpouse:num('revSubEpouse'),
+    revProMari:num('revProMari')*coef, revProEpouse:num('revProEpouse')*coef,
+    revRetrMari:num('revRetrMari')*coef, revRetrEpouse:num('revRetrEpouse')*coef,
+    coefBrut:coef,
     impotMari:num('impotMari'), impotEpouse:num('impotEpouse'),
     droitsMari:num('droitsMari'), droitsEpouse:num('droitsEpouse'),
     biensMari:num('biensMari'), biensEpouse:num('biensEpouse'),
@@ -655,6 +715,14 @@ function recalc(){
   $('secoursAbsent').style.display = secoursOui ? 'none'  : 'block';
 
   const r = calculer(e);
+  // Rappel de l'assiette brute effectivement retenue par les méthodes 5 et 6
+  const aB = $('assietteBrute');
+  if(e.revProMari || e.revProEpouse){
+    aB.innerHTML = `Assiette brute retenue (coefficient ${e.coefBrut.toLocaleString('fr-FR')}) : `
+      + `<b>${eur(e.revProMari)}</b> pour vous, <b>${eur(e.revProEpouse)}</b> pour votre conjoint.`;
+  } else {
+    aB.textContent = "Toutes ressources confondues, montant net imposable de l’avis d’imposition.";
+  }
   // Méthodes dépendant du devoir de secours : indisponibles si non fixé
   const dependSecours = {m1:true, m3:true, m4:true};
   // Moyenne recalculée selon disponibilité + prise en compte
@@ -721,6 +789,7 @@ function reinit(){
   if(!confirm('Effacer toutes les données saisies ?')) return;
   localStorage.removeItem('pc_sim');
   CHAMPS.forEach(c=>{ $(c).value=''; });
+  $('coefBrut').value=COEF_BRUT_DEFAUT;
   $('sexeMari').value='M'; $('sexeEpouse').value='F';
   $('npSexeMari').value='M'; $('npSexeEpouse').value='F';
   $('nbEnfants').value=0;
