@@ -57,6 +57,7 @@ type Corps = {
   nom?: string;
   email?: string;
   telephone?: string;
+  entretien?: string;
   amiable?: string;
   conjointAvocat?: string;
   enfants?: string;
@@ -99,8 +100,12 @@ export async function POST(request: Request) {
   const telephone = propre(corps.telephone, 40);
   const civilite = dansListe(corps.civilite, CIVILITES);
   const amiable = dansListe(corps.amiable, TRI);
+  /* Entretien téléphonique gratuit : « Oui » par défaut, y compris pour un
+     formulaire plus ancien qui n'envoie pas la question. Le téléphone n'est
+     obligatoire que dans ce cas ; sans entretien, le devis part quand même. */
+  const entretien = corps.entretien === "Non" ? "Non" : "Oui";
 
-  if (!prenom || !nom || !email || !telephone || !civilite || !amiable) {
+  if (!prenom || !nom || !email || !civilite || !amiable || (entretien === "Oui" && !telephone)) {
     return repondre({ message: "Des informations obligatoires manquent" }, 400);
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
@@ -124,6 +129,7 @@ export async function POST(request: Request) {
     nom,
     email,
     telephone,
+    rdvTel: entretien,
     amiable,
     conjointDejaAvocat: dansListe(corps.conjointAvocat, TRI),
     enfantsACharge: dansListe(corps.enfants, TRI),
