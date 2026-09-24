@@ -7,7 +7,7 @@ export const fr = {
     cta: "Prendre RDV"
   },
   hero: {
-    since: "Depuis 2003 • Paris 16",
+    since: "Depuis 2004 • Paris 16",
     title1: "Fain",
     title2: "Avocats",
     // Ligne integree au <h1> : sans elle le H1 ne portait que la marque.
