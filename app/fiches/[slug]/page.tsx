@@ -62,7 +62,8 @@ function markdownToHtml(md: string): string {
     .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-[#362A24] pl-6 py-2 my-6 italic text-gray-700 bg-[#F4F2EC]">$1</blockquote>')
     .replace(/^\- (.+)$/gm, '<li class="flex items-start gap-2 mb-2"><span class="text-[#362A24] mt-1 shrink-0">•</span><span>$1</span></li>')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Italique seulement pour *texte* isole : « Cerfa n° 15458*05 » n'ouvre pas d'emphase.
+    .replace(/(^|[^\w*])\*(?![\s*])([^*\n]+?)\*(?![\w*])/g, "$1<em>$2</em>")
     // Liens Markdown : externes d'abord (nouvel onglet), puis mailto et tel,
     // puis internes (meme onglet). mailto: n'etait traite par aucune des deux
     // regles : la chaine Markdown restait affichee telle quelle sur la page.
