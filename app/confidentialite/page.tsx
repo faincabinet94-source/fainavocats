@@ -98,7 +98,7 @@ export default function Confidentialite() {
                 Si vous estimez que le traitement de vos données ne respecte pas la réglementation, vous pouvez introduire une réclamation auprès de la <strong>CNIL</strong> (Commission Nationale de l&apos;Informatique et des Libertés) :
               </p>
               <p>
-                CNIL — 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07<br/>
+                CNIL, 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07<br/>
                 <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer" className="text-[#362A24] underline">www.cnil.fr</a>
               </p>
             </section>

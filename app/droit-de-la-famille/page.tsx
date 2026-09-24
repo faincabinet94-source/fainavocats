@@ -175,7 +175,7 @@ export default function DroitDeLaFamillePage() {
 
               <div className="bg-white p-8 md:p-10 rounded-lg">
                 <p className="text-gray-700 text-lg leading-relaxed mb-8">
-                  Lorsqu&apos;un mariage prend fin — par divorce ou par décès —, il
+                  Lorsqu&apos;un mariage prend fin, par divorce ou par décès, il
                   faut <strong>liquider le régime matrimonial</strong>&nbsp;:
                   déterminer ce qui appartient à chacun, régler les comptes entre les
                   époux, puis partager les biens communs. Cette opération conditionne

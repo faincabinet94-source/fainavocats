@@ -20,7 +20,7 @@ export const FAQ_ITEMS = [
   {
     question: "Peut-on revenir sur la convention après le dépôt ?",
     answer:
-      "La convention est intangible une fois déposée. Ce qui n'y a pas été prévu, ou ce qui y a été mal évalué, ne se rattrape pas facilement — c'est particulièrement vrai de la liquidation du régime matrimonial. C'est la raison pour laquelle le travail se concentre en amont de la signature.",
+      "La convention est intangible une fois déposée. Ce qui n'y a pas été prévu, ou ce qui y a été mal évalué, ne se rattrape pas facilement ; c'est particulièrement vrai de la liquidation du régime matrimonial. C'est la raison pour laquelle le travail se concentre en amont de la signature.",
   },
   {
     question: "Que se passe-t-il si nous ne sommes pas d'accord sur un point ?",

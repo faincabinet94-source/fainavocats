@@ -386,7 +386,7 @@ export const expertises: Record<string, ExpertiseData> = {
       "plainte violences conjugales avocat",
     ],
     intro:
-      "Le conflit familial bascule parfois sur le terrain pénal. Violences au sein du couple, enfant non représenté à l'issue d'un droit de visite, pension impayée depuis plusieurs mois : ces situations relèvent du code pénal autant que du code civil, et les deux procédures avancent en parallèle. Le cabinet Fain Avocats intervient de part et d'autre de la barre — aux côtés des personnes qui subissent ces faits comme de celles qui en sont accusées.",
+      "Le conflit familial bascule parfois sur le terrain pénal. Violences au sein du couple, enfant non représenté à l'issue d'un droit de visite, pension impayée depuis plusieurs mois : ces situations relèvent du code pénal autant que du code civil, et les deux procédures avancent en parallèle. Le cabinet Fain Avocats intervient de part et d'autre de la barre, aux côtés des personnes qui subissent ces faits comme de celles qui en sont accusées.",
     problemTitle: "Quand le civil rencontre le pénal",
     problemText:
       "Une même situation familiale peut se jouer devant deux juridictions en même temps, avec des logiques et des calendriers différents :",
@@ -475,7 +475,7 @@ export const expertises: Record<string, ExpertiseData> = {
       "Absence de consentement réel : mariage contracté sans intention de fonder une union, dit mariage de complaisance",
       "Empêchements tenant à l'état des personnes : mariage antérieur non dissous, lien de parenté ou d'alliance prohibé",
       "Irrégularités de célébration : défaut de publicité, incompétence de l'officier d'état civil",
-      "Délais : cinq ans pour les nullités dites relatives, trente ans pour les nullités absolues — deux régimes qu'il faut identifier tôt",
+      "Délais : cinq ans pour les nullités dites relatives, trente ans pour les nullités absolues : deux régimes qu'il faut identifier tôt",
     ],
     approachTitle: "Notre accompagnement",
     approachText:
@@ -592,7 +592,7 @@ export const expertises: Record<string, ExpertiseData> = {
       {
         question: "Qu'est-ce qu'une récompense ?",
         answer:
-          "C'est une somme due entre un époux et la communauté lorsque des fonds propres ont profité à la communauté, ou l'inverse. Le calcul des récompenses est souvent un point clé — et litigieux — de la liquidation.",
+          "C'est une somme due entre un époux et la communauté lorsque des fonds propres ont profité à la communauté, ou l'inverse. Le calcul des récompenses est souvent un point clé, et litigieux, de la liquidation.",
       },
       {
         question: "Qu'est-ce que l'indemnité d'occupation ?",

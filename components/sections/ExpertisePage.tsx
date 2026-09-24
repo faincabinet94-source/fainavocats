@@ -47,7 +47,7 @@ export function ExpertisePage({ data }: { data: ExpertiseData }) {
                 className="inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
               >
                 <Phone className="w-4 h-4" />
-                Consultation gratuite — +33 1 40 68 02 37
+                Consultation gratuite : +33 1 40 68 02 37
               </a>
             </div>
           </motion.div>
