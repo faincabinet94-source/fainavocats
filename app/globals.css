@@ -15,6 +15,21 @@
     scroll-behavior: smooth;
   }
 
+  /* Grands ecrans : le site est borne a 1 280 px et ses textes font souvent
+     14-15 px ; sur un ecran de 1 920 px, il n'occupait guere plus de la moitie
+     de la largeur et se lisait mal sans zoomer (remarque de Me FAIN, 2026-09-25).
+     zoom agrandit tout dans les memes proportions, comme le zoom du navigateur,
+     textes en px compris. Sous 1 440 px, et donc sur mobile, rien ne change. */
+  @media (min-width: 1440px) {
+    html { zoom: 1.1; }
+  }
+  @media (min-width: 1680px) {
+    html { zoom: 1.2; }
+  }
+  @media (min-width: 1900px) {
+    html { zoom: 1.3; }
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight text-foreground font-bold;
   }
