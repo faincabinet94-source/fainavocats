@@ -7,7 +7,7 @@ export const fr = {
     cta: "Prendre RDV"
   },
   hero: {
-    since: "Depuis 2003 • Paris 16",
+    since: "Depuis 2004 • Paris 16",
     title1: "Fain",
     title2: "Avocats",
     // Ligne integree au <h1> : sans elle le H1 ne portait que la marque.
@@ -79,9 +79,9 @@ export const fr = {
   },
   fondateur: {
     label: "Le fondateur",
-    role: "Avocat associé — Barreau de Paris",
+    role: "Avocat au Barreau de Paris",
     p1: "Avocat au Barreau de Paris depuis 2004, Maître Joackim Fain a fondé le cabinet avec une conviction : offrir à chaque client un accompagnement d'excellence, alliant rigueur juridique et profonde humanité.",
-    p2: "Dédié au droit de la famille et du patrimoine, il intervient dans les dossiers les plus sensibles — divorces complexes, conflits de garde, liquidations patrimoniales — avec une approche stratégique et une écoute attentive.",
+    p2: "Dédié au droit de la famille et du patrimoine, il intervient dans les dossiers les plus sensibles (divorces complexes, conflits de garde, liquidations patrimoniales) avec une approche stratégique et une écoute attentive.",
     p3: "Son engagement : défendre vos intérêts avec détermination tout en préservant ce qui compte le plus pour vous.",
     cta: "Prendre rendez-vous",
     linkedin: "Profil LinkedIn"

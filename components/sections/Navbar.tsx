@@ -180,7 +180,7 @@ export function Navbar() {
             className="flex items-center justify-center gap-3 w-full bg-[#362A24] text-white py-5 rounded-full text-lg font-semibold tracking-wide hover:bg-[#2C221D] transition-all duration-300 shadow-lg"
           >
             <Phone className="w-5 h-5" />
-            {t.nav.cta} — +33 1 40 68 02 37
+            {t.nav.cta} : +33 1 40 68 02 37
           </a>
           <p className="text-center text-xs text-gray-500 mt-3 font-medium">
             {t.hero.availability}

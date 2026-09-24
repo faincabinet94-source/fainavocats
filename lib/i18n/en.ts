@@ -7,9 +7,9 @@ export const en = {
     cta: "Schedule Consult"
   },
   hero: {
-    since: "Since 2003 • Paris 16",
+    since: "Since 2004 • Paris 16",
     title1: "Fain",
-    title2: "Partners",
+    title2: "Avocats",
     titleTagline: "Family law solicitors in Paris 16",
     subtitle: "Family law firm in Paris 16th. Divorce, child custody, wealth protection. Excellence in defense to protect your interests.",
     cta1: "Schedule a Consultation",
@@ -78,9 +78,9 @@ export const en = {
   },
   fondateur: {
     label: "The Founder",
-    role: "Managing Partner — Paris Bar",
+    role: "Attorney at the Paris Bar",
     p1: "A member of the Paris Bar since 2004, Maître Joackim Fain founded the firm with one conviction: to offer each client outstanding representation, combining legal rigor with deep humanity.",
-    p2: "Specializing in family and wealth law, he handles the most sensitive cases — complex divorces, custody disputes, asset liquidations — with a strategic approach and attentive listening.",
+    p2: "Focusing on family and wealth law, he handles the most sensitive cases (complex divorces, custody disputes, asset liquidations) with a strategic approach and attentive listening.",
     p3: "His commitment: defending your interests with determination while preserving what matters most to you.",
     cta: "Schedule a Consultation",
     linkedin: "LinkedIn Profile"

@@ -36,7 +36,7 @@ const jsonLd = {
     {
       "@type": "LegalService",
       "@id": `${URL}#service`,
-      name: "Fain Avocats — Divorce sans juge, Paris",
+      name: "Fain Avocats, divorce sans juge à Paris",
       description:
         "Divorce par consentement mutuel par acte d'avocat, sans passage devant le juge : rédaction de la convention, délai de réflexion, dépôt au rang des minutes du notaire.",
       url: URL,

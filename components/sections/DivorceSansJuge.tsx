@@ -59,7 +59,7 @@ const HERO_FACTS = [
   { value: "2", label: "avocats obligatoires, un par époux" },
   { value: "15 j", label: "de réflexion avant signature" },
   { value: "49,44 €", label: "de dépôt chez le notaire, TTC" },
-  { value: "4–6 sem.", label: "pour un dossier simple" },
+  { value: "4 à 6 sem.", label: "pour un dossier simple" },
 ];
 
 const CHANGES = [
@@ -234,7 +234,7 @@ export function DivorceSansJuge() {
       amount: "en sus",
     });
     sideNote =
-      "Ordre de grandeur. Un divorce contentieux se chiffre au cas par cas, selon les points en litige et la durée de la procédure — nous l'affinons avec vous lors du premier entretien.";
+      "Ordre de grandeur. Un divorce contentieux se chiffre au cas par cas, selon les points en litige et la durée de la procédure : nous l'affinons avec vous lors du premier entretien.";
   } else if (partenaire) {
     const socle = GRID_DCM1A[""];
     let hono = GRID_DCM1A[suffix];
@@ -286,7 +286,7 @@ export function DivorceSansJuge() {
     });
     lines.push({
       label: "Dépôt de la convention",
-      note: "Tarif réglementé du notaire, 41,20 € HT — soit 24,72 € par époux",
+      note: "Tarif réglementé du notaire, 41,20 € HT, soit 24,72 € par époux",
       amount: "49,44 €",
     });
     const total = hono + DEPOT;
@@ -319,7 +319,7 @@ export function DivorceSansJuge() {
   if (conjointOk && nats.UE && transcrit) {
     lines.push({
       label: "Certificat européen, article 66",
-      note: "Hors forfait — délivré par le président du tribunal judiciaire",
+      note: "Hors forfait, délivré par le président du tribunal judiciaire",
       amount: eur(CERTIF_66),
     });
   }
@@ -364,7 +364,7 @@ export function DivorceSansJuge() {
         warn: true,
         title: "Algérie : une procédure d'exequatur à prévoir",
         text:
-          "La convention n'est pas reconnue de plein droit en Algérie : il faut la faire déclarer exécutoire par le tribunal du lieu. Le cabinet a obtenu cette décision pour un dossier ; comptez un ordre de grandeur de deux à trois mois, et les honoraires d'un confrère sur place. L'issue n'est jamais garantie — l'ordre public local reste un motif de refus. Si vous préférez l'éviter, la requête conjointe le permet." +
+          "La convention n'est pas reconnue de plein droit en Algérie : il faut la faire déclarer exécutoire par le tribunal du lieu. Le cabinet a obtenu cette décision pour un dossier ; comptez un ordre de grandeur de deux à trois mois, et les honoraires d'un confrère sur place. L'issue n'est jamais garantie : l'ordre public local reste un motif de refus. Si vous préférez l'éviter, la requête conjointe le permet." +
           multi,
       };
     } else if (nats.MA) {
@@ -380,7 +380,7 @@ export function DivorceSansJuge() {
         warn: false,
         title: "Union européenne : un certificat à obtenir",
         text:
-          "Depuis le 1er août 2022, le divorce sans juge français circule dans l'Union européenne. Un certificat est obligatoire : sans lui, l'administration étrangère n'a rien à transcrire. Il se demande au président du tribunal judiciaire du lieu de dépôt, et suppose que les juridictions françaises étaient compétentes — un point à vérifier avant de signer, pas après. Le Danemark n'est pas concerné par ce régime." +
+          "Depuis le 1er août 2022, le divorce sans juge français circule dans l'Union européenne. Un certificat est obligatoire : sans lui, l'administration étrangère n'a rien à transcrire. Il se demande au président du tribunal judiciaire du lieu de dépôt, et suppose que les juridictions françaises étaient compétentes, un point à vérifier avant de signer, pas après. Le Danemark n'est pas concerné par ce régime." +
           multi,
       };
     }
@@ -403,7 +403,7 @@ export function DivorceSansJuge() {
         <Container>
           <div className="flex items-baseline justify-between border-b border-[#DFDCD3] pb-10 md:pb-14">
             <span className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500">
-              Fain Avocats — Paris 16
+              Fain Avocats, Paris 16
             </span>
             <span className="hidden text-xs font-bold uppercase tracking-[0.14em] text-gray-500 sm:block">
               Divorce par consentement mutuel
@@ -486,7 +486,7 @@ export function DivorceSansJuge() {
               Le divorce sans juge est un divorce amiable : le divorce par consentement mutuel
               réglé par acte d&apos;avocat. Chaque époux a son propre avocat. La convention est
               signée après un délai de réflexion de quinze jours, puis déposée au rang des
-              minutes d&apos;un notaire — c&apos;est ce dépôt qui dissout le mariage, sans
+              minutes d&apos;un notaire : c&apos;est ce dépôt qui dissout le mariage, sans
               audience ni jugement.
             </p>
           </div>
@@ -1028,7 +1028,7 @@ export function DivorceSansJuge() {
                   </blockquote>
                 </div>
                 <figcaption className="text-[13px] text-gray-500">
-                  {item.author} — {item.role}
+                  {item.author}, {item.role}
                 </figcaption>
               </figure>
             ))}
@@ -1080,7 +1080,7 @@ export function DivorceSansJuge() {
                 <br />
                 75116 Paris
                 <br />
-                Du lundi au vendredi, 9h – 19h
+                Du lundi au vendredi, 9h à 19h
               </div>
             </div>
           </div>
