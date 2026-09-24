@@ -20,6 +20,33 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/* Le formulaire de divorcefacil.co (Squarespace) envoie ici, depuis le navigateur
+   du visiteur : il ne peut pas appeler n8n directement, le secret du webhook ne
+   pouvant pas figurer dans une page publique. Seules ces origines sont admises en
+   CORS, et c'est l'origine, jamais le corps de la requête, qui fixe la source
+   enregistrée dans Airtable. divorce-facil.squarespace.com sert à l'aperçu dans
+   l'éditeur Squarespace. */
+const ORIGINES_DIVORCEFACIL = [
+  "https://divorcefacil.co",
+  "https://www.divorcefacil.co",
+  "https://divorce-facil.squarespace.com",
+];
+
+const enTetesCors = (origine: string | null): Record<string, string> =>
+  origine && ORIGINES_DIVORCEFACIL.includes(origine)
+    ? {
+        "Access-Control-Allow-Origin": origine,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Max-Age": "86400",
+        Vary: "Origin",
+      }
+    : {};
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, { status: 204, headers: enTetesCors(request.headers.get("origin")) });
+}
+
 const TRI = ["Oui", "Non", "Ne sait pas"] as const;
 const CIVILITES = ["Monsieur", "Madame"] as const;
 const MODES = ["En ligne", "Au cabinet"] as const;
@@ -47,17 +74,23 @@ const dansListe = <T extends readonly string[]>(v: unknown, liste: T) =>
   typeof v === "string" && (liste as readonly string[]).includes(v) ? v : null;
 
 export async function POST(request: Request) {
+  const origine = request.headers.get("origin");
+  const depuisDivorcefacil = !!origine && ORIGINES_DIVORCEFACIL.includes(origine);
+  const cors = enTetesCors(origine);
+  const repondre = (corpsReponse: object, status = 200) =>
+    NextResponse.json(corpsReponse, { status, headers: cors });
+
   let corps: Corps;
   try {
     corps = await request.json();
   } catch {
-    return NextResponse.json({ message: "Requête illisible" }, { status: 400 });
+    return repondre({ message: "Requête illisible" }, 400);
   }
 
   /* Piège à robots : rempli = on répond OK sans rien transmettre.
      Un robot qui reçoit une erreur réessaie ; un robot qui reçoit OK passe. */
   if (propre(corps.piege)) {
-    return NextResponse.json({ ok: true });
+    return repondre({ ok: true });
   }
 
   const prenom = propre(corps.prenom, 80);
@@ -68,25 +101,22 @@ export async function POST(request: Request) {
   const amiable = dansListe(corps.amiable, TRI);
 
   if (!prenom || !nom || !email || !telephone || !civilite || !amiable) {
-    return NextResponse.json({ message: "Des informations obligatoires manquent" }, { status: 400 });
+    return repondre({ message: "Des informations obligatoires manquent" }, 400);
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return NextResponse.json({ message: "L'adresse de courriel n'est pas valide" }, { status: 400 });
+    return repondre({ message: "L'adresse de courriel n'est pas valide" }, 400);
   }
 
   const webhook = process.env.N8N_DEVIS_WEBHOOK_URL;
   if (!webhook) {
     console.error("[devis] N8N_DEVIS_WEBHOOK_URL absente");
-    return NextResponse.json(
-      { message: "Le formulaire n'est pas encore relié" },
-      { status: 503 }
-    );
+    return repondre({ message: "Le formulaire n'est pas encore relié" }, 503);
   }
 
   /* Les libellés ci-dessous correspondent EXACTEMENT aux choix de la table
      Contacts (base Prospects). Ne pas les reformuler. */
   const charge = {
-    source: "fain-avocats",
+    source: depuisDivorcefacil ? "divorcefacil" : "fain-avocats",
     statutDuLead: "DEVIS",
     domaine: "DIVORCE",
     genre: civilite,
@@ -102,7 +132,7 @@ export async function POST(request: Request) {
     mode: dansListe(corps.mode, MODES),
     commentaires: propre(corps.commentaires, 4000),
     recuLe: new Date().toISOString(),
-    origine: "site/devis/divorce",
+    origine: depuisDivorcefacil ? "divorcefacil.co" : "site/devis/divorce",
   };
 
   try {
@@ -118,18 +148,12 @@ export async function POST(request: Request) {
     });
     if (!reponse.ok) {
       console.error("[devis] webhook n8n a répondu", reponse.status);
-      return NextResponse.json(
-        { message: "Votre demande n'a pas pu être enregistrée" },
-        { status: 502 }
-      );
+      return repondre({ message: "Votre demande n'a pas pu être enregistrée" }, 502);
     }
   } catch (e) {
     console.error("[devis] webhook injoignable", e);
-    return NextResponse.json(
-      { message: "Votre demande n'a pas pu être enregistrée" },
-      { status: 502 }
-    );
+    return repondre({ message: "Votre demande n'a pas pu être enregistrée" }, 502);
   }
 
-  return NextResponse.json({ ok: true });
+  return repondre({ ok: true });
 }

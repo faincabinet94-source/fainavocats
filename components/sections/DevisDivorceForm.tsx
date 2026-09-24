@@ -132,8 +132,8 @@ export function DevisDivorceForm() {
         <CheckCircle2 className="mb-5 h-9 w-9 text-[#362A24]" strokeWidth={1.5} />
         <h2 className="mb-4 font-serif text-3xl text-[#1A1A1A]">Votre demande est bien arrivée</h2>
         <p className="mb-6 text-left text-[17px] text-gray-600">
-          Vous recevez un accusé de réception par courriel à l&apos;instant. Nous revenons vers
-          vous sous 24 à 48 heures ouvrées avec un devis correspondant à votre situation.
+          Votre devis vous est envoyé par courriel dans quelques instants. Si rien n&apos;arrive,
+          pensez à regarder dans vos indésirables.
         </p>
         <p className="text-left text-[15px] text-gray-600">
           Si votre situation est urgente, appelez-nous directement au{" "}
