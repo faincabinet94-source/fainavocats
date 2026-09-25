@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Phone, Send, CheckCircle2, AlertTriangle, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -84,6 +84,29 @@ const inputManqueCls = "border-[#B42318]";
    (Agenda > page de réservation > Partager > Site Web, attribut src de l'iframe,
    qui se termine par « ?gv=true »). Vide : seul le bouton vers RDV_URL s'affiche. */
 const RDV_URL = "https://rdv.fain-avocats.fr/call";
+
+/* Sous 900 px de large, Google empile en-tête, calendrier et créneaux : il faut
+   environ 1 150 px pour tout voir sans ascenseur dans le cadre. Au-delà, l'affichage
+   en colonnes tient en 780 px. */
+function AgendaIntegre({ src }: { src: string }) {
+  const cadre = useRef<HTMLIFrameElement>(null);
+  const [hauteur, setHauteur] = useState(780);
+  useEffect(() => {
+    const ajuster = () => setHauteur((cadre.current?.offsetWidth ?? 800) < 900 ? 1150 : 780);
+    ajuster();
+    window.addEventListener("resize", ajuster);
+    return () => window.removeEventListener("resize", ajuster);
+  }, []);
+  return (
+    <iframe
+      ref={cadre}
+      src={src}
+      title="Réserver un entretien téléphonique"
+      style={{ height: hauteur }}
+      className="w-full rounded-lg border border-gray-200"
+    />
+  );
+}
 const AGENDA_INTEGRE =
   "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2sqWhs24vlk-2kYnlhdQltl0n0LKlPbeSdvDDVByVKCSm8po3h8ZDUHckGD00y2abbE2XzStGO?gv=true";
 
@@ -186,11 +209,7 @@ export function DevisDivorceForm() {
             </p>
             {AGENDA_INTEGRE ? (
               <>
-                <iframe
-                  src={AGENDA_INTEGRE}
-                  title="Réserver un entretien téléphonique"
-                  className="h-[700px] w-full rounded-lg border border-gray-200"
-                />
+                <AgendaIntegre src={AGENDA_INTEGRE} />
                 <p className="mt-3 text-left text-sm text-gray-500">
                   L&apos;agenda ne s&apos;affiche pas ?{" "}
                   <a href={RDV_URL} target="_blank" rel="noopener" className="underline">
