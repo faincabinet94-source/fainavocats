@@ -245,11 +245,6 @@
   status = 301
 
 [[redirects]]
-  from = "/formulaire-separation-corps"
-  to = "/fiches/separation-corps-procedure"
-  status = 301
-
-[[redirects]]
   from = "/modification-de-ltat-civil"
   to = "/etat-civil"
   status = 301
