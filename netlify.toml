@@ -39,6 +39,12 @@
   force = true
 
 [[redirects]]
+  from = "https://pay.fain-avocat.fr/p1"
+  to = "https://buy.stripe.com/bIY16Y5h00MQ04o5kt"
+  status = 302
+  force = true
+
+[[redirects]]
   from = "https://rdv.fain-avocats.fr/*"
   to = "https://fain-avocats.fr/"
   status = 302
