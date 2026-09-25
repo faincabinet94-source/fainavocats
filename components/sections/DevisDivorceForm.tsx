@@ -84,7 +84,8 @@ const inputManqueCls = "border-[#B42318]";
    (Agenda > page de réservation > Partager > Site Web, attribut src de l'iframe,
    qui se termine par « ?gv=true »). Vide : seul le bouton vers RDV_URL s'affiche. */
 const RDV_URL = "https://rdv.fain-avocats.fr/call";
-const AGENDA_INTEGRE = "";
+const AGENDA_INTEGRE =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2sqWhs24vlk-2kYnlhdQltl0n0LKlPbeSdvDDVByVKCSm8po3h8ZDUHckGD00y2abbE2XzStGO?gv=true";
 
 const COURRIEL_VALIDE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -184,11 +185,19 @@ export function DevisDivorceForm() {
               convient : nous vous appelons au numéro indiqué.
             </p>
             {AGENDA_INTEGRE ? (
-              <iframe
-                src={AGENDA_INTEGRE}
-                title="Réserver un entretien téléphonique"
-                className="h-[700px] w-full rounded-lg border border-gray-200"
-              />
+              <>
+                <iframe
+                  src={AGENDA_INTEGRE}
+                  title="Réserver un entretien téléphonique"
+                  className="h-[700px] w-full rounded-lg border border-gray-200"
+                />
+                <p className="mt-3 text-left text-sm text-gray-500">
+                  L&apos;agenda ne s&apos;affiche pas ?{" "}
+                  <a href={RDV_URL} target="_blank" rel="noopener" className="underline">
+                    Ouvrir la page de réservation
+                  </a>
+                </p>
+              </>
             ) : (
               <a
                 href={RDV_URL}
