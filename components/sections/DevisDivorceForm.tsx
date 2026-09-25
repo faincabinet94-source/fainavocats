@@ -97,6 +97,7 @@ export function DevisDivorceForm() {
   const [telephone, setTelephone] = useState("");
   const [amiable, setAmiable] = useState<Tri | null>(null);
   const [conjointAvocat, setConjointAvocat] = useState<Tri | null>(null);
+  const [partenaire, setPartenaire] = useState<Tri | null>(null);
   const [enfants, setEnfants] = useState<Tri | null>(null);
   const [immo, setImmo] = useState<Tri | null>(null);
   const [presta, setPresta] = useState<Tri | null>(null);
@@ -147,6 +148,7 @@ export function DevisDivorceForm() {
           telephone: entretien === "Oui" ? telephone.trim() : "",
           amiable,
           conjointAvocat,
+          partenaire: amiable === "Oui" && conjointAvocat === "Non" ? partenaire : null,
           enfants,
           immo,
           presta,
@@ -313,6 +315,14 @@ export function DevisDivorceForm() {
             aide="Chacun des époux doit obligatoirement avoir le sien : l'avocat commun n'est plus possible."
           >
             <Choix value={conjointAvocat} onChange={setConjointAvocat} options={OUI_NON_SAIS} />
+          </Champ>
+        )}
+        {amiable === "Oui" && conjointAvocat === "Non" && (
+          <Champ
+            label="Votre conjoint accepterait-il d'être conseillé par notre confrère partenaire ?"
+            aide="Un avocat d'un cabinet distinct du nôtre, avec qui nous travaillons régulièrement. Le devis pour le couple comprend alors les deux avocats. Votre conjoint reste libre de choisir le sien."
+          >
+            <Choix value={partenaire} onChange={setPartenaire} options={OUI_NON_SAIS} />
           </Champ>
         )}
 
