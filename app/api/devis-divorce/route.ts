@@ -60,6 +60,7 @@ type Corps = {
   entretien?: string;
   amiable?: string;
   conjointAvocat?: string;
+  partenaire?: string;
   enfants?: string;
   immo?: string;
   presta?: string;
@@ -132,6 +133,9 @@ export async function POST(request: Request) {
     rdvTel: entretien,
     amiable,
     conjointDejaAvocat: dansListe(corps.conjointAvocat, TRI),
+    /* Posée seulement si le conjoint n'a pas encore d'avocat. n8n en déduit
+       « Avocat partenaire? » et choisit le devis du couple ou le vôtre seul. */
+    partenaire: dansListe(corps.partenaire, TRI),
     enfantsACharge: dansListe(corps.enfants, TRI),
     immo: dansListe(corps.immo, TRI),
     prestationCompensatoire: dansListe(corps.presta, TRI),
