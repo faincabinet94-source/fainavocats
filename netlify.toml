@@ -1,3 +1,61 @@
+# Liens courts, repris de Rebrandly le 2026-09-25. Ces deux domaines sont des alias
+# du site : ces regles ne jouent que pour eux. 302 et non 301, pour qu'un changement de
+# destination soit pris en compte sans cache navigateur. Toute autre adresse de ces
+# domaines (anciens liens de paiement a usage unique) renvoie a l'accueil du site.
+[[redirects]]
+  from = "https://rdv.fain-avocats.fr/call"
+  to = "https://calendar.app.google/Qkj6FB3K7QUBPycY8"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://rdv.fain-avocats.fr/tel"
+  to = "https://consultation.avocat.fr/avocat-paris/joackim-fain-1132.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://rdv.fain-avocats.fr/xat"
+  to = "https://calendar.app.google/WrcqELaUtYMBcsvN9"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://rdv.fain-avocats.fr/iwn"
+  to = "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ1c6JjqFLtYPupFbTDMrV9USCMVr7Ho5dITPTnJar8SUGL8TBdFypzaRBxqwED6Oi-fqRyDB4Y3"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://pay.fain-avocat.fr/dcm"
+  to = "https://buy.stripe.com/bIY2b27p80MQ9EY28a"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://pay.fain-avocat.fr/sdc"
+  to = "https://buy.stripe.com/aEU7vm5h09jmaJ2eV7"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://pay.fain-avocat.fr/p1"
+  to = "https://buy.stripe.com/bIY16Y5h00MQ04o5kt"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://rdv.fain-avocats.fr/*"
+  to = "https://fain-avocats.fr/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "https://pay.fain-avocat.fr/*"
+  to = "https://fain-avocats.fr/"
+  status = 302
+  force = true
+
 [[redirects]]
   from = "/admin"
   to = "/admin/index.html"
