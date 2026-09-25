@@ -209,11 +209,6 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/formulaire-separation-corps',
-        destination: '/fiches/separation-corps-procedure',
-        permanent: true,
-      },
-      {
         source: '/modification-de-ltat-civil',
         destination: '/etat-civil',
         permanent: true,
