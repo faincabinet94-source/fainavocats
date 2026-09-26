@@ -12,6 +12,8 @@ import type { Donnees } from "@/lib/renseignements/modele";
  *     donnees  le JSON du champ « Données du formulaire » de la fiche
  *     date     facultatif, AAAA-MM-JJ : date de calcul des âges et de la durée
  *              du mariage (aujourd'hui par défaut)
+ *     complements  facultatif, JSON { champ: texte } : valeurs qui ne viennent
+ *              pas du formulaire, par exemple TypeDCM (code tarif de la fiche)
  *
  * Les modèles ne sont pas dans ce dépôt, qui est public : ils restent dans
  * Drive, où Me FAIN les modifie dans Word comme pour Cognito.
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
   let fichier: ArrayBuffer | Buffer;
   let brut: unknown;
   let date: unknown;
+  let complements: unknown;
   try {
     if ((request.headers.get("content-type") || "").includes("application/json")) {
       const j = await request.json();
@@ -48,6 +51,7 @@ export async function POST(request: Request) {
       fichier = Buffer.from(j.modele, "base64");
       brut = typeof j.donnees === "string" ? j.donnees : JSON.stringify(j.donnees);
       date = j.date;
+      complements = j.complements;
     } else {
       const form = await request.formData();
       const modele = form.get("modele");
@@ -55,6 +59,8 @@ export async function POST(request: Request) {
       fichier = await modele.arrayBuffer();
       brut = form.get("donnees");
       date = form.get("date");
+      const c = form.get("complements");
+      complements = typeof c === "string" && c ? JSON.parse(c) : undefined;
     }
   } catch {
     return NextResponse.json({ message: "Modèle ou données manquants" }, { status: 400 });
@@ -76,7 +82,13 @@ export async function POST(request: Request) {
   const le = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date();
 
   try {
-    const { docx, rapport } = await remplir(fichier, valeursConvention(donnees, le));
+    const valeurs = valeursConvention(donnees, le);
+    if (complements && typeof complements === "object") {
+      for (const [k, x] of Object.entries(complements as Record<string, unknown>)) {
+        if (typeof x === "string" || typeof x === "number") valeurs[k] = x;
+      }
+    }
+    const { docx, rapport } = await remplir(fichier, valeurs);
     return NextResponse.json({ docx: docx.toString("base64"), rapport });
   } catch (e) {
     console.error("[generation] échec", e);
