@@ -13,6 +13,7 @@ import {
   DOMICILES,
   FORMES_PC,
   GARDES,
+  JOURS,
   OUI_NON,
   PLAFONDS,
   PROCEDURES,
@@ -23,12 +24,14 @@ import {
   REPARTITIONS,
   SEXES,
   bienVide,
+  completer,
   creditVide,
   donneesVides,
   enfantVide,
   estMajeur,
   manquants,
   recapitulatif,
+  statutsLogement,
   vehiculeVide,
   type Donnees,
   type Manque,
@@ -100,6 +103,14 @@ function Champ({
       <div className="mt-2">{children}</div>
     </div>
   );
+}
+
+/* « 2 500,50 » → 2500.5 ; null si la saisie n'est pas un nombre. */
+function enNombre(s: string): number | null {
+  const t = (s || "").replace(/\s/g, "").replace(",", ".").replace(/[^0-9.]/g, "");
+  if (!t) return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
 }
 
 function Choix({
@@ -226,7 +237,7 @@ export default function FormulaireRenseignements() {
           const j = await r.json();
           if (r.ok && j.donnees) {
             setId(repriseId);
-            setD({ ...donneesVides(), ...j.donnees });
+            setD(completer(j.donnees));
             setInterne(Boolean(j.interne));
             setPret(true);
             return;
@@ -405,8 +416,29 @@ export default function FormulaireRenseignements() {
           <Champ label="Ville">
             <input className={inputCls} value={x.ville} onChange={(e) => maj(k("ville"), e.target.value)} />
           </Champ>
-          <Champ label="Revenus mensuels nets (€)">
-            <input className={inputCls} value={x.revenus} onChange={(e) => maj(k("revenus"), e.target.value)} inputMode="decimal" />
+          <Champ label="Revenus mensuels nets (€)" aide="Remplissez l'un ou l'autre : le second se calcule seul.">
+            <input
+              className={inputCls}
+              value={x.revenus}
+              onChange={(e) => {
+                maj(k("revenus"), e.target.value);
+                const n = enNombre(e.target.value);
+                maj(k("revenusAnnuels"), n === null ? "" : String(Math.round(n * 12)));
+              }}
+              inputMode="decimal"
+            />
+          </Champ>
+          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt.">
+            <input
+              className={inputCls}
+              value={x.revenusAnnuels}
+              onChange={(e) => {
+                maj(k("revenusAnnuels"), e.target.value);
+                const n = enNombre(e.target.value);
+                maj(k("revenus"), n === null ? "" : String(Math.round(n / 12)));
+              }}
+              inputMode="decimal"
+            />
           </Champ>
           <Champ label="Courriel" manque={manque(k("email"))}>
             <input type="email" className={inputCls} value={x.email} onChange={(e) => maj(k("email"), e.target.value)} autoComplete={lui ? "off" : "email"} />
@@ -479,6 +511,17 @@ export default function FormulaireRenseignements() {
       <Champ label="Qui conservera le domicile conjugal ?">
         <Choix options={DOMICILES} value={d.logement.domicile} onChange={(v) => maj("logement.domicile", v)} />
       </Champ>
+      <Champ
+        label={d.logement.separes === "Oui" ? "Votre logement actuel (adresse indiquée à l'étape 2)" : "Le domicile conjugal"}
+        aide="Le choix entre propriété en commun et indivise dépend du régime matrimonial indiqué à l'étape 4."
+      >
+        <Liste options={statutsLogement(d.mariage.regime)} value={d.client.statutLogement} onChange={(v) => maj("client.statutLogement", v)} />
+      </Champ>
+      {d.logement.separes === "Oui" && (
+        <Champ label="Le logement actuel de votre conjoint (adresse indiquée à l'étape 3)">
+          <Liste options={statutsLogement(d.mariage.regime)} value={d.conjoint.statutLogement} onChange={(v) => maj("conjoint.statutLogement", v)} />
+        </Champ>
+      )}
       {d.logement.separes !== "Oui" && (
         <Champ label="Délai de relogement de l'époux qui quittera le domicile">
           <Choix options={DELAIS} value={d.logement.delai} onChange={(v) => maj("logement.delai", v)} />
@@ -526,6 +569,11 @@ export default function FormulaireRenseignements() {
           </Grille>
         </Bloc>
       ))}
+      {d.enfants.some((x) => x.garde === "Alternée") && (
+        <Champ label="Jour du changement de résidence en alternance" aide="Le jour, à 19 heures, où les enfants passent d'un parent à l'autre.">
+          <Choix options={JOURS} value={d.jourAlternance} onChange={(v) => maj("jourAlternance", v)} />
+        </Champ>
+      )}
       {d.enfants.length >= PLAFONDS.enfants && (
         <p className="flex items-start gap-2 text-sm text-gray-600">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> Au-delà de {PLAFONDS.enfants} enfants, indiquez les suivants dans les commentaires : le cabinet les complétera.
