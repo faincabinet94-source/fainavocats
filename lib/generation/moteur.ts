@@ -6,8 +6,9 @@ import JSZip from "jszip";
  *   {if (Champ = "Oui")} … { end if }   bloc conditionnel, imbrications permises
  *   {else}                        branche alternative (facultative)
  *
- * Les conditions admettent =, !=, <>, >, <, >=, <=, and, or, not et les
- * parenthèses. Les comparaisons de texte ignorent la casse et les espaces aux
+ * Les conditions admettent =, ==, !=, <>, >, <, >=, <=, and, or, not, ! et
+ * les parenthèses, avec ou sans parenthèses englobantes : {if (A = "x") or
+ * (B = "y")} et {if Entry.Role == "Internal"} s'écrivent tous deux. Les comparaisons de texte ignorent la casse et les espaces aux
  * extrémités ; celles entre nombres sont numériques ("12" = 12).
  *
  * Les modèles restent ceux de Cognito, sans réécriture : Word coupe souvent une
@@ -73,8 +74,9 @@ function decouper(expr: string): Jeton[] | null {
       i = f + 1;
       continue;
     }
-    const op = /^(<>|!=|>=|<=|=|>|<)/.exec(s.slice(i));
-    if (op) { j.push({ t: "op", v: op[1] }); i += op[1].length; continue; }
+    const op = /^(<>|!=|==|>=|<=|=|>|<)/.exec(s.slice(i));
+    if (op) { j.push({ t: "op", v: op[1] === "==" ? "=" : op[1] }); i += op[1].length; continue; }
+    if (c === "!") { j.push({ t: "not", v: "not" }); i++; continue; }
     const nb = /^-?\d+(?:[.,]\d+)?/.exec(s.slice(i));
     if (nb) { j.push({ t: "nb", v: nb[0].replace(",", ".") }); i += nb[0].length; continue; }
     const id = /^[\p{L}_][\p{L}\p{N}_.]*/u.exec(s.slice(i));
@@ -227,7 +229,7 @@ function traiterPartie(xml: string, valeurs: Valeurs, inconnus: Set<string>, ill
     const de = m.index!;
     const a = de + m[0].length;
     const corps = m[1];
-    const si = /^\s*if\s*\(([\s\S]*)\)\s*$/i.exec(corps);
+    const si = /^\s*if\b\s*([\s\S]+)$/i.exec(corps);
     const finSi = /^\s*end\s*if\s*$/i.test(corps);
     const sinon = /^\s*else\s*$/i.test(corps);
     const champ = /^\s*[\p{L}_][\p{L}\p{N}_]*\s*$/u.test(corps);

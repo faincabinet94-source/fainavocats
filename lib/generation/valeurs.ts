@@ -108,6 +108,14 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
     }
   }
 
+  /* Champs propres à Cognito : date du jour (page de garde) et rôle de la
+     saisie ; TypeDCM (DCM1AE…) vient du code tarif de la fiche, transmis par
+     n8n dans les compléments. */
+  const jour = `${le.getFullYear()}-${String(le.getMonth() + 1).padStart(2, "0")}-${String(le.getDate()).padStart(2, "0")}`;
+  v.DateJour = { valeur: jour, texte: dateLongue(jour) };
+  v["Entry.Role"] = null;
+  v.TypeDCM = null;
+
   const pensions = d.enfants.map((e) => nombre(e.pension)).filter((n): n is number => n !== null);
   const total = pensions.reduce((s, n) => s + n, 0);
   v.TotalPensions = { valeur: total, texte: montant(total) };
