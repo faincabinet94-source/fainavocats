@@ -117,6 +117,38 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
     if (v.UsageNomConjointSDC !== undefined) v.UsageNomConjointDivorce = v.UsageNomConjointSDC;
   }
 
+  /* Revenus : l'année de référence est l'année civile précédente ; mensuels
+     et annuels se déduisent l'un de l'autre si un seul est connu (saisies
+     antérieures au double champ). */
+  v.AnneeRevenus = le.getFullYear() - 1;
+  (["client", "conjoint"] as const).forEach((qui, i) => {
+    const s = i === 0 ? "" : "2";
+    const p = d[qui];
+    const m = nombre(p.revenus);
+    const a = nombre(p.revenusAnnuels);
+    const mensuel = m ?? (a !== null ? Math.round(a / 12) : null);
+    const annuel = a ?? (m !== null ? Math.round(m * 12) : null);
+    v[`Revenus${s}`] = mensuel === null ? null : { valeur: mensuel, texte: montant(mensuel) };
+    v[`RevenusAnnuels${s}`] = annuel === null ? null : { valeur: annuel, texte: montant(annuel) };
+  });
+
+  /* Logement et accords : statut du logement de chaque époux, pronoms. */
+  v.StatutLogement = d.client.statutLogement || null;
+  v.StatutLogementConjoint = d.conjoint.statutLogement || null;
+  v.Pronom = d.client.civilite === "Madame" ? "elle" : "il";
+  v.PronomConjoint = d.conjoint.civilite === "Madame" ? "elle" : "il";
+  v.AccordE = d.client.civilite === "Madame" ? "e" : "";
+  v.AccordEConjoint = d.conjoint.civilite === "Madame" ? "e" : "";
+
+  /* Alternance : jour du changement de résidence, le dimanche à défaut. */
+  v.JourAlternance = d.jourAlternance || "dimanche";
+
+  /* Nationalité étrangère hors Union européenne : conditionne la clause sur la
+     reconnaissance du divorce à l'étranger. */
+  const etrangers = etrangersHorsUE(d);
+  v.EtrangerHorsUE = etrangers.length ? "Oui" : "Non";
+  v.PaysEtEpouxEtrangers = etrangers.length ? phraseEtrangers(etrangers) : null;
+
   /* Champs propres à Cognito : date du jour (page de garde) et rôle de la
      saisie ; TypeDCM (DCM1AE…) vient du code tarif de la fiche, transmis par
      n8n dans les compléments. */
@@ -132,4 +164,68 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   v.Pension1 = p1 === null ? null : { valeur: p1, texte: montant(p1) };
 
   return v;
+}
+
+/* ---------- Nationalités ---------- */
+
+const sansAccents = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/* Radicaux des nationalités des 27 États membres de l'Union européenne. */
+const UE = [
+  "franc", "allemand", "autrichien", "belge", "bulgare", "chypriot", "croate", "danois", "espagnol",
+  "estonien", "finlandais", "grec", "hongrois", "irlandais", "italien", "leton", "letton", "lituanien",
+  "luxembourgeois", "maltais", "neerlandais", "hollandais", "polonais", "portugais", "roumain", "slovaque",
+  "slovene", "suedois", "tcheque",
+];
+
+/* Radical de la nationalité → nom du pays avec son article. */
+const PAYS: [string, string][] = [
+  ["algerien", "l'Algérie"], ["marocain", "le Maroc"], ["tunisien", "la Tunisie"], ["senegalais", "le Sénégal"],
+  ["malien", "le Mali"], ["ivoirien", "la Côte d'Ivoire"], ["camerounais", "le Cameroun"], ["congolais", "le Congo"],
+  ["guineen", "la Guinée"], ["mauritanien", "la Mauritanie"], ["comorien", "les Comores"], ["beninois", "le Bénin"],
+  ["togolais", "le Togo"], ["burkinab", "le Burkina Faso"], ["gabonais", "le Gabon"], ["malgache", "Madagascar"],
+  ["mauricien", "Maurice"], ["egyptien", "l'Égypte"], ["libanais", "le Liban"], ["syrien", "la Syrie"],
+  ["irakien", "l'Irak"], ["iranien", "l'Iran"], ["israelien", "Israël"], ["turc", "la Turquie"], ["russe", "la Russie"],
+  ["ukrainien", "l'Ukraine"], ["moldave", "la Moldavie"], ["georgien", "la Géorgie"], ["armenien", "l'Arménie"],
+  ["serbe", "la Serbie"], ["albanais", "l'Albanie"], ["kosovar", "le Kosovo"], ["suisse", "la Suisse"],
+  ["britannique", "le Royaume-Uni"], ["anglais", "le Royaume-Uni"], ["norvegien", "la Norvège"],
+  ["americain", "les États-Unis"], ["canadien", "le Canada"], ["bresilien", "le Brésil"], ["colombien", "la Colombie"],
+  ["haitien", "Haïti"], ["chinois", "la Chine"], ["japonais", "le Japon"], ["vietnamien", "le Viêt Nam"],
+  ["indien", "l'Inde"], ["pakistanais", "le Pakistan"], ["afghan", "l'Afghanistan"], ["philippin", "les Philippines"],
+  ["thailandais", "la Thaïlande"], ["sri", "le Sri Lanka"], ["cambodgien", "le Cambodge"], ["laotien", "le Laos"],
+];
+const MOTS_NEUTRES = new Set(["et", "double", "nationalite", "nationalites", "de", "la", "le", "binational", "binationale", "e", "es", "s"]);
+
+type Etranger = { epoux: string; feminin: boolean; pays: string[]; brut: string };
+
+function etrangersHorsUE(d: Donnees): Etranger[] {
+  const res: Etranger[] = [];
+  for (const p of [d.client, d.conjoint]) {
+    const mots = sansAccents(p.nationalite || "").split(/[^a-z]+/).filter((m) => m && !MOTS_NEUTRES.has(m));
+    const horsUE = mots.filter((m) => !UE.some((r) => m.startsWith(r)));
+    if (!horsUE.length) continue;
+    const pays = horsUE.map((m) => PAYS.find(([r]) => m.startsWith(r))?.[1]).filter((x): x is string => Boolean(x));
+    res.push({
+      epoux: `${p.civilite} ${(p.nom || "").trim().toUpperCase()}`.trim(),
+      feminin: p.civilite === "Madame",
+      pays: Array.from(new Set(pays)),
+      brut: (p.nationalite || "").trim(),
+    });
+  }
+  return res;
+}
+
+const liste = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} et ${xs[xs.length - 1]}`);
+
+/* « l'Algérie, pays dont Madame ESSAI est ressortissante » ; nationalité non
+   reconnue : « le pays dont Madame ESSAI est ressortissante (nationalité
+   déclarée : …) », à compléter à la relecture. */
+function phraseEtrangers(es: Etranger[]): string {
+  return es
+    .map((e) => {
+      const ressortissant = "ressortissant" + (e.feminin ? "e" : "");
+      if (!e.pays.length) return `le pays dont ${e.epoux} est ${ressortissant} (nationalité déclarée : ${e.brut})`;
+      return `${liste(e.pays)}, pays dont ${e.epoux} est ${ressortissant}`;
+    })
+    .join(", et ");
 }

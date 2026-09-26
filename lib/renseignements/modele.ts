@@ -31,6 +31,28 @@ export const GARDES = [
   "Majeur plus à charge",
   "Autre",
 ] as const;
+/* Statut du logement occupé à l'adresse indiquée. « en commun » pour un régime
+   communautaire, « indivis » pour un régime séparatiste (voir statutsLogement). */
+export const STATUTS_LOGEMENT = [
+  "Location",
+  "Hébergement",
+  "Propriétaire en commun",
+  "Propriétaire indivis",
+  "Propriétaire à titre personnel",
+] as const;
+export const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
+
+/* Propriété en commun proposée sans contrat de mariage (communauté légale) ou
+   en communauté universelle, propriété indivise en séparation de biens ou
+   participation aux acquêts ; les deux si le régime n'est pas connu. */
+export function statutsLogement(regime: string): string[] {
+  const separatiste = regime === "séparation des biens" || regime === "participation aux acquêts";
+  const communautaire = regime === "communauté de biens réduite aux acquêts" || regime === "communauté universelle";
+  return STATUTS_LOGEMENT.filter(
+    (s) => !(s === "Propriétaire en commun" && separatiste) && !(s === "Propriétaire indivis" && communautaire),
+  );
+}
+
 export const QUI_IMMO = ["Moi", "Mon époux (se)", "en vente", "maintien en indivision"] as const;
 export const QUI_VEHICULE = ["Moi", "Mon époux (se)", "en vente"] as const;
 export const QUI_CREDIT = ["50/50", "Moi", "Conjoint(e)", "Autre"] as const;
@@ -62,6 +84,8 @@ export type Personne = {
   ville: string;
   profession: string;
   revenus: string;
+  revenusAnnuels: string;
+  statutLogement: string;
   email: string;
   telephone: string;
 };
@@ -106,6 +130,7 @@ export type Donnees = {
   };
   logement: { separes: string; dateSeparation: string; domicile: string; delai: string };
   nomFamilleEnfants: string;
+  jourAlternance: string;
   enfants: Enfant[];
   immobilier: Bien[];
   vehicules: Vehicule[];
@@ -135,6 +160,8 @@ const personneVide = (): Personne => ({
   ville: "",
   profession: "",
   revenus: "",
+  revenusAnnuels: "",
+  statutLogement: "",
   email: "",
   telephone: "",
 });
@@ -169,6 +196,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   mariage: { date: "", lieu: "", regime: "", contrat: "", notaire: "", villeNotaire: "", dateContrat: "" },
   logement: { separes: "", dateSeparation: "", domicile: "", delai: "" },
   nomFamilleEnfants: "",
+  jourAlternance: "",
   enfants: [],
   immobilier: [],
   vehicules: [],
@@ -185,6 +213,24 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   commentaires: "",
   pieces: [],
 });
+
+/* Saisie enregistrée avant l'ajout d'un champ (reprise d'un brouillon) :
+   complétée champ par champ, pour que chaque zone de saisie ait une valeur. */
+export function completer(x: Partial<Donnees>): Donnees {
+  const v = donneesVides(x.procedure || "Divorce");
+  return {
+    ...v,
+    ...x,
+    client: { ...v.client, ...(x.client || {}) },
+    conjoint: { ...v.conjoint, ...(x.conjoint || {}) },
+    mariage: { ...v.mariage, ...(x.mariage || {}) },
+    logement: { ...v.logement, ...(x.logement || {}) },
+    pc: { ...v.pc, ...(x.pc || {}) },
+    ds: { ...v.ds, ...(x.ds || {}) },
+    nomUsage: { ...v.nomUsage, ...(x.nomUsage || {}) },
+    enfants: (x.enfants || []).map((e) => ({ ...enfantVide(), ...e })),
+  } as Donnees;
+}
 
 /* Au-delà, les modèles de convention actuels ne suivent plus (voir la fiche
    modele-convention-dcm-cognito : le 5e enfant est complété à la main). */
@@ -443,6 +489,8 @@ export function recapitulatif(d: Donnees): Section[] {
     ["Adresse", [x.adresse, [x.cp, x.ville].filter(Boolean).join(" ")].filter(Boolean).join(", ")],
     ["Profession", x.profession],
     ["Revenus mensuels", x.revenus && `${x.revenus} €`],
+    ["Revenus annuels", x.revenusAnnuels && `${x.revenusAnnuels} €`],
+    ["Logement actuel", x.statutLogement],
     ["Courriel", x.email],
     ["Téléphone", x.telephone],
   ];
@@ -484,6 +532,7 @@ export function recapitulatif(d: Donnees): Section[] {
       titre: `Les enfants (${d.enfants.length})`,
       lignes: [
         ["Nom de famille", d.nomFamilleEnfants],
+        ["Jour de l'alternance", d.jourAlternance],
         ...d.enfants.map((e, i): [string, string] => [
           `Enfant n° ${i + 1}`,
           [
