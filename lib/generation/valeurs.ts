@@ -108,6 +108,15 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
     }
   }
 
+  /* Séparation de corps : le modèle SDC décrit le devoir de secours avec les
+     champs de la prestation compensatoire (PC, BénéficiairePC, MontantPC). */
+  if (d.procedure === "Séparation de corps") {
+    v.PC = v.DS ?? null;
+    v.BénéficiairePC = v.BénéficiaireDS ?? null;
+    v.MontantPC = v.MontantDS ?? null;
+    if (v.UsageNomConjointSDC !== undefined) v.UsageNomConjointDivorce = v.UsageNomConjointSDC;
+  }
+
   /* Champs propres à Cognito : date du jour (page de garde) et rôle de la
      saisie ; TypeDCM (DCM1AE…) vient du code tarif de la fiche, transmis par
      n8n dans les compléments. */
