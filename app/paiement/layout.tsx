@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Régler la provision | Fain Avocats Paris",
+  title: "Paiement de la provision | Fain Avocats Paris",
   description:
     "Réglez en ligne la provision qui lance votre procédure. Paiement sécurisé par Stripe. Cabinet Fain Avocats, PARIS 16.",
   keywords: [
