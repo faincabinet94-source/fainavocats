@@ -44,7 +44,7 @@ import {
   type Personne,
   type Piece,
 } from "@/lib/renseignements/modele";
-import { PROVISIONS, lienProvision, memoriserDemande } from "@/lib/paiement";
+import { PROVISIONS, memoriserDemande } from "@/lib/paiement";
 import { EcrireConjoint } from "@/components/paiement/EcrireConjoint";
 import { PaiementProvision } from "@/components/paiement/PaiementProvision";
 
@@ -1093,14 +1093,9 @@ function ReglerProvision({ d }: { d: Donnees }) {
     : partagee
       ? `Vous partagez la provision de 250 € : chacun règle ${montant}. Une fois votre part réglée, vous pouvez envoyer le lien de paiement à votre conjoint en cliquant sur « Écrire à mon conjoint ». La procédure commence dès réception des deux règlements.`
       : `Une provision de ${montant} lance la procédure. Elle vient en déduction des honoraires : ce n'est pas un supplément.`;
-  const ecrire = () =>
-    emailConjoint ? (
-      <EcrireConjoint demande={demande} />
-    ) : (
-      <p className="mt-4 break-all rounded-lg bg-white px-4 py-3 text-sm text-[#362A24]">
-        Lien à transmettre à votre conjoint : {lienProvision(p)}
-      </p>
-    );
+  /* Sans courriel du conjoint dans le formulaire, le message s'ouvre sans
+     destinataire : le client le saisit dans sa messagerie. */
+  const ecrire = () => <EcrireConjoint demande={demande} />;
   return (
     <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
       <h3 className="font-serif text-xl text-[#1A1A1A]">Pour commencer la procédure</h3>
@@ -1113,7 +1108,7 @@ function ReglerProvision({ d }: { d: Donnees }) {
             part={p}
             email={d.client.email}
             libelle={`Régler ${partagee ? "ma part" : "la provision"} de ${montant}`}
-            avant={() => partagee && emailConjoint && memoriserDemande(demande)}
+            avant={() => partagee && memoriserDemande(demande)}
           />
           {partagee && ecrire()}
         </div>
