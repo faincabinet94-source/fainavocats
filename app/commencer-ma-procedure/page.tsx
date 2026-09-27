@@ -44,7 +44,10 @@ const ETAPES: {
     texte:
       "Cet entretien avec votre avocat sert à arrêter les termes de la convention de divorce : résidence des enfants, contribution à leur entretien et à leur éducation, sort du logement, prestation compensatoire s'il y a lieu.",
     lien: {
-      href: "https://rdv.fain-avocats.fr/call",
+      /* Entretien de 30 minutes pour arrêter la convention (depuis le 2026-09-27).
+         Le bouton « Une question avant de vous lancer ? » plus bas garde l'appel de
+         découverte de 15 minutes (rdv.fain-avocats.fr/call). */
+      href: "https://calendar.app.google/iLAzw11is63TY1ns6",
       label: "Choisir un créneau",
       externe: true,
     },

@@ -864,6 +864,13 @@ export function DivorceSansJuge() {
                   En parler au téléphone
                 </a>
               </div>
+              <Link
+                href="/commencer-ma-procedure"
+                className="mt-3 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
+              >
+                Commencer la procédure
+                <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
+              </Link>
             </div>
           </div>
         </Container>

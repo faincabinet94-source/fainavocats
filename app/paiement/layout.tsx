@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Paiement en Ligne Sécurisé | Honoraires Avocat - Fain Avocats Paris",
+  title: "Régler la provision | Fain Avocats Paris",
   description:
-    "Réglez vos honoraires en toute sécurité. Paiement en ligne sécurisé par Stancer, agréé ACPR (Banque de France). Cabinet Fain Avocats Paris 16ème.",
+    "Réglez en ligne la provision qui lance votre procédure. Paiement sécurisé par Stripe. Cabinet Fain Avocats, PARIS 16.",
   keywords: [
     "paiement avocat en ligne",
     "paiement honoraires avocat",

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, CreditCard, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
@@ -12,17 +12,20 @@ import {
   DISTANCES,
   DOMICILES,
   FORMES_PC,
+  AVOCAT_PARTENAIRE,
   GARDES,
   JOURS,
   OUI_NON,
   PLAFONDS,
   PROCEDURES,
+  PROVISIONS_PARTAGE,
   QUI_CREDIT,
   QUI_IMMO,
   QUI_VEHICULE,
   REGIMES,
   REPARTITIONS,
   SEXES,
+  avocatVide,
   bienVide,
   completer,
   creditVide,
@@ -31,13 +34,17 @@ import {
   estMajeur,
   manquants,
   recapitulatif,
+  estPartenaire,
   statutsLogement,
+  texteAvocat,
   vehiculeVide,
+  type Avocat,
   type Donnees,
   type Manque,
   type Personne,
   type Piece,
 } from "@/lib/renseignements/modele";
+import { PROVISIONS, courrielConjoint, lienProvision, memoriserDemande } from "@/lib/paiement";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
    12 étapes. Remplace les formulaires Cognito n° 3, 13 et 14.
@@ -372,6 +379,7 @@ export default function FormulaireRenseignements() {
             ? "La fiche est transmise au cabinet."
             : "Nous avons bien reçu vos informations et vos pièces. Le cabinet revient vers vous pour la suite de votre dossier."}
         </p>
+        {!interne && <ReglerProvision d={d} />}
       </div>
     );
   }
@@ -416,19 +424,9 @@ export default function FormulaireRenseignements() {
           <Champ label="Ville">
             <input className={inputCls} value={x.ville} onChange={(e) => maj(k("ville"), e.target.value)} />
           </Champ>
-          <Champ label="Revenus mensuels nets (€)" aide="Remplissez l'un ou l'autre : le second se calcule seul.">
-            <input
-              className={inputCls}
-              value={x.revenus}
-              onChange={(e) => {
-                maj(k("revenus"), e.target.value);
-                const n = enNombre(e.target.value);
-                maj(k("revenusAnnuels"), n === null ? "" : String(Math.round(n * 12)));
-              }}
-              inputMode="decimal"
-            />
-          </Champ>
-          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt.">
+        </Grille>
+        <Grille>
+          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt. Remplissez l'un ou l'autre : le second se calcule seul.">
             <input
               className={inputCls}
               value={x.revenusAnnuels}
@@ -440,6 +438,20 @@ export default function FormulaireRenseignements() {
               inputMode="decimal"
             />
           </Champ>
+          <Champ label="Revenus mensuels nets (€)">
+            <input
+              className={inputCls}
+              value={x.revenus}
+              onChange={(e) => {
+                maj(k("revenus"), e.target.value);
+                const n = enNombre(e.target.value);
+                maj(k("revenusAnnuels"), n === null ? "" : String(Math.round(n * 12)));
+              }}
+              inputMode="decimal"
+            />
+          </Champ>
+        </Grille>
+        <Grille>
           <Champ label="Courriel" manque={manque(k("email"))}>
             <input type="email" className={inputCls} value={x.email} onChange={(e) => maj(k("email"), e.target.value)} autoComplete={lui ? "off" : "email"} />
           </Champ>
@@ -467,7 +479,10 @@ export default function FormulaireRenseignements() {
     /* 2. Vous */
     <div key="v">{P("client")}</div>,
     /* 3. Votre conjoint */
-    <div key="c">{P("conjoint")}</div>,
+    <div key="c" className="space-y-8">
+      {P("conjoint")}
+      {interne && <ChoixAvocat avocat={d.avocatConjoint} onChange={(a) => maj("avocatConjoint", a)} />}
+    </div>,
     /* 4. Le mariage */
     <div key="m" className="space-y-5">
       <Grille>
@@ -745,6 +760,14 @@ export default function FormulaireRenseignements() {
       <Champ label="Qui prendra en charge les honoraires ?">
         <Choix options={REPARTITIONS} value={d.repartition} onChange={(v) => maj("repartition", v)} />
       </Champ>
+      {d.repartition === "Partage par moitié" && (
+        <Champ
+          label="Et la provision de 250 € qui lance la procédure ?"
+          aide="Si vous l'avancez en entier, nous commençons sans attendre le règlement de votre conjoint. Elle vient ensuite en déduction de votre part des honoraires."
+        >
+          <Choix options={PROVISIONS_PARTAGE} value={d.provisionPartage} onChange={(v) => maj("provisionPartage", v)} />
+        </Champ>
+      )}
       <Champ label="Souhaitez-vous préciser quelque chose ?" aide="Facultatif.">
         <textarea rows={5} className={inputCls} value={d.commentaires} onChange={(e) => maj("commentaires", e.target.value)} />
       </Champ>
@@ -929,6 +952,183 @@ function ListeManquants({ m, aller }: { m: Manque[]; aller: (n: number) => void 
           {i < m.length - 1 ? ", " : "."}
         </span>
       ))}
+    </div>
+  );
+}
+
+/* Version cabinet : avocat du conjoint. Confrère partenaire par défaut, sinon
+   un avocat de la table « 👔Pro » (recherche par nom) ou un nouvel avocat. */
+function ChoixAvocat({ avocat, onChange }: { avocat: Avocat; onChange: (a: Avocat) => void }) {
+  const [q, setQ] = useState("");
+  const [resultats, setResultats] = useState<Avocat[]>([]);
+  const [etat, setEtat] = useState<"" | "cherche" | "vide" | "erreur">("");
+  const [saisie, setSaisie] = useState(!avocat.id && Boolean(avocat.nom));
+
+  useEffect(() => {
+    const t = q.trim();
+    if (t.length < 2) {
+      setResultats([]);
+      setEtat("");
+      return;
+    }
+    setEtat("cherche");
+    const minuterie = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/renseignements/avocats?q=${encodeURIComponent(t)}`);
+        const j = await r.json();
+        const liste: Avocat[] = Array.isArray(j.avocats) ? j.avocats : [];
+        setResultats(liste);
+        setEtat(r.ok ? (liste.length ? "" : "vide") : "erreur");
+      } catch {
+        setEtat("erreur");
+      }
+    }, 350);
+    return () => clearTimeout(minuterie);
+  }, [q]);
+
+  const champ = (cle: keyof Avocat, libelle: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
+    <Champ label={libelle}>
+      <input className={inputCls} value={avocat[cle]} onChange={(e) => onChange({ ...avocat, id: "", [cle]: e.target.value })} {...props} />
+    </Champ>
+  );
+
+  return (
+    <div className="space-y-4 rounded-xl border border-gray-200 p-5">
+      <div>
+        <p className="font-medium text-gray-900">L&apos;avocat du conjoint</p>
+        <p className="mt-1 text-sm text-gray-600">{texteAvocat(avocat) || "Aucun avocat indiqué"}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {!estPartenaire(avocat) && (
+          <button
+            type="button"
+            onClick={() => {
+              onChange({ ...AVOCAT_PARTENAIRE });
+              setSaisie(false);
+              setQ("");
+            }}
+            className="rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-500"
+          >
+            Revenir à Maître {AVOCAT_PARTENAIRE.prenom} {AVOCAT_PARTENAIRE.nom}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            onChange(avocatVide());
+            setSaisie(true);
+            setQ("");
+          }}
+          className="rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-500"
+        >
+          Saisir un nouvel avocat
+        </button>
+      </div>
+      <Champ label="Chercher un autre avocat dans Airtable" aide="Nom ou prénom, deux lettres au moins.">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input className={cn(inputCls, "pl-9")} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ex. : Dupont" />
+        </div>
+      </Champ>
+      {etat === "cherche" && <p className="text-sm text-gray-500">Recherche…</p>}
+      {etat === "vide" && <p className="text-sm text-gray-500">Aucun avocat trouvé : vous pouvez le saisir comme nouvel avocat.</p>}
+      {etat === "erreur" && <p className="text-sm text-[#7A1C12]">La recherche n&apos;a pas abouti. Réessayez, ou saisissez l&apos;avocat à la main.</p>}
+      {resultats.length > 0 && (
+        <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+          {resultats.map((a) => (
+            <li key={a.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(a);
+                  setSaisie(false);
+                  setQ("");
+                }}
+                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50"
+              >
+                {texteAvocat(a)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {saisie && (
+        <div className="space-y-4">
+          <Grille>
+            <Champ label="Civilité">
+              <Choix options={["Madame", "Monsieur"]} value={avocat.civilite} onChange={(v) => onChange({ ...avocat, id: "", civilite: v })} />
+            </Champ>
+            {champ("barreau", "Barreau", { placeholder: "Ex. : Paris" })}
+            {champ("prenom", "Prénom")}
+            {champ("nom", "Nom")}
+          </Grille>
+          {champ("adresse", "Adresse du cabinet")}
+          <Grille>
+            {champ("cp", "Code postal", { inputMode: "numeric" })}
+            {champ("ville", "Ville")}
+            {champ("email", "Courriel", { type: "email" })}
+            {champ("telephone", "Téléphone", { type: "tel" })}
+          </Grille>
+          <p className="text-sm text-gray-500">L&apos;avocat sera ajouté à la table « Pro » d&apos;Airtable à l&apos;envoi du formulaire.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Fin du formulaire extérieur : règlement de la provision qui lance la
+   procédure. Qui règle, et combien, dépend de la répartition des honoraires
+   choisie à l'étape « Les honoraires ». */
+function ReglerProvision({ d }: { d: Donnees }) {
+  const partagee = d.repartition === "Partage par moitié" && d.provisionPartage === PROVISIONS_PARTAGE[0];
+  const parConjoint = d.repartition === "Mon conjoint les prendra à charge";
+  const p = partagee ? "moitie" : "totale";
+  const montant = PROVISIONS[p].montant;
+  const emailConjoint = d.conjoint.email.trim();
+  const demande = { email: emailConjoint, prenomClient: d.client.prenoms.split(" ")[0] || "", procedure: d.procedure, part: p } as const;
+  const texte = parConjoint
+    ? `Votre conjoint prend les honoraires à sa charge : c'est à lui de régler la provision de ${montant}. Vous pouvez lui écrire depuis votre messagerie, le courriel est prêt.`
+    : partagee
+      ? `Vous partagez la provision de 250 € : chacun règle ${montant}. Une fois votre part réglée, nous vous proposerons d'écrire à votre conjoint pour la sienne. La procédure commence dès réception des deux règlements.`
+      : `Une provision de ${montant} lance la procédure. Elle vient en déduction des honoraires : ce n'est pas un supplément.`;
+  const ecrire = (principal: boolean) =>
+    emailConjoint ? (
+      <a
+        href={courrielConjoint(demande)}
+        className={
+          principal
+            ? "mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
+            : "mt-3 inline-flex items-center gap-2 text-sm text-[#362A24] underline underline-offset-4"
+        }
+      >
+        <Mail className="h-4 w-4" strokeWidth={1.8} />
+        {principal ? "Écrire à mon conjoint" : "ou écrire à votre conjoint dès maintenant"}
+      </a>
+    ) : (
+      <p className="mt-4 break-all rounded-lg bg-white px-4 py-3 text-sm text-[#362A24]">
+        Lien à transmettre à votre conjoint : {lienProvision(p)}
+      </p>
+    );
+  return (
+    <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
+      <h3 className="font-serif text-xl text-[#1A1A1A]">Pour commencer la procédure</h3>
+      <p className="mt-2 text-[15px] leading-relaxed text-gray-600">{texte}</p>
+      {parConjoint ? (
+        ecrire(true)
+      ) : (
+        <div className="flex flex-col items-start">
+          <a
+            href={lienProvision(p, d.client.email)}
+            onClick={() => partagee && emailConjoint && memoriserDemande(demande)}
+            className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
+          >
+            <CreditCard className="h-4 w-4" strokeWidth={1.8} />
+            Régler {partagee ? "ma part" : "la provision"} de {montant}
+          </a>
+          {partagee && ecrire(false)}
+        </div>
+      )}
+      <p className="mt-4 text-xs text-gray-500">Paiement sécurisé par Stripe.</p>
     </div>
   );
 }
