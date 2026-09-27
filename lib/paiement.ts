@@ -36,15 +36,15 @@ export type DemandeConjoint = {
   part: Provision;
 };
 
-export function courrielConjoint(x: DemandeConjoint): string {
-  const objet = x.procedure === "Séparation de corps" ? "notre séparation de corps" : "notre divorce par consentement mutuel";
+export function messageConjoint(x: DemandeConjoint): { a: string; objet: string; corps: string } {
+  const quoi = x.procedure === "Séparation de corps" ? "notre séparation de corps" : "notre divorce par consentement mutuel";
   const montant = PROVISIONS[x.part].montant;
   const lignes =
     x.part === "moitie"
       ? [
           "Bonjour,",
           "",
-          `J'ai réglé ma part de la provision qui lance ${objet} auprès du cabinet Fain Avocats.`,
+          `J'ai réglé ma part de la provision qui lance ${quoi} auprès du cabinet Fain Avocats.`,
           `Il reste la seconde moitié, ${montant}, à régler par ce lien sécurisé :`,
           lienProvision("moitie", x.email),
           "",
@@ -53,17 +53,27 @@ export function courrielConjoint(x: DemandeConjoint): string {
       : [
           "Bonjour,",
           "",
-          `Pour lancer ${objet} auprès du cabinet Fain Avocats, la provision de ${montant} est à régler par ce lien sécurisé :`,
+          `Pour lancer ${quoi} auprès du cabinet Fain Avocats, la provision de ${montant} est à régler par ce lien sécurisé :`,
           lienProvision("totale", x.email),
           "",
           "La procédure commence dès sa réception.",
         ];
   if (x.prenomClient.trim()) lignes.push("", x.prenomClient.trim());
-  const q = [
-    `subject=${encodeURIComponent(`Provision pour ${objet}`)}`,
-    `body=${encodeURIComponent(lignes.join("\r\n"))}`,
-  ].join("&");
-  return `mailto:${encodeURIComponent(x.email.trim()).replace("%40", "@")}?${q}`;
+  return { a: x.email.trim(), objet: `Provision pour ${quoi}`, corps: lignes.join("\r\n") };
+}
+
+/* Le lien mailto: n'ouvre rien quand l'ordinateur n'a pas d'application de
+   messagerie (Gmail ou Outlook dans le navigateur) : on propose aussi les
+   pages de rédaction de Gmail et d'Outlook, et la copie du message. */
+export function liensMessagerie(x: DemandeConjoint) {
+  const m = messageConjoint(x);
+  const e = encodeURIComponent;
+  return {
+    gmail: `https://mail.google.com/mail/?view=cm&fs=1&to=${e(m.a)}&su=${e(m.objet)}&body=${e(m.corps)}`,
+    outlook: `https://outlook.live.com/mail/0/deeplink/compose?to=${e(m.a)}&subject=${e(m.objet)}&body=${e(m.corps)}`,
+    application: `mailto:${e(m.a).replace("%40", "@")}?subject=${e(m.objet)}&body=${e(m.corps)}`,
+    texte: `À : ${m.a}\r\nObjet : ${m.objet}\r\n\r\n${m.corps}`,
+  };
 }
 
 /* Mémorisé dans le navigateur au moment où le client part payer sa part : la
