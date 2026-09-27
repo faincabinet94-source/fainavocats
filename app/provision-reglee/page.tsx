@@ -13,7 +13,44 @@ import { courrielConjoint, lireDemande, type DemandeConjoint } from "@/lib/paiem
    d'écrire lui-même à son conjoint, depuis sa messagerie. */
 export default function ProvisionReglee() {
   const [demande, setDemande] = useState<DemandeConjoint | null>(null);
-  useEffect(() => setDemande(lireDemande()), []);
+  /* Paiement intégré : Stripe renvoie ici avec ?session_id=… ; on vérifie que la
+     session est bien payée. Retour d'un lien de paiement : pas de session_id,
+     Stripe n'y renvoie qu'après un paiement réussi. */
+  const [echec, setEchec] = useState(false);
+  useEffect(() => {
+    setDemande(lireDemande());
+    const id = new URLSearchParams(window.location.search).get("session_id");
+    if (!id) return;
+    fetch(`/api/provision?session_id=${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((j) => setEchec(j.statut === "open" || j.statut === "expired"))
+      .catch(() => {});
+  }, []);
+
+  if (echec) {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-screen bg-[#F4F2EC] pb-24 pt-32">
+          <Container>
+            <div className="mx-auto max-w-2xl rounded-2xl border border-[#E5E2DA] bg-white p-8 text-center sm:p-12">
+              <h1 className="font-serif text-3xl text-[#1A1A1A]">Le paiement n&apos;a pas abouti</h1>
+              <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
+                Aucun montant n&apos;a été prélevé. Vous pouvez réessayer, ou nous appeler au 01 40 68 02 37.
+              </p>
+              <a
+                href="/paiement"
+                className="mt-6 inline-flex items-center gap-2.5 rounded-full bg-[#362A24] px-7 py-3.5 text-sm text-white transition-colors hover:bg-[#2C221D]"
+              >
+                Réessayer le paiement
+              </a>
+            </div>
+          </Container>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, CreditCard, Mail } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
@@ -45,6 +45,7 @@ import {
   type Piece,
 } from "@/lib/renseignements/modele";
 import { PROVISIONS, courrielConjoint, lienProvision, memoriserDemande } from "@/lib/paiement";
+import { PaiementProvision } from "@/components/paiement/PaiementProvision";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
    12 étapes. Remplace les formulaires Cognito n° 3, 13 et 14.
@@ -1117,14 +1118,12 @@ function ReglerProvision({ d }: { d: Donnees }) {
         ecrire(true)
       ) : (
         <div className="flex flex-col items-start">
-          <a
-            href={lienProvision(p, d.client.email)}
-            onClick={() => partagee && emailConjoint && memoriserDemande(demande)}
-            className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
-          >
-            <CreditCard className="h-4 w-4" strokeWidth={1.8} />
-            Régler {partagee ? "ma part" : "la provision"} de {montant}
-          </a>
+          <PaiementProvision
+            part={p}
+            email={d.client.email}
+            libelle={`Régler ${partagee ? "ma part" : "la provision"} de ${montant}`}
+            avant={() => partagee && emailConjoint && memoriserDemande(demande)}
+          />
           {partagee && ecrire(false)}
         </div>
       )}
