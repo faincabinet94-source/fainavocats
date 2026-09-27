@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, CreditCard } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, CreditCard, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
@@ -44,7 +44,7 @@ import {
   type Personne,
   type Piece,
 } from "@/lib/renseignements/modele";
-import { PROVISIONS, lienProvision } from "@/lib/paiement";
+import { PROVISIONS, courrielConjoint, lienProvision, memoriserDemande } from "@/lib/paiement";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
    12 étapes. Remplace les formulaires Cognito n° 3, 13 et 14.
@@ -1084,32 +1084,49 @@ function ReglerProvision({ d }: { d: Donnees }) {
   const parConjoint = d.repartition === "Mon conjoint les prendra à charge";
   const p = partagee ? "moitie" : "totale";
   const montant = PROVISIONS[p].montant;
-  const lienConjoint = lienProvision(p, d.conjoint.email);
+  const emailConjoint = d.conjoint.email.trim();
+  const demande = { email: emailConjoint, prenomClient: d.client.prenoms.split(" ")[0] || "", procedure: d.procedure, part: p } as const;
   const texte = parConjoint
-    ? `Votre conjoint prend les honoraires à sa charge : c'est à lui de régler la provision de ${montant}. Transmettez-lui le lien ci-dessous.`
+    ? `Votre conjoint prend les honoraires à sa charge : c'est à lui de régler la provision de ${montant}. Vous pouvez lui écrire depuis votre messagerie, le courriel est prêt.`
     : partagee
-      ? `Vous partagez la provision de 250 € : chacun règle ${montant}. La procédure commence dès réception des deux règlements.`
+      ? `Vous partagez la provision de 250 € : chacun règle ${montant}. Une fois votre part réglée, nous vous proposerons d'écrire à votre conjoint pour la sienne. La procédure commence dès réception des deux règlements.`
       : `Une provision de ${montant} lance la procédure. Elle vient en déduction des honoraires : ce n'est pas un supplément.`;
+  const ecrire = (principal: boolean) =>
+    emailConjoint ? (
+      <a
+        href={courrielConjoint(demande)}
+        className={
+          principal
+            ? "mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
+            : "mt-3 inline-flex items-center gap-2 text-sm text-[#362A24] underline underline-offset-4"
+        }
+      >
+        <Mail className="h-4 w-4" strokeWidth={1.8} />
+        {principal ? "Écrire à mon conjoint" : "ou écrire à votre conjoint dès maintenant"}
+      </a>
+    ) : (
+      <p className="mt-4 break-all rounded-lg bg-white px-4 py-3 text-sm text-[#362A24]">
+        Lien à transmettre à votre conjoint : {lienProvision(p)}
+      </p>
+    );
   return (
     <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
       <h3 className="font-serif text-xl text-[#1A1A1A]">Pour commencer la procédure</h3>
       <p className="mt-2 text-[15px] leading-relaxed text-gray-600">{texte}</p>
       {parConjoint ? (
-        <p className="mt-4 break-all rounded-lg bg-white px-4 py-3 text-sm text-[#362A24]">{lienConjoint}</p>
+        ecrire(true)
       ) : (
-        <a
-          href={lienProvision(p, d.client.email)}
-          className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
-        >
-          <CreditCard className="h-4 w-4" strokeWidth={1.8} />
-          Régler la provision de {montant}
-        </a>
-      )}
-      {partagee && (
-        <p className="mt-4 text-sm leading-relaxed text-gray-600">
-          Lien à transmettre à votre conjoint pour sa part :
-          <span className="mt-2 block break-all rounded-lg bg-white px-4 py-3 text-[#362A24]">{lienConjoint}</span>
-        </p>
+        <div className="flex flex-col items-start">
+          <a
+            href={lienProvision(p, d.client.email)}
+            onClick={() => partagee && emailConjoint && memoriserDemande(demande)}
+            className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
+          >
+            <CreditCard className="h-4 w-4" strokeWidth={1.8} />
+            Régler {partagee ? "ma part" : "la provision"} de {montant}
+          </a>
+          {partagee && ecrire(false)}
+        </div>
       )}
       <p className="mt-4 text-xs text-gray-500">Paiement sécurisé par Stripe.</p>
     </div>
