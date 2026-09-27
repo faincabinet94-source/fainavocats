@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
+import { baseAlma, verifierAlma } from "@/lib/reglements";
+import { adresseSite } from "@/lib/renseignements/n8n";
 
 /* Paiement en 3 ou 4 fois par Alma (API Payments, page de paiement Alma).
  *
  * POST { montant, fois, prenom, nom, email, telephone, objet } → { url }
  * GET  ?pid=payment_…                                         → { etat }
+ *
+ * Un paiement accepté est transmis à Airtable (voir lib/reglements.ts), à la
+ * notification d'Alma (/api/alma/notification) comme au retour du client.
  *
  * Variable Netlify : ALMA_API_KEY (sk_live_… ; une clé sk_test_… passe par le
  * bac à sable d'Alma). Alma fixe lui-même les montants minimum et maximum
@@ -14,14 +19,8 @@ export const dynamic = "force-dynamic";
 
 const COURRIEL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function base() {
-  return (process.env.ALMA_API_KEY || "").startsWith("sk_test")
-    ? "https://api.sandbox.getalma.eu"
-    : "https://api.getalma.eu";
-}
-
 async function alma(chemin: string, corps?: unknown) {
-  const r = await fetch(`${base()}/v1/${chemin}`, {
+  const r = await fetch(`${baseAlma()}/v1/${chemin}`, {
     method: corps ? "POST" : "GET",
     headers: {
       Authorization: `Alma-Auth ${process.env.ALMA_API_KEY}`,
@@ -54,6 +53,7 @@ export async function POST(request: Request) {
       installments_count: fois,
       return_url: `${origine}/paiement/merci?alma=1`,
       customer_cancel_url: `${origine}/paiement/plusieurs-fois`,
+      ipn_callback_url: `${adresseSite(request)}/api/alma/notification`,
       locale: "fr",
       custom_data: { objet, origine: "site fain-avocats.fr" },
     },
@@ -69,7 +69,5 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const pid = new URL(request.url).searchParams.get("pid") || "";
-  if (!process.env.ALMA_API_KEY || !/^payment_[A-Za-z0-9]+$/.test(pid)) return NextResponse.json({ etat: "inconnu" });
-  const r = await alma(`payments/${pid}`);
-  return NextResponse.json({ etat: r.ok ? r.j.state : "inconnu" });
+  return NextResponse.json({ etat: (await verifierAlma(pid)).statut });
 }
