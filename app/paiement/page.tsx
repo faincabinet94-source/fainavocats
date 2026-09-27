@@ -2,11 +2,12 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CreditCard, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
-import { PROVISIONS, lienProvision, type Provision } from "@/lib/paiement";
+import { type Provision } from "@/lib/paiement";
+import { PaiementProvision } from "@/components/paiement/PaiementProvision";
 
 /* Règlement de la provision de départ par les liens de paiement Stripe.
    Paramètres facultatifs, pour les liens envoyés par le cabinet :
@@ -53,17 +54,11 @@ function PaiementContent() {
                 >
                   <h2 className="font-serif text-2xl text-[#1A1A1A]">{o.titre}</h2>
                   <p className="mt-3 flex-1 text-[15px] leading-relaxed text-gray-600">{o.texte}</p>
-                  <a
-                    href={lienProvision(o.p, email)}
-                    className={`mt-6 inline-flex items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-medium transition-colors ${
-                      o.p === enAvant
-                        ? "bg-[#C2A679] text-[#1A1A1A] hover:bg-[#B39566]"
-                        : "bg-[#362A24] text-white hover:bg-[#2C221D]"
-                    }`}
-                  >
-                    <CreditCard className="h-4 w-4" strokeWidth={1.8} />
-                    Payer {PROVISIONS[o.p].montant}
-                  </a>
+                  <PaiementProvision
+                    part={o.p}
+                    email={email}
+                    className={o.p === enAvant ? "" : "bg-[#362A24] text-white hover:bg-[#2C221D]"}
+                  />
                 </div>
               ))}
             </div>

@@ -9,6 +9,14 @@ export const PROVISIONS = {
 
 export type Provision = keyof typeof PROVISIONS;
 
+/* Tarifs Stripe des mêmes liens, pour le paiement intégré au site
+   (app/api/provision) : « Provision sur procédure de divorce » et « Chaque
+   conjoint supporte sa provision ». */
+export const PRIX_PROVISIONS: Record<Provision, string> = {
+  totale: "price_1JyuXUF01Hy0M6yTcVAAUcRH",
+  moitie: "price_1JotolF01Hy0M6yTlwdlvGsb",
+};
+
 /* Stripe préremplit le courriel du payeur avec prefilled_email. */
 export function lienProvision(p: Provision, email?: string): string {
   const u = new URL(PROVISIONS[p].url);

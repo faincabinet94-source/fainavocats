@@ -31,7 +31,7 @@ const ETAPES: {
     titre: "Vous remplissez le formulaire de renseignements",
     texte:
       "Il rassemble ce dont nous avons besoin pour rédiger votre convention : votre état civil et celui de votre époux, votre mariage, vos enfants, votre patrimoine et les termes de votre accord.",
-    lien: { href: "/formulaire-divorce", label: "Ouvrir le formulaire" },
+    lien: { href: "/formulaire-renseignements", label: "Ouvrir le formulaire" },
   },
   {
     titre: "Vous réglez la provision de 250 €",
