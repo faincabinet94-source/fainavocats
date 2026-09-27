@@ -1,17 +1,17 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Lock } from "lucide-react";
+import { CreditCard, Lock } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
-import { type Provision } from "@/lib/paiement";
-import { PaiementProvision } from "@/components/paiement/PaiementProvision";
+import { PROVISIONS, type Provision } from "@/lib/paiement";
+import { CheckoutIntegre } from "@/components/paiement/PaiementProvision";
 
-/* Règlement de la provision de départ par les liens de paiement Stripe.
+/* Règlement de la provision de départ, paiement Stripe intégré à la page.
    Paramètres facultatifs, pour les liens envoyés par le cabinet :
-     email   courriel du client, prérempli sur la page Stripe
+     email   courriel du client, prérempli
      part    « moitie » pour mettre en avant la demi-provision (honoraires partagés) */
 
 const OPTIONS: { p: Provision; titre: string; texte: string }[] = [
@@ -31,6 +31,8 @@ function PaiementContent() {
   const params = useSearchParams();
   const email = params.get("email") || "";
   const enAvant: Provision = params.get("part") === "moitie" ? "moitie" : "totale";
+  const [choix, setChoix] = useState<Provision | null>(null);
+  const marque = choix || enAvant;
 
   return (
     <>
@@ -50,18 +52,35 @@ function PaiementContent() {
               {OPTIONS.map((o) => (
                 <div
                   key={o.p}
-                  className={`flex flex-col rounded-lg bg-white p-8 ${o.p === enAvant ? "ring-2 ring-[#C2A679]" : ""}`}
+                  className={`flex flex-col rounded-lg bg-white p-8 ${o.p === marque ? "ring-2 ring-[#C2A679]" : ""}`}
                 >
                   <h2 className="font-serif text-2xl text-[#1A1A1A]">{o.titre}</h2>
                   <p className="mt-3 flex-1 text-[15px] leading-relaxed text-gray-600">{o.texte}</p>
-                  <PaiementProvision
-                    part={o.p}
-                    email={email}
-                    className={o.p === enAvant ? "" : "bg-[#362A24] text-white hover:bg-[#2C221D]"}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChoix(o.p);
+                      setTimeout(() => document.getElementById("paiement")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+                    }}
+                    aria-pressed={choix === o.p}
+                    className={`mt-6 inline-flex items-center justify-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-medium transition-colors ${
+                      o.p === marque
+                        ? "bg-[#C2A679] text-[#1A1A1A] hover:bg-[#B39566]"
+                        : "bg-[#362A24] text-white hover:bg-[#2C221D]"
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4" strokeWidth={1.8} />
+                    Payer {PROVISIONS[o.p].montant}
+                  </button>
                 </div>
               ))}
             </div>
+
+            {choix && (
+              <div id="paiement" className="mt-8 rounded-lg bg-white p-2 sm:p-6">
+                <CheckoutIntegre key={choix} part={choix} email={email} />
+              </div>
+            )}
 
             <p className="mt-8 flex items-center justify-center gap-2 text-sm text-gray-500">
               <Lock className="h-4 w-4" />
