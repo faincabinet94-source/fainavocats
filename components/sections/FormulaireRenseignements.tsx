@@ -33,6 +33,7 @@ import {
   enfantVide,
   estMajeur,
   manquants,
+  adresse,
   enCapitales,
   nomDeLieu,
   normaliser,
@@ -424,7 +425,7 @@ export default function FormulaireRenseignements() {
           </Champ>
         </Grille>
         <Champ label="Adresse" manque={manque(k("adresse"))}>
-          <input className={inputCls} value={x.adresse} onChange={(e) => maj(k("adresse"), e.target.value)} autoComplete={lui ? "off" : "street-address"} />
+          <input className={inputCls} value={x.adresse} onChange={(e) => maj(k("adresse"), e.target.value)} onBlur={(e) => maj(k("adresse"), adresse(e.target.value))} autoComplete={lui ? "off" : "street-address"} />
         </Champ>
         <Grille>
           <Champ label="Code postal" manque={manque(k("cp"))}>
@@ -586,7 +587,7 @@ export default function FormulaireRenseignements() {
                   <input className={inputCls} value={x.profession} onChange={(e) => maj(`enfants.${i}.profession`, e.target.value)} />
                 </Champ>
                 <Champ label="Adresse" manque={manque(`enfants.${i}.adresse`)}>
-                  <input className={inputCls} value={x.adresse} onChange={(e) => maj(`enfants.${i}.adresse`, e.target.value)} />
+                  <input className={inputCls} value={x.adresse} onChange={(e) => maj(`enfants.${i}.adresse`, e.target.value)} onBlur={(e) => maj(`enfants.${i}.adresse`, adresse(e.target.value))} />
                 </Champ>
               </>
             )}
@@ -617,7 +618,7 @@ export default function FormulaireRenseignements() {
         {d.immobilier.map((x, i) => (
           <Bloc key={i} titre={`Bien n° ${i + 1}`} onRetirer={() => maj("immobilier", d.immobilier.filter((_, j) => j !== i))}>
             <Champ label="Adresse" manque={manque(`immobilier.${i}.adresse`)}>
-              <input className={inputCls} value={x.adresse} onChange={(e) => maj(`immobilier.${i}.adresse`, e.target.value)} />
+              <input className={inputCls} value={x.adresse} onChange={(e) => maj(`immobilier.${i}.adresse`, e.target.value)} onBlur={(e) => maj(`immobilier.${i}.adresse`, adresse(e.target.value))} />
             </Champ>
             <Grille>
               <Champ label="Valeur estimée (€)">

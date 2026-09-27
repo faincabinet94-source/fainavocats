@@ -456,12 +456,44 @@ export function nomDeLieu(s: string): string {
     .join("");
 }
 
+/* Adresses : le type de voie en minuscules, le nom propre avec ses capitales
+   (15 rue Paul Vaillant Couturier, 196 avenue Victor Hugo, place de la
+   République, rue du Faubourg-Saint-Honoré). Une lettre seule saisie en
+   capitale (bâtiment A) est conservée. */
+const VOIES = new Set([
+  "rue", "avenue", "av", "boulevard", "bd", "bld", "place", "allée", "allee", "chemin", "impasse", "route",
+  "quai", "cours", "square", "passage", "villa", "cité", "cite", "résidence", "residence", "voie", "sentier",
+  "rond-point", "esplanade", "parvis", "promenade", "sente", "ruelle", "hameau", "lieu-dit", "lotissement",
+  "chaussée", "chaussee", "carrefour", "clos", "domaine", "mail", "montée", "port", "traverse", "bâtiment",
+  "batiment", "bât", "bat", "appartement", "appt", "apt", "étage", "etage", "escalier", "esc", "porte",
+  "bis", "ter", "quater",
+]);
+export function adresse(s: string): string {
+  const morceaux = (s || "").replace(/\s+/g, " ").trim().split(/([\s\-'’(),]+)/);
+  let premier = true;
+  return morceaux
+    .map((t) => {
+      if (!t || /^[\s\-'’(),]+$/.test(t)) return t;
+      const bas = t.toLocaleLowerCase("fr-FR");
+      let r: string;
+      if (/\d/.test(t)) r = bas;
+      else if (VOIES.has(bas)) r = bas;
+      else if (!premier && PETITS_MOTS.has(bas)) r = bas;
+      else if (t.length === 1 && t === t.toLocaleUpperCase("fr-FR")) r = t;
+      else r = bas.charAt(0).toLocaleUpperCase("fr-FR") + bas.slice(1);
+      if (!/\d/.test(t)) premier = false;
+      return r;
+    })
+    .join("");
+}
+
 /* Appliquée à l'envoi, pour les saisies faites avant ces règles ou reprises. */
 export function normaliser(d: Donnees): Donnees {
   const p = (x: Personne): Personne => ({
     ...x,
     nom: enCapitales(x.nom).trim(),
     ville: enCapitales(x.ville).trim(),
+    adresse: adresse(x.adresse),
     lieuNaissance: nomDeLieu(x.lieuNaissance),
   });
   return {
@@ -470,7 +502,8 @@ export function normaliser(d: Donnees): Donnees {
     conjoint: p(d.conjoint),
     nomFamilleEnfants: enCapitales(d.nomFamilleEnfants).trim(),
     mariage: { ...d.mariage, lieu: nomDeLieu(d.mariage.lieu) },
-    enfants: d.enfants.map((e) => ({ ...e, lieuNaissance: nomDeLieu(e.lieuNaissance) })),
+    enfants: d.enfants.map((e) => ({ ...e, lieuNaissance: nomDeLieu(e.lieuNaissance), adresse: adresse(e.adresse) })),
+    immobilier: d.immobilier.map((b) => ({ ...b, adresse: adresse(b.adresse) })),
   };
 }
 
