@@ -2,6 +2,24 @@
 const nextConfig = {
   async redirects() {
     return [
+      // Anciennes pages Cognito (formulaires 3, 13 et 14) → formulaire commun du
+      // site. Le paramètre entry (pré-remplissage) est conservé. Redirections
+      // temporaires (307) : réversibles tant que Cognito n'est pas résilié.
+      {
+        source: '/formulaire-divorce',
+        destination: '/formulaire-renseignements',
+        permanent: false,
+      },
+      {
+        source: '/formulaire-separation-corps',
+        destination: '/formulaire-renseignements?procedure=sdc',
+        permanent: false,
+      },
+      {
+        source: '/form-dcm',
+        destination: '/formulaire-renseignements?interne=1',
+        permanent: false,
+      },
       // Liquidation du régime matrimonial : ancienne page patrimoine-successions
       // et variante plurielle → URL canonique /liquidation-regime-matrimonial
       {
