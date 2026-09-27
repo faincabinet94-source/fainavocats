@@ -132,6 +132,9 @@ export function Footer() {
               <a href="/paiement/mensualites" className="hover:text-[#362A24] transition-colors">
                 Règlement en mensualités
               </a>
+              <a href="/paiement/stancer" className="hover:text-[#362A24] transition-colors">
+                Paiement en ligne (Stancer)
+              </a>
             </div>
           </div>
 
