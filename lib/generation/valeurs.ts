@@ -1,4 +1,4 @@
-import { age, chargeCognito, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, age, chargeCognito, estPartenaire, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 
 /* Valeurs des modèles de convention, sous les noms de champs de Cognito.
@@ -148,6 +148,18 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   const etrangers = etrangersHorsUE(d);
   v.EtrangerHorsUE = etrangers.length ? "Oui" : "Non";
   v.PaysEtEpouxEtrangers = etrangers.length ? phraseEtrangers(etrangers) : null;
+
+  /* Avocat du conjoint : le confrère partenaire à défaut d'autre choix. La
+     mention « Exerçant à titre individuel » n'est connue que pour lui : pour
+     un autre avocat, la ligne disparaît du modèle. */
+  const av = d.avocatConjoint && d.avocatConjoint.nom ? d.avocatConjoint : AVOCAT_PARTENAIRE;
+  const nomAv = (av.nom || "").trim().toUpperCase();
+  v.AvocatConjoint = [av.prenom, nomAv].filter(Boolean).join(" ");
+  v.NomAvocatConjoint = nomAv;
+  v.BarreauAvocatConjoint = av.barreau || null;
+  v.AdresseAvocatConjoint = [av.adresse, [av.cp, (av.ville || "").toUpperCase()].filter(Boolean).join(" ")].filter(Boolean).join(" - ") || null;
+  v.EmailAvocatConjoint = av.email || null;
+  v.ExerciceAvocatConjoint = estPartenaire(av) ? "Exerçant à titre individuel" : null;
 
   /* Champs propres à Cognito : date du jour (page de garde) et rôle de la
      saisie ; TypeDCM (DCM1AE…) vient du code tarif de la fiche, transmis par

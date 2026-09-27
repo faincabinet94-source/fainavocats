@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
@@ -12,6 +12,7 @@ import {
   DISTANCES,
   DOMICILES,
   FORMES_PC,
+  AVOCAT_PARTENAIRE,
   GARDES,
   JOURS,
   OUI_NON,
@@ -23,6 +24,7 @@ import {
   REGIMES,
   REPARTITIONS,
   SEXES,
+  avocatVide,
   bienVide,
   completer,
   creditVide,
@@ -31,8 +33,11 @@ import {
   estMajeur,
   manquants,
   recapitulatif,
+  estPartenaire,
   statutsLogement,
+  texteAvocat,
   vehiculeVide,
+  type Avocat,
   type Donnees,
   type Manque,
   type Personne,
@@ -416,6 +421,8 @@ export default function FormulaireRenseignements() {
           <Champ label="Ville">
             <input className={inputCls} value={x.ville} onChange={(e) => maj(k("ville"), e.target.value)} />
           </Champ>
+        </Grille>
+        <Grille>
           <Champ label="Revenus mensuels nets (€)" aide="Remplissez l'un ou l'autre : le second se calcule seul.">
             <input
               className={inputCls}
@@ -440,6 +447,8 @@ export default function FormulaireRenseignements() {
               inputMode="decimal"
             />
           </Champ>
+        </Grille>
+        <Grille>
           <Champ label="Courriel" manque={manque(k("email"))}>
             <input type="email" className={inputCls} value={x.email} onChange={(e) => maj(k("email"), e.target.value)} autoComplete={lui ? "off" : "email"} />
           </Champ>
@@ -467,7 +476,10 @@ export default function FormulaireRenseignements() {
     /* 2. Vous */
     <div key="v">{P("client")}</div>,
     /* 3. Votre conjoint */
-    <div key="c">{P("conjoint")}</div>,
+    <div key="c" className="space-y-8">
+      {P("conjoint")}
+      {interne && <ChoixAvocat avocat={d.avocatConjoint} onChange={(a) => maj("avocatConjoint", a)} />}
+    </div>,
     /* 4. Le mariage */
     <div key="m" className="space-y-5">
       <Grille>
@@ -929,6 +941,126 @@ function ListeManquants({ m, aller }: { m: Manque[]; aller: (n: number) => void 
           {i < m.length - 1 ? ", " : "."}
         </span>
       ))}
+    </div>
+  );
+}
+
+/* Version cabinet : avocat du conjoint. Confrère partenaire par défaut, sinon
+   un avocat de la table « 👔Pro » (recherche par nom) ou un nouvel avocat. */
+function ChoixAvocat({ avocat, onChange }: { avocat: Avocat; onChange: (a: Avocat) => void }) {
+  const [q, setQ] = useState("");
+  const [resultats, setResultats] = useState<Avocat[]>([]);
+  const [etat, setEtat] = useState<"" | "cherche" | "vide" | "erreur">("");
+  const [saisie, setSaisie] = useState(!avocat.id && Boolean(avocat.nom));
+
+  useEffect(() => {
+    const t = q.trim();
+    if (t.length < 2) {
+      setResultats([]);
+      setEtat("");
+      return;
+    }
+    setEtat("cherche");
+    const minuterie = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/renseignements/avocats?q=${encodeURIComponent(t)}`);
+        const j = await r.json();
+        const liste: Avocat[] = Array.isArray(j.avocats) ? j.avocats : [];
+        setResultats(liste);
+        setEtat(r.ok ? (liste.length ? "" : "vide") : "erreur");
+      } catch {
+        setEtat("erreur");
+      }
+    }, 350);
+    return () => clearTimeout(minuterie);
+  }, [q]);
+
+  const champ = (cle: keyof Avocat, libelle: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
+    <Champ label={libelle}>
+      <input className={inputCls} value={avocat[cle]} onChange={(e) => onChange({ ...avocat, id: "", [cle]: e.target.value })} {...props} />
+    </Champ>
+  );
+
+  return (
+    <div className="space-y-4 rounded-xl border border-gray-200 p-5">
+      <div>
+        <p className="font-medium text-gray-900">L&apos;avocat du conjoint</p>
+        <p className="mt-1 text-sm text-gray-600">{texteAvocat(avocat) || "Aucun avocat indiqué"}</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {!estPartenaire(avocat) && (
+          <button
+            type="button"
+            onClick={() => {
+              onChange({ ...AVOCAT_PARTENAIRE });
+              setSaisie(false);
+              setQ("");
+            }}
+            className="rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-500"
+          >
+            Revenir à Maître {AVOCAT_PARTENAIRE.prenom} {AVOCAT_PARTENAIRE.nom}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            onChange(avocatVide());
+            setSaisie(true);
+            setQ("");
+          }}
+          className="rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-500"
+        >
+          Saisir un nouvel avocat
+        </button>
+      </div>
+      <Champ label="Chercher un autre avocat dans Airtable" aide="Nom ou prénom, deux lettres au moins.">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input className={cn(inputCls, "pl-9")} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ex. : Dupont" />
+        </div>
+      </Champ>
+      {etat === "cherche" && <p className="text-sm text-gray-500">Recherche…</p>}
+      {etat === "vide" && <p className="text-sm text-gray-500">Aucun avocat trouvé : vous pouvez le saisir comme nouvel avocat.</p>}
+      {etat === "erreur" && <p className="text-sm text-[#7A1C12]">La recherche n&apos;a pas abouti. Réessayez, ou saisissez l&apos;avocat à la main.</p>}
+      {resultats.length > 0 && (
+        <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+          {resultats.map((a) => (
+            <li key={a.id}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(a);
+                  setSaisie(false);
+                  setQ("");
+                }}
+                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50"
+              >
+                {texteAvocat(a)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {saisie && (
+        <div className="space-y-4">
+          <Grille>
+            <Champ label="Civilité">
+              <Choix options={["Madame", "Monsieur"]} value={avocat.civilite} onChange={(v) => onChange({ ...avocat, id: "", civilite: v })} />
+            </Champ>
+            {champ("barreau", "Barreau", { placeholder: "Ex. : Paris" })}
+            {champ("prenom", "Prénom")}
+            {champ("nom", "Nom")}
+          </Grille>
+          {champ("adresse", "Adresse du cabinet")}
+          <Grille>
+            {champ("cp", "Code postal", { inputMode: "numeric" })}
+            {champ("ville", "Ville")}
+            {champ("email", "Courriel", { type: "email" })}
+            {champ("telephone", "Téléphone", { type: "tel" })}
+          </Grille>
+          <p className="text-sm text-gray-500">L&apos;avocat sera ajouté à la table « Pro » d&apos;Airtable à l&apos;envoi du formulaire.</p>
+        </div>
+      )}
     </div>
   );
 }

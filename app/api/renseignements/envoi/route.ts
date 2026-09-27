@@ -68,6 +68,11 @@ export async function POST(request: Request) {
   });
   if (!ok) return NextResponse.json({ message: "Votre formulaire n'a pas pu être transmis" }, { status: 502 });
 
+  /* Avocat saisi à la main en version cabinet : n8n le crée dans la table
+     « 👔Pro ». Un échec n'empêche pas l'envoi : la fiche porte déjà l'avocat. */
+  const av = d.avocatConjoint;
+  if (interne && av && !av.id && av.nom.trim()) await versN8n({ avocat: av, dossier: dossier(d) }, "avocats-nouveau");
+
   await saisies().setJSON(id, { donnees: d, interne, envoye: true, envoyeLe: maintenant, numero });
   return NextResponse.json({ ok: true });
 }

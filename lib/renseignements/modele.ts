@@ -111,6 +111,49 @@ export type Credit = {
   derniereEcheance: string;
   qui: string;
 };
+/* Avocat du conjoint. Par défaut le confrère partenaire ; en version cabinet,
+   un autre avocat de la table « 👔Pro » d'Airtable (id renseigné) ou un
+   nouvel avocat saisi à la main (id vide, créé dans Airtable à l'envoi). */
+export type Avocat = {
+  id: string;
+  civilite: string;
+  prenom: string;
+  nom: string;
+  barreau: string;
+  adresse: string;
+  cp: string;
+  ville: string;
+  email: string;
+  telephone: string;
+};
+export const AVOCAT_PARTENAIRE: Avocat = {
+  id: "recWfzDbvlHzPcemk",
+  civilite: "Madame",
+  prenom: "Jeanne",
+  nom: "TRAN",
+  barreau: "Paris",
+  adresse: "10 rue Emilio Castelar",
+  cp: "75012",
+  ville: "PARIS",
+  email: "jt@tran-avocats.fr",
+  telephone: "",
+};
+export const avocatVide = (): Avocat => ({
+  id: "", civilite: "", prenom: "", nom: "", barreau: "", adresse: "", cp: "", ville: "", email: "", telephone: "",
+});
+export const estPartenaire = (a: Avocat) => a.id === AVOCAT_PARTENAIRE.id;
+
+export const texteAvocat = (a: Avocat) =>
+  [
+    ["Maître", a.prenom, (a.nom || "").trim().toUpperCase()].filter(Boolean).join(" "),
+    a.barreau && `Barreau de ${a.barreau}`,
+    [a.adresse, [a.cp, a.ville].filter(Boolean).join(" ")].filter(Boolean).join(", "),
+    a.email,
+    a.id ? "" : "(nouvel avocat, créé dans Airtable à l'envoi)",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
 export type Piece = { id: string; nom: string; type: string; taille: number; categorie: string };
 
 export type Donnees = {
@@ -131,6 +174,7 @@ export type Donnees = {
   logement: { separes: string; dateSeparation: string; domicile: string; delai: string };
   nomFamilleEnfants: string;
   jourAlternance: string;
+  avocatConjoint: Avocat;
   enfants: Enfant[];
   immobilier: Bien[];
   vehicules: Vehicule[];
@@ -197,6 +241,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   logement: { separes: "", dateSeparation: "", domicile: "", delai: "" },
   nomFamilleEnfants: "",
   jourAlternance: "",
+  avocatConjoint: { ...AVOCAT_PARTENAIRE },
   enfants: [],
   immobilier: [],
   vehicules: [],
@@ -228,6 +273,7 @@ export function completer(x: Partial<Donnees>): Donnees {
     pc: { ...v.pc, ...(x.pc || {}) },
     ds: { ...v.ds, ...(x.ds || {}) },
     nomUsage: { ...v.nomUsage, ...(x.nomUsage || {}) },
+    avocatConjoint: { ...v.avocatConjoint, ...(x.avocatConjoint || {}) },
     enfants: (x.enfants || []).map((e) => ({ ...enfantVide(), ...e })),
   } as Donnees;
 }
@@ -504,7 +550,15 @@ export function recapitulatif(d: Donnees): Section[] {
       ],
     },
     { titre: "Le client", lignes: p(d.client) },
-    { titre: "Le conjoint", lignes: p(d.conjoint) },
+    {
+      titre: "Le conjoint",
+      lignes: [
+        ...p(d.conjoint),
+        ...(d.avocatConjoint && !estPartenaire(d.avocatConjoint)
+          ? ([["Avocat du conjoint", texteAvocat(d.avocatConjoint)]] as [string, string][])
+          : []),
+      ],
+    },
     {
       titre: "Le mariage",
       lignes: [

@@ -1,13 +1,13 @@
 /* Relais vers n8n. Même webhook protégé que le devis (secret en en-tête
    X-Devis-Secret), sur le chemin « renseignements » : aucune nouvelle variable
    d'environnement à créer sur Netlify. */
-export async function versN8n(charge: unknown): Promise<boolean> {
+export async function versN8n(charge: unknown, chemin = "renseignements"): Promise<boolean> {
   const devis = process.env.N8N_DEVIS_WEBHOOK_URL;
   if (!devis) {
     console.error("[renseignements] N8N_DEVIS_WEBHOOK_URL absente");
     return false;
   }
-  const url = devis.replace(/devis-divorce\/?$/, "renseignements");
+  const url = devis.replace(/devis-divorce\/?$/, chemin);
   const secret = process.env.N8N_DEVIS_WEBHOOK_SECRET;
   try {
     const r = await fetch(url, {
