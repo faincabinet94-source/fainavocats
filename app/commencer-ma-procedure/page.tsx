@@ -89,7 +89,25 @@ const ETAPES: {
   },
 ];
 
-export default function CommencerMaProcedurePage() {
+/* Le bouton « Commencer la procédure » du courriel de devis porte les
+   coordonnées du prospect (?entry=, même format que le formulaire de
+   renseignements) : elles sont transmises au formulaire et, pour le courriel,
+   au paiement de la provision. */
+function lienAvecEntree(href: string, entry: string | undefined): string {
+  if (!entry) return href;
+  let e: Record<string, string>;
+  try {
+    e = JSON.parse(entry);
+  } catch {
+    return href;
+  }
+  if (href === "/formulaire-renseignements") return `${href}?entry=${encodeURIComponent(entry)}`;
+  if (href === "/paiement" && e.Email) return `${href}?email=${encodeURIComponent(e.Email)}`;
+  return href;
+}
+
+export default function CommencerMaProcedurePage({ searchParams }: { searchParams: { entry?: string } }) {
+  const entry = typeof searchParams?.entry === "string" ? searchParams.entry : undefined;
   return (
     <>
       <Navbar />
@@ -136,7 +154,7 @@ export default function CommencerMaProcedurePage() {
                       <p className="mt-3 leading-relaxed text-gray-600">{etape.texte}</p>
                       {etape.lien && (
                         <a
-                          href={etape.lien.href}
+                          href={lienAvecEntree(etape.lien.href, entry)}
                           {...(etape.lien.externe
                             ? { target: "_blank", rel: "noopener noreferrer" }
                             : {})}
