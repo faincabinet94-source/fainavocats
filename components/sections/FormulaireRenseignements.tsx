@@ -423,19 +423,7 @@ export default function FormulaireRenseignements() {
           </Champ>
         </Grille>
         <Grille>
-          <Champ label="Revenus mensuels nets (€)" aide="Remplissez l'un ou l'autre : le second se calcule seul.">
-            <input
-              className={inputCls}
-              value={x.revenus}
-              onChange={(e) => {
-                maj(k("revenus"), e.target.value);
-                const n = enNombre(e.target.value);
-                maj(k("revenusAnnuels"), n === null ? "" : String(Math.round(n * 12)));
-              }}
-              inputMode="decimal"
-            />
-          </Champ>
-          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt.">
+          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt. Remplissez l'un ou l'autre : le second se calcule seul.">
             <input
               className={inputCls}
               value={x.revenusAnnuels}
@@ -443,6 +431,18 @@ export default function FormulaireRenseignements() {
                 maj(k("revenusAnnuels"), e.target.value);
                 const n = enNombre(e.target.value);
                 maj(k("revenus"), n === null ? "" : String(Math.round(n / 12)));
+              }}
+              inputMode="decimal"
+            />
+          </Champ>
+          <Champ label="Revenus mensuels nets (€)">
+            <input
+              className={inputCls}
+              value={x.revenus}
+              onChange={(e) => {
+                maj(k("revenus"), e.target.value);
+                const n = enNombre(e.target.value);
+                maj(k("revenusAnnuels"), n === null ? "" : String(Math.round(n * 12)));
               }}
               inputMode="decimal"
             />
