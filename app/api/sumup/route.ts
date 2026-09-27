@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import { verifierSumup } from "@/lib/reglements";
+import { adresseSite } from "@/lib/renseignements/n8n";
 
 /* Versement libre par SumUp (API Checkouts + module de carte intégré).
  *
  * POST { montant, nom, email, objet } → { id }  (id de checkout pour SumUpCard.mount)
  * GET  ?id=…                          → { statut } (PAID quand le paiement est passé)
+ *
+ * Un paiement passé est transmis à Airtable (voir lib/reglements.ts), à la
+ * notification de SumUp (/api/sumup/notification) comme au retour du client.
  *
  * Variables Netlify : SUMUP_API_KEY (clé secrète sup_sk_…) et
  * SUMUP_MERCHANT_CODE (code marchand, commence par M). */
@@ -48,6 +53,7 @@ export async function POST(request: Request) {
     merchant_code: process.env.SUMUP_MERCHANT_CODE,
     description: `Versement ${nom}${objet ? ` - ${objet}` : ""} (${email})`.slice(0, 255),
     redirect_url: `${origine}/paiement/merci?sumup=${reference}`,
+    return_url: `${adresseSite(request)}/api/sumup/notification`,
   });
   const id = r.j?.id || r.j?.checkout_id;
   if (!r.ok || !id) {
@@ -59,7 +65,5 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get("id") || "";
-  if (!process.env.SUMUP_API_KEY || !/^[A-Za-z0-9-]{8,64}$/.test(id)) return NextResponse.json({ statut: "inconnu" });
-  const r = await sumup(`checkouts/${id}`);
-  return NextResponse.json({ statut: r.ok ? r.j.status : "inconnu" });
+  return NextResponse.json({ statut: (await verifierSumup(id)).statut });
 }
