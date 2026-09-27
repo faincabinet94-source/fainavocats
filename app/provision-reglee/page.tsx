@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Mail } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
-import { courrielConjoint, lireDemande, type DemandeConjoint } from "@/lib/paiement";
+import { lireDemande, type DemandeConjoint } from "@/lib/paiement";
+import { EcrireConjoint } from "@/components/paiement/EcrireConjoint";
 
 /* Page de retour après paiement de la provision (redirection réglée dans Stripe,
    sur chaque lien de paiement : « Après le paiement », « Rediriger vers votre
@@ -68,17 +69,11 @@ export default function ProvisionReglee() {
               <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
                 <h2 className="font-serif text-xl text-[#1A1A1A]">Reste la part de votre conjoint</h2>
                 <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
-                  La procédure commence dès réception des deux règlements. Vous pouvez lui écrire depuis
-                  votre messagerie : le courriel est prêt, avec le lien de paiement de sa part. Vous le
-                  relisez avant de l&apos;envoyer.
+                  La procédure commence dès réception des deux règlements. Envoyez-lui le lien de paiement de
+                  sa part en cliquant sur « Écrire à mon conjoint » : le courriel est prêt, vous le relisez
+                  avant de l&apos;envoyer.
                 </p>
-                <a
-                  href={courrielConjoint(demande)}
-                  className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
-                >
-                  <Mail className="h-4 w-4" strokeWidth={1.8} />
-                  Écrire à mon conjoint
-                </a>
+                <EcrireConjoint demande={demande} />
               </div>
             )}
           </div>
