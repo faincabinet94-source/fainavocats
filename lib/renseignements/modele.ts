@@ -311,30 +311,200 @@ export const estMajeur = (e: Enfant) => {
 
 export type Manque = { etape: number; champ: string; libelle: string };
 
-/* Champs indispensables à l'envoi. Le reste peut être complété au rendez-vous :
-   le formulaire ne doit pas bloquer un client qui n'a pas tout sous la main. */
+/* Champs obligatoires, repris des formulaires Cognito : n° 3 (divorce) et
+   n° 13 (séparation de corps) pour la version client, n° 14 pour la version
+   cabinet, plus légère parce que remplie pendant le rendez-vous. Les champs
+   conditionnels suivent les mêmes conditions que dans Cognito. */
 export function manquants(d: Donnees, interne: boolean): Manque[] {
   const m: Manque[] = [];
-  const v = (x: string) => !x || !x.trim();
-  if (v(d.procedure)) m.push({ etape: 0, champ: "procedure", libelle: "la procédure" });
-  if (v(d.client.civilite)) m.push({ etape: 1, champ: "client.civilite", libelle: "votre civilité" });
-  if (v(d.client.nom)) m.push({ etape: 1, champ: "client.nom", libelle: "votre nom" });
-  if (v(d.client.prenoms)) m.push({ etape: 1, champ: "client.prenoms", libelle: "vos prénoms" });
-  if (!interne) {
-    if (v(d.client.email)) m.push({ etape: 1, champ: "client.email", libelle: "votre courriel" });
-    if (v(d.client.telephone)) m.push({ etape: 1, champ: "client.telephone", libelle: "votre téléphone" });
+  const v = (x: string | undefined) => !x || !x.trim();
+  const exiger = (etape: number, champ: string, valeur: string | undefined, libelle: string) => {
+    if (v(valeur)) m.push({ etape, champ, libelle });
+  };
+  const divorce = d.procedure !== "Séparation de corps";
+
+  exiger(0, "procedure", d.procedure, "la procédure");
+  for (const [qui, etape] of [["client", 1], ["conjoint", 2]] as const) {
+    const x = d[qui];
+    /* « votre nationalité » ou « la nationalité de votre conjoint » */
+    const de = (article: string, l: string) => (qui === "client" ? `votre ${l}` : `${article}${l} de votre conjoint`);
+    exiger(etape, `${qui}.civilite`, x.civilite, de("la ", "civilité"));
+    exiger(etape, `${qui}.nom`, x.nom, de("le ", "nom"));
+    exiger(etape, `${qui}.prenoms`, x.prenoms, qui === "client" ? "vos prénoms" : "les prénoms de votre conjoint");
+    if (!interne) {
+      exiger(etape, `${qui}.dateNaissance`, x.dateNaissance, de("la ", "date de naissance"));
+      exiger(etape, `${qui}.lieuNaissance`, x.lieuNaissance, de("le ", "lieu de naissance"));
+      exiger(etape, `${qui}.nationalite`, x.nationalite, de("la ", "nationalité"));
+      exiger(etape, `${qui}.profession`, x.profession, de("la ", "profession"));
+      exiger(etape, `${qui}.email`, x.email, qui === "client" ? "votre courriel" : "le courriel de votre conjoint");
+      exiger(etape, `${qui}.telephone`, x.telephone, qui === "client" ? "votre téléphone" : "le téléphone de votre conjoint");
+      if (qui === "client" || divorce) {
+        if (v(x.revenus) && v(x.revenusAnnuels)) m.push({ etape, champ: `${qui}.revenus`, libelle: qui === "client" ? "vos revenus" : "les revenus de votre conjoint" });
+      }
+      /* L'adresse du conjoint n'est demandée que s'il vit déjà ailleurs. */
+      if (qui === "client" || d.logement.separes === "Oui") {
+        exiger(etape, `${qui}.adresse`, x.adresse, qui === "client" ? "votre adresse" : "l'adresse de votre conjoint");
+        exiger(etape, `${qui}.cp`, x.cp, qui === "client" ? "votre code postal" : "le code postal de votre conjoint");
+        exiger(etape, `${qui}.ville`, x.ville, qui === "client" ? "votre ville" : "la ville de votre conjoint");
+      }
+    }
   }
   if (d.client.email && !COURRIEL_VALIDE.test(d.client.email.trim()))
     m.push({ etape: 1, champ: "client.email", libelle: "un courriel valide" });
   if (d.conjoint.email && !COURRIEL_VALIDE.test(d.conjoint.email.trim()))
     m.push({ etape: 2, champ: "conjoint.email", libelle: "un courriel valide pour votre conjoint" });
-  if (v(d.conjoint.civilite)) m.push({ etape: 2, champ: "conjoint.civilite", libelle: "la civilité de votre conjoint" });
-  if (v(d.conjoint.nom)) m.push({ etape: 2, champ: "conjoint.nom", libelle: "le nom de votre conjoint" });
-  if (v(d.conjoint.prenoms)) m.push({ etape: 2, champ: "conjoint.prenoms", libelle: "les prénoms de votre conjoint" });
+
+  exiger(3, "mariage.regime", d.mariage.regime, "le régime matrimonial");
+  if (d.enfants.length) exiger(5, "nomFamilleEnfants", d.nomFamilleEnfants, "le nom de famille des enfants");
   d.enfants.forEach((e, i) => {
-    if (v(e.prenoms)) m.push({ etape: 5, champ: `enfants.${i}.prenoms`, libelle: `les prénoms de l'enfant n° ${i + 1}` });
+    exiger(5, `enfants.${i}.prenoms`, e.prenoms, `les prénoms de l'enfant n° ${i + 1}`);
   });
+  if (interne) return m;
+
+  exiger(0, "distance", d.distance, "la façon de procéder (à distance ou au cabinet)");
+  exiger(3, "mariage.date", d.mariage.date, "la date du mariage");
+  exiger(3, "mariage.lieu", d.mariage.lieu, "le lieu du mariage");
+
+  exiger(4, "logement.separes", d.logement.separes, "si vous vivez déjà séparément");
+  if (d.logement.separes === "Non") {
+    exiger(4, "logement.domicile", d.logement.domicile, "qui conservera le domicile conjugal");
+    if (d.logement.domicile === "Moi" || d.logement.domicile === "Mon conjoint")
+      exiger(4, "logement.delai", d.logement.delai, "le délai de relogement");
+  }
+
+  d.enfants.forEach((e, i) => {
+    const n = `de l'enfant n° ${i + 1}`;
+    exiger(5, `enfants.${i}.sexe`, e.sexe, `le sexe ${n}`);
+    exiger(5, `enfants.${i}.dateNaissance`, e.dateNaissance, `la date de naissance ${n}`);
+    exiger(5, `enfants.${i}.lieuNaissance`, e.lieuNaissance, `le lieu de naissance ${n}`);
+    exiger(5, `enfants.${i}.garde`, e.garde, `la résidence ${n}`);
+    if (e.garde === "Majeur plus à charge") {
+      exiger(5, `enfants.${i}.profession`, e.profession, `la profession ${n}`);
+      exiger(5, `enfants.${i}.adresse`, e.adresse, `l'adresse ${n}`);
+    } else if (divorce && e.garde) {
+      exiger(5, `enfants.${i}.pension`, e.pension, `la pension envisagée pour l'enfant n° ${i + 1} (0 si aucune)`);
+    }
+  });
+
+  d.immobilier.forEach((b, i) => exiger(6, `immobilier.${i}.adresse`, b.adresse, `l'adresse du bien n° ${i + 1}`));
+  d.vehicules.forEach((x, i) => {
+    exiger(6, `vehicules.${i}.marque`, x.marque, `la marque du véhicule n° ${i + 1}`);
+    if (divorce) {
+      exiger(6, `vehicules.${i}.modele`, x.modele, `le modèle du véhicule n° ${i + 1}`);
+      exiger(6, `vehicules.${i}.qui`, x.qui, `qui conservera le véhicule n° ${i + 1}`);
+    }
+  });
+  d.credits.forEach((c, i) => {
+    exiger(6, `credits.${i}.banque`, c.banque, `la banque du crédit n° ${i + 1}`);
+    if (divorce) {
+      exiger(6, `credits.${i}.totalEmprunte`, c.totalEmprunte, `le total emprunté du crédit n° ${i + 1}`);
+      exiger(6, `credits.${i}.restantDu`, c.restantDu, `le restant dû du crédit n° ${i + 1}`);
+      exiger(6, `credits.${i}.mensualite`, c.mensualite, `la mensualité du crédit n° ${i + 1}`);
+      exiger(6, `credits.${i}.qui`, c.qui, `qui supportera le crédit n° ${i + 1}`);
+    }
+  });
+  if (d.arrieresLoyers === "Oui") exiger(6, "montantArrieresLoyers", d.montantArrieresLoyers, "le montant des arriérés de loyers");
+  if (d.arrieresImpots === "Oui") exiger(6, "montantArrieresImpots", d.montantArrieresImpots, "le montant des arriérés d'impôts");
+
+  if (divorce) {
+    exiger(7, "pc.convenue", d.pc.convenue, "si une prestation compensatoire est convenue");
+    if (d.pc.convenue === "Oui") {
+      exiger(7, "pc.beneficiaire", d.pc.beneficiaire, "qui reçoit la prestation compensatoire");
+      exiger(7, "pc.forme", d.pc.forme, "la forme de la prestation compensatoire");
+    }
+  }
+
+  exiger(9, "repartition", d.repartition, "qui prendra en charge les honoraires");
+  if (d.repartition === "Partage par moitié") exiger(9, "provisionPartage", d.provisionPartage, "le règlement de la provision");
   return m;
+}
+
+/* ---------- Saisie : majuscules et noms de lieux ---------- */
+
+/* Noms de famille et villes des adresses : en capitales, accents conservés
+   (CRÉTEIL, non CRETEIL). */
+export const enCapitales = (s: string) => (s || "").toLocaleUpperCase("fr-FR");
+
+/* Lieux de naissance et de mariage : capitale initiale à chaque mot, sauf les
+   petits mots à l'intérieur d'un nom composé (Magny-en-Vexin,
+   Soisy-sous-Montmorency, Villeneuve-d'Ascq, L'Haÿ-les-Roses). Un sigle saisi
+   en capitales entre parenthèses, « (USA) », est conservé. */
+const PETITS_MOTS = new Set(["en", "sous", "sur", "le", "la", "les", "de", "du", "des", "et", "aux", "au", "lès", "lez", "l", "d"]);
+export function nomDeLieu(s: string): string {
+  const morceaux = (s || "").replace(/\s+/g, " ").trim().split(/([\s\-'’()]+)/);
+  let premier = true;
+  let parenthese = false;
+  return morceaux
+    .map((t) => {
+      if (!t) return t;
+      if (/^[\s\-'’()]+$/.test(t)) {
+        if (t.includes("(")) {
+          premier = true;
+          parenthese = true;
+        }
+        if (t.includes(")")) parenthese = false;
+        return t;
+      }
+      const bas = t.toLocaleLowerCase("fr-FR");
+      let r: string;
+      if (!premier && PETITS_MOTS.has(bas)) r = bas;
+      else if (parenthese && /^[A-ZÀ-Þ]{2,3}$/.test(t)) r = t;
+      else r = bas.charAt(0).toLocaleUpperCase("fr-FR") + bas.slice(1);
+      premier = false;
+      return r;
+    })
+    .join("");
+}
+
+/* Adresses : le type de voie en minuscules, le nom propre avec ses capitales
+   (15 rue Paul Vaillant Couturier, 196 avenue Victor Hugo, place de la
+   République, rue du Faubourg-Saint-Honoré). Une lettre seule saisie en
+   capitale (bâtiment A) est conservée. */
+const VOIES = new Set([
+  "rue", "avenue", "av", "boulevard", "bd", "bld", "place", "allée", "allee", "chemin", "impasse", "route",
+  "quai", "cours", "square", "passage", "villa", "cité", "cite", "résidence", "residence", "voie", "sentier",
+  "rond-point", "esplanade", "parvis", "promenade", "sente", "ruelle", "hameau", "lieu-dit", "lotissement",
+  "chaussée", "chaussee", "carrefour", "clos", "domaine", "mail", "montée", "port", "traverse", "bâtiment",
+  "batiment", "bât", "bat", "appartement", "appt", "apt", "étage", "etage", "escalier", "esc", "porte",
+  "bis", "ter", "quater",
+]);
+export function adresse(s: string): string {
+  const morceaux = (s || "").replace(/\s+/g, " ").trim().split(/([\s\-'’(),]+)/);
+  let premier = true;
+  return morceaux
+    .map((t) => {
+      if (!t || /^[\s\-'’(),]+$/.test(t)) return t;
+      const bas = t.toLocaleLowerCase("fr-FR");
+      let r: string;
+      if (/\d/.test(t)) r = bas;
+      else if (VOIES.has(bas)) r = bas;
+      else if (!premier && PETITS_MOTS.has(bas)) r = bas;
+      else if (t.length === 1 && t === t.toLocaleUpperCase("fr-FR")) r = t;
+      else r = bas.charAt(0).toLocaleUpperCase("fr-FR") + bas.slice(1);
+      if (!/\d/.test(t)) premier = false;
+      return r;
+    })
+    .join("");
+}
+
+/* Appliquée à l'envoi, pour les saisies faites avant ces règles ou reprises. */
+export function normaliser(d: Donnees): Donnees {
+  const p = (x: Personne): Personne => ({
+    ...x,
+    nom: enCapitales(x.nom).trim(),
+    ville: enCapitales(x.ville).trim(),
+    adresse: adresse(x.adresse),
+    lieuNaissance: nomDeLieu(x.lieuNaissance),
+  });
+  return {
+    ...d,
+    client: p(d.client),
+    conjoint: p(d.conjoint),
+    nomFamilleEnfants: enCapitales(d.nomFamilleEnfants).trim(),
+    mariage: { ...d.mariage, lieu: nomDeLieu(d.mariage.lieu) },
+    enfants: d.enfants.map((e) => ({ ...e, lieuNaissance: nomDeLieu(e.lieuNaissance), adresse: adresse(e.adresse) })),
+    immobilier: d.immobilier.map((b) => ({ ...b, adresse: adresse(b.adresse) })),
+  };
 }
 
 /* ---------- Mise en forme ---------- */

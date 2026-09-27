@@ -38,7 +38,10 @@ export function EcrireConjoint({ demande, className }: { demande: DemandeConjoin
       </button>
       {ouvert && (
         <div className="mt-4">
-          <p className="mb-3 text-sm text-gray-600">Avec quelle messagerie ? Le courriel est prêt, vous le relisez avant l&apos;envoi.</p>
+          <p className="mb-3 text-sm text-gray-600">
+            Avec quelle messagerie ? Le courriel est prêt, vous le relisez avant l&apos;envoi.
+            {!demande.email.trim() && " Il vous restera à indiquer l'adresse de votre conjoint."}
+          </p>
           <div className="flex flex-wrap gap-2">
             <a href={l.gmail} target="_blank" rel="noopener noreferrer" className={choix}>Gmail</a>
             <a href={l.outlook} target="_blank" rel="noopener noreferrer" className={choix}>Outlook</a>

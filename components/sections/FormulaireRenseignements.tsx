@@ -33,6 +33,10 @@ import {
   enfantVide,
   estMajeur,
   manquants,
+  adresse,
+  enCapitales,
+  nomDeLieu,
+  normaliser,
   recapitulatif,
   estPartenaire,
   statutsLogement,
@@ -44,7 +48,7 @@ import {
   type Personne,
   type Piece,
 } from "@/lib/renseignements/modele";
-import { PROVISIONS, lienProvision, memoriserDemande } from "@/lib/paiement";
+import { PROVISIONS, memoriserDemande } from "@/lib/paiement";
 import { EcrireConjoint } from "@/components/paiement/EcrireConjoint";
 import { PaiementProvision } from "@/components/paiement/PaiementProvision";
 
@@ -280,12 +284,12 @@ export default function FormulaireRenseignements() {
   /* Sauvegarde silencieuse à chaque changement d'étape : le lien de reprise
      rouvre toujours la dernière étape atteinte. */
   const sauver = useCallback(
-    async (envoyerLien = false) => {
+    async (envoyerLien = false, donnees: Donnees = d) => {
       if (!id) return null;
       const r = await fetch("/api/renseignements/saisie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, donnees: d, interne, envoyerLien }),
+        body: JSON.stringify({ id, donnees, interne, envoyerLien }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.message || "Enregistrement impossible");
@@ -350,12 +354,16 @@ export default function FormulaireRenseignements() {
     }
     setEnvoi("envoi");
     setErreur("");
+    /* Capitales et noms de lieux remis en forme, y compris pour une saisie
+       reprise ou pré-remplie avant ces règles. */
+    const n = normaliser(d);
+    setD(n);
     try {
-      await sauver();
+      await sauver(false, n);
       const r = await fetch("/api/renseignements/envoi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, donnees: d, interne }),
+        body: JSON.stringify({ id, donnees: n, interne }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.message || "Envoi impossible");
@@ -398,37 +406,37 @@ export default function FormulaireRenseignements() {
         </Champ>
         <Grille>
           <Champ label={lui ? "Nom de famille" : "Nom"} aide={lui ? "Nom de naissance." : undefined} manque={manque(k("nom"))}>
-            <input className={inputCls} value={x.nom} onChange={(e) => maj(k("nom"), e.target.value)} autoComplete={lui ? "off" : "family-name"} />
+            <input className={inputCls} value={x.nom} onChange={(e) => maj(k("nom"), enCapitales(e.target.value))} autoComplete={lui ? "off" : "family-name"} />
           </Champ>
           <Champ label="Prénoms" aide="Tous les prénoms, dans l'ordre de l'état civil." manque={manque(k("prenoms"))}>
             <input className={inputCls} value={x.prenoms} onChange={(e) => maj(k("prenoms"), e.target.value)} autoComplete={lui ? "off" : "given-name"} />
           </Champ>
-          <Champ label="Date de naissance">
+          <Champ label="Date de naissance" manque={manque(k("dateNaissance"))}>
             <input type="date" className={inputCls} value={x.dateNaissance} onChange={(e) => maj(k("dateNaissance"), e.target.value)} />
           </Champ>
-          <Champ label="Lieu de naissance" aide="Ville, et pays si ce n'est pas la France.">
-            <input className={inputCls} value={x.lieuNaissance} onChange={(e) => maj(k("lieuNaissance"), e.target.value)} />
+          <Champ label="Lieu de naissance" aide="Ville, et pays si ce n'est pas la France." manque={manque(k("lieuNaissance"))}>
+            <input className={inputCls} value={x.lieuNaissance} onChange={(e) => maj(k("lieuNaissance"), e.target.value)} onBlur={(e) => maj(k("lieuNaissance"), nomDeLieu(e.target.value))} />
           </Champ>
-          <Champ label="Nationalité">
+          <Champ label="Nationalité" manque={manque(k("nationalite"))}>
             <input className={inputCls} value={x.nationalite} onChange={(e) => maj(k("nationalite"), e.target.value)} />
           </Champ>
-          <Champ label="Profession">
+          <Champ label="Profession" manque={manque(k("profession"))}>
             <input className={inputCls} value={x.profession} onChange={(e) => maj(k("profession"), e.target.value)} />
           </Champ>
         </Grille>
-        <Champ label="Adresse">
-          <input className={inputCls} value={x.adresse} onChange={(e) => maj(k("adresse"), e.target.value)} autoComplete={lui ? "off" : "street-address"} />
+        <Champ label="Adresse" manque={manque(k("adresse"))}>
+          <input className={inputCls} value={x.adresse} onChange={(e) => maj(k("adresse"), e.target.value)} onBlur={(e) => maj(k("adresse"), adresse(e.target.value))} autoComplete={lui ? "off" : "street-address"} />
         </Champ>
         <Grille>
-          <Champ label="Code postal">
+          <Champ label="Code postal" manque={manque(k("cp"))}>
             <input className={inputCls} value={x.cp} onChange={(e) => maj(k("cp"), e.target.value)} inputMode="numeric" />
           </Champ>
-          <Champ label="Ville">
-            <input className={inputCls} value={x.ville} onChange={(e) => maj(k("ville"), e.target.value)} />
+          <Champ label="Ville" manque={manque(k("ville"))}>
+            <input className={inputCls} value={x.ville} onChange={(e) => maj(k("ville"), enCapitales(e.target.value))} />
           </Champ>
         </Grille>
         <Grille>
-          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt. Remplissez l'un ou l'autre : le second se calcule seul.">
+          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt. Remplissez l'un ou l'autre : le second se calcule seul." manque={manque(k("revenus"))}>
             <input
               className={inputCls}
               value={x.revenusAnnuels}
@@ -440,7 +448,7 @@ export default function FormulaireRenseignements() {
               inputMode="decimal"
             />
           </Champ>
-          <Champ label="Revenus mensuels nets (€)">
+          <Champ label="Revenus mensuels nets (€)" manque={manque(k("revenus"))}>
             <input
               className={inputCls}
               value={x.revenus}
@@ -471,7 +479,7 @@ export default function FormulaireRenseignements() {
       <Champ label="Quelle procédure ?" aide="La séparation de corps met fin à la vie commune sans dissoudre le mariage." manque={manque("procedure")}>
         <Choix options={PROCEDURES} value={d.procedure} onChange={(v) => maj("procedure", v || d.procedure)} />
       </Champ>
-      <Champ label="Comment souhaitez-vous procéder ?">
+      <Champ label="Comment souhaitez-vous procéder ?" manque={manque("distance")}>
         <Choix options={DISTANCES} value={d.distance} onChange={(v) => maj("distance", v)} />
       </Champ>
       <Champ label="Êtes-vous déjà client du cabinet ?">
@@ -488,14 +496,14 @@ export default function FormulaireRenseignements() {
     /* 4. Le mariage */
     <div key="m" className="space-y-5">
       <Grille>
-        <Champ label="Date du mariage">
+        <Champ label="Date du mariage" manque={manque("mariage.date")}>
           <input type="date" className={inputCls} value={d.mariage.date} onChange={(e) => maj("mariage.date", e.target.value)} />
         </Champ>
-        <Champ label="Lieu du mariage">
-          <input className={inputCls} value={d.mariage.lieu} onChange={(e) => maj("mariage.lieu", e.target.value)} />
+        <Champ label="Lieu du mariage" manque={manque("mariage.lieu")}>
+          <input className={inputCls} value={d.mariage.lieu} onChange={(e) => maj("mariage.lieu", e.target.value)} onBlur={(e) => maj("mariage.lieu", nomDeLieu(e.target.value))} />
         </Champ>
       </Grille>
-      <Champ label="Régime matrimonial" aide="Sans contrat de mariage, c'est en principe la communauté réduite aux acquêts.">
+      <Champ label="Régime matrimonial" aide="Sans contrat de mariage, c'est en principe la communauté réduite aux acquêts." manque={manque("mariage.regime")}>
         <Liste options={REGIMES} value={d.mariage.regime} onChange={(v) => maj("mariage.regime", v)} />
       </Champ>
       <Champ label="Avez-vous signé un contrat de mariage chez un notaire ?">
@@ -517,7 +525,7 @@ export default function FormulaireRenseignements() {
     </div>,
     /* 5. Le logement */
     <div key="l" className="space-y-6">
-      <Champ label="Vivez-vous déjà séparément ?">
+      <Champ label="Vivez-vous déjà séparément ?" manque={manque("logement.separes")}>
         <Choix options={OUI_NON} value={d.logement.separes} onChange={(v) => maj("logement.separes", v)} />
       </Champ>
       {d.logement.separes === "Oui" && (
@@ -525,7 +533,7 @@ export default function FormulaireRenseignements() {
           <input type="date" className={cn(inputCls, "sm:max-w-xs")} value={d.logement.dateSeparation} onChange={(e) => maj("logement.dateSeparation", e.target.value)} />
         </Champ>
       )}
-      <Champ label="Qui conservera le domicile conjugal ?">
+      <Champ label="Qui conservera le domicile conjugal ?" manque={manque("logement.domicile")}>
         <Choix options={DOMICILES} value={d.logement.domicile} onChange={(v) => maj("logement.domicile", v)} />
       </Champ>
       <Champ
@@ -540,7 +548,7 @@ export default function FormulaireRenseignements() {
         </Champ>
       )}
       {d.logement.separes !== "Oui" && (
-        <Champ label="Délai de relogement de l'époux qui quittera le domicile">
+        <Champ label="Délai de relogement de l'époux qui quittera le domicile" manque={manque("logement.delai")}>
           <Choix options={DELAIS} value={d.logement.delai} onChange={(v) => maj("logement.delai", v)} />
         </Champ>
       )}
@@ -548,8 +556,8 @@ export default function FormulaireRenseignements() {
     /* 6. Les enfants */
     <div key="e" className="space-y-5">
       {d.enfants.length > 0 && (
-        <Champ label="Nom de famille des enfants">
-          <input className={cn(inputCls, "sm:max-w-md")} value={d.nomFamilleEnfants} onChange={(e) => maj("nomFamilleEnfants", e.target.value)} />
+        <Champ label="Nom de famille des enfants" manque={manque("nomFamilleEnfants")}>
+          <input className={cn(inputCls, "sm:max-w-md")} value={d.nomFamilleEnfants} onChange={(e) => maj("nomFamilleEnfants", enCapitales(e.target.value))} />
         </Champ>
       )}
       {d.enfants.map((x, i) => (
@@ -558,28 +566,28 @@ export default function FormulaireRenseignements() {
             <Champ label="Prénoms" manque={manque(`enfants.${i}.prenoms`)}>
               <input className={inputCls} value={x.prenoms} onChange={(e) => maj(`enfants.${i}.prenoms`, e.target.value)} />
             </Champ>
-            <Champ label="Sexe">
+            <Champ label="Sexe" manque={manque(`enfants.${i}.sexe`)}>
               <Choix options={SEXES} value={x.sexe} onChange={(v) => maj(`enfants.${i}.sexe`, v)} />
             </Champ>
-            <Champ label="Date de naissance">
+            <Champ label="Date de naissance" manque={manque(`enfants.${i}.dateNaissance`)}>
               <input type="date" className={inputCls} value={x.dateNaissance} onChange={(e) => maj(`enfants.${i}.dateNaissance`, e.target.value)} />
             </Champ>
-            <Champ label="Lieu de naissance">
-              <input className={inputCls} value={x.lieuNaissance} onChange={(e) => maj(`enfants.${i}.lieuNaissance`, e.target.value)} />
+            <Champ label="Lieu de naissance" manque={manque(`enfants.${i}.lieuNaissance`)}>
+              <input className={inputCls} value={x.lieuNaissance} onChange={(e) => maj(`enfants.${i}.lieuNaissance`, e.target.value)} onBlur={(e) => maj(`enfants.${i}.lieuNaissance`, nomDeLieu(e.target.value))} />
             </Champ>
-            <Champ label="Résidence de l'enfant">
+            <Champ label="Résidence de l'enfant" manque={manque(`enfants.${i}.garde`)}>
               <Liste options={GARDES} value={x.garde} onChange={(v) => maj(`enfants.${i}.garde`, v)} />
             </Champ>
-            <Champ label="Pension envisagée (€ par mois)">
+            <Champ label="Pension envisagée (€ par mois)" manque={manque(`enfants.${i}.pension`)}>
               <input className={inputCls} value={x.pension} onChange={(e) => maj(`enfants.${i}.pension`, e.target.value)} inputMode="decimal" />
             </Champ>
-            {estMajeur(x) && (
+            {(estMajeur(x) || x.garde === "Majeur plus à charge") && (
               <>
-                <Champ label="Profession">
+                <Champ label="Profession" manque={manque(`enfants.${i}.profession`)}>
                   <input className={inputCls} value={x.profession} onChange={(e) => maj(`enfants.${i}.profession`, e.target.value)} />
                 </Champ>
-                <Champ label="Adresse">
-                  <input className={inputCls} value={x.adresse} onChange={(e) => maj(`enfants.${i}.adresse`, e.target.value)} />
+                <Champ label="Adresse" manque={manque(`enfants.${i}.adresse`)}>
+                  <input className={inputCls} value={x.adresse} onChange={(e) => maj(`enfants.${i}.adresse`, e.target.value)} onBlur={(e) => maj(`enfants.${i}.adresse`, adresse(e.target.value))} />
                 </Champ>
               </>
             )}
@@ -609,8 +617,8 @@ export default function FormulaireRenseignements() {
         <h3 className="text-[17px] font-medium text-[#1A1A1A]">Biens immobiliers en commun</h3>
         {d.immobilier.map((x, i) => (
           <Bloc key={i} titre={`Bien n° ${i + 1}`} onRetirer={() => maj("immobilier", d.immobilier.filter((_, j) => j !== i))}>
-            <Champ label="Adresse">
-              <input className={inputCls} value={x.adresse} onChange={(e) => maj(`immobilier.${i}.adresse`, e.target.value)} />
+            <Champ label="Adresse" manque={manque(`immobilier.${i}.adresse`)}>
+              <input className={inputCls} value={x.adresse} onChange={(e) => maj(`immobilier.${i}.adresse`, e.target.value)} onBlur={(e) => maj(`immobilier.${i}.adresse`, adresse(e.target.value))} />
             </Champ>
             <Grille>
               <Champ label="Valeur estimée (€)">
@@ -632,10 +640,10 @@ export default function FormulaireRenseignements() {
         {d.vehicules.map((x, i) => (
           <Bloc key={i} titre={`Véhicule n° ${i + 1}`} onRetirer={() => maj("vehicules", d.vehicules.filter((_, j) => j !== i))}>
             <Grille>
-              <Champ label="Marque">
+              <Champ label="Marque" manque={manque(`vehicules.${i}.marque`)}>
                 <input className={inputCls} value={x.marque} onChange={(e) => maj(`vehicules.${i}.marque`, e.target.value)} />
               </Champ>
-              <Champ label="Modèle">
+              <Champ label="Modèle" manque={manque(`vehicules.${i}.modele`)}>
                 <input className={inputCls} value={x.modele} onChange={(e) => maj(`vehicules.${i}.modele`, e.target.value)} />
               </Champ>
               <Champ label="Immatriculation">
@@ -645,7 +653,7 @@ export default function FormulaireRenseignements() {
                 <input className={inputCls} value={x.valeur} onChange={(e) => maj(`vehicules.${i}.valeur`, e.target.value)} inputMode="decimal" />
               </Champ>
             </Grille>
-            <Champ label="Qui le conservera ?">
+            <Champ label="Qui le conservera ?" manque={manque(`vehicules.${i}.qui`)}>
               <Choix options={QUI_VEHICULE} value={x.qui} onChange={(v) => maj(`vehicules.${i}.qui`, v)} />
             </Champ>
           </Bloc>
@@ -657,23 +665,23 @@ export default function FormulaireRenseignements() {
         {d.credits.map((x, i) => (
           <Bloc key={i} titre={`Crédit n° ${i + 1}`} onRetirer={() => maj("credits", d.credits.filter((_, j) => j !== i))}>
             <Grille>
-              <Champ label="Banque">
+              <Champ label="Banque" manque={manque(`credits.${i}.banque`)}>
                 <input className={inputCls} value={x.banque} onChange={(e) => maj(`credits.${i}.banque`, e.target.value)} />
               </Champ>
-              <Champ label="Total emprunté (€)">
+              <Champ label="Total emprunté (€)" manque={manque(`credits.${i}.totalEmprunte`)}>
                 <input className={inputCls} value={x.totalEmprunte} onChange={(e) => maj(`credits.${i}.totalEmprunte`, e.target.value)} inputMode="decimal" />
               </Champ>
-              <Champ label="Restant dû (€)">
+              <Champ label="Restant dû (€)" manque={manque(`credits.${i}.restantDu`)}>
                 <input className={inputCls} value={x.restantDu} onChange={(e) => maj(`credits.${i}.restantDu`, e.target.value)} inputMode="decimal" />
               </Champ>
-              <Champ label="Mensualité (€)">
+              <Champ label="Mensualité (€)" manque={manque(`credits.${i}.mensualite`)}>
                 <input className={inputCls} value={x.mensualite} onChange={(e) => maj(`credits.${i}.mensualite`, e.target.value)} inputMode="decimal" />
               </Champ>
               <Champ label="Dernière échéance">
                 <input type="date" className={inputCls} value={x.derniereEcheance} onChange={(e) => maj(`credits.${i}.derniereEcheance`, e.target.value)} />
               </Champ>
             </Grille>
-            <Champ label="Qui le supportera ?">
+            <Champ label="Qui le supportera ?" manque={manque(`credits.${i}.qui`)}>
               <Choix options={QUI_CREDIT} value={x.qui} onChange={(v) => maj(`credits.${i}.qui`, v)} />
             </Champ>
           </Bloc>
@@ -686,7 +694,7 @@ export default function FormulaireRenseignements() {
           <Choix options={OUI_NON} value={d.arrieresLoyers} onChange={(v) => maj("arrieresLoyers", v)} />
         </Champ>
         {d.arrieresLoyers === "Oui" && (
-          <Champ label="Montant total (€)">
+          <Champ label="Montant total (€)" manque={manque("montantArrieresLoyers")}>
             <input className={cn(inputCls, "sm:max-w-xs")} value={d.montantArrieresLoyers} onChange={(e) => maj("montantArrieresLoyers", e.target.value)} inputMode="decimal" />
           </Champ>
         )}
@@ -694,7 +702,7 @@ export default function FormulaireRenseignements() {
           <Choix options={OUI_NON} value={d.arrieresImpots} onChange={(v) => maj("arrieresImpots", v)} />
         </Champ>
         {d.arrieresImpots === "Oui" && (
-          <Champ label="Montant total (€)">
+          <Champ label="Montant total (€)" manque={manque("montantArrieresImpots")}>
             <input className={cn(inputCls, "sm:max-w-xs")} value={d.montantArrieresImpots} onChange={(e) => maj("montantArrieresImpots", e.target.value)} inputMode="decimal" />
           </Champ>
         )}
@@ -709,15 +717,16 @@ export default function FormulaireRenseignements() {
         <Champ
           label="Avez-vous convenu d'une prestation compensatoire ?"
           aide="Une somme versée par l'un des époux à l'autre pour compenser l'écart de niveau de vie que crée le divorce."
+          manque={manque("pc.convenue")}
         >
           <Choix options={OUI_NON} value={d.pc.convenue} onChange={(v) => maj("pc.convenue", v)} />
         </Champ>
         {d.pc.convenue === "Oui" && (
           <>
-            <Champ label="Qui la reçoit ?">
+            <Champ label="Qui la reçoit ?" manque={manque("pc.beneficiaire")}>
               <Choix options={BENEFICIAIRES} value={d.pc.beneficiaire} onChange={(v) => maj("pc.beneficiaire", v)} />
             </Champ>
-            <Champ label="Sous quelle forme ?">
+            <Champ label="Sous quelle forme ?" manque={manque("pc.forme")}>
               <Choix options={FORMES_PC} value={d.pc.forme} onChange={(v) => maj("pc.forme", v)} />
             </Champ>
             <Champ label="Montant total (€)">
@@ -759,13 +768,14 @@ export default function FormulaireRenseignements() {
     </div>,
     /* 10. Les honoraires */
     <div key="h" className="space-y-6">
-      <Champ label="Qui prendra en charge les honoraires ?">
+      <Champ label="Qui prendra en charge les honoraires ?" manque={manque("repartition")}>
         <Choix options={REPARTITIONS} value={d.repartition} onChange={(v) => maj("repartition", v)} />
       </Champ>
       {d.repartition === "Partage par moitié" && (
         <Champ
           label="Et la provision de 250 € qui lance la procédure ?"
           aide="Si vous l'avancez en entier, nous commençons sans attendre le règlement de votre conjoint. Elle vient ensuite en déduction de votre part des honoraires."
+          manque={manque("provisionPartage")}
         >
           <Choix options={PROVISIONS_PARTAGE} value={d.provisionPartage} onChange={(v) => maj("provisionPartage", v)} />
         </Champ>
@@ -1093,14 +1103,9 @@ function ReglerProvision({ d }: { d: Donnees }) {
     : partagee
       ? `Vous partagez la provision de 250 € : chacun règle ${montant}. Une fois votre part réglée, vous pouvez envoyer le lien de paiement à votre conjoint en cliquant sur « Écrire à mon conjoint ». La procédure commence dès réception des deux règlements.`
       : `Une provision de ${montant} lance la procédure. Elle vient en déduction des honoraires : ce n'est pas un supplément.`;
-  const ecrire = () =>
-    emailConjoint ? (
-      <EcrireConjoint demande={demande} />
-    ) : (
-      <p className="mt-4 break-all rounded-lg bg-white px-4 py-3 text-sm text-[#362A24]">
-        Lien à transmettre à votre conjoint : {lienProvision(p)}
-      </p>
-    );
+  /* Sans courriel du conjoint dans le formulaire, le message s'ouvre sans
+     destinataire : le client le saisit dans sa messagerie. */
+  const ecrire = () => <EcrireConjoint demande={demande} />;
   return (
     <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
       <h3 className="font-serif text-xl text-[#1A1A1A]">Pour commencer la procédure</h3>
@@ -1113,7 +1118,7 @@ function ReglerProvision({ d }: { d: Donnees }) {
             part={p}
             email={d.client.email}
             libelle={`Régler ${partagee ? "ma part" : "la provision"} de ${montant}`}
-            avant={() => partagee && emailConjoint && memoriserDemande(demande)}
+            avant={() => partagee && memoriserDemande(demande)}
           />
           {partagee && ecrire()}
         </div>

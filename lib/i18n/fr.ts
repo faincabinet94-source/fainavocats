@@ -89,6 +89,7 @@ export const fr = {
   footer: {
     desc: "Cabinet d'avocats intervenant en droit de la famille et du patrimoine depuis 2004.",
     contactTitle: "Contact",
+    paymentTitle: "Paiement",
     linksTitle: "Liens utiles",
     links: {
       expertises: "Nos domaines d'intervention",

@@ -41,7 +41,7 @@ function PaiementContent() {
         <Container>
           <div className="mx-auto max-w-3xl">
             <h1 className="mb-6 font-serif text-4xl leading-tight text-[#1A1A1A] md:text-5xl">
-              Régler la provision
+              Paiement de la provision
             </h1>
             <p className="mb-12 text-lg leading-relaxed text-gray-700">
               La provision lance la procédure. Elle vient en déduction des honoraires proposés

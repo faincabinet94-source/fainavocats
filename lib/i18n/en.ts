@@ -88,6 +88,7 @@ export const en = {
   footer: {
     desc: "Law firm intervening in family law and wealth protection since 2004.",
     contactTitle: "Contact",
+    paymentTitle: "Payment",
     linksTitle: "Useful Links",
     links: {
       expertises: "Our practice areas",

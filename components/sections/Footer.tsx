@@ -10,7 +10,7 @@ export function Footer() {
   return (
     <footer className="bg-[#EAE8E3] py-20">
       <Container>
-        <div className="grid md:grid-cols-3 gap-12 mb-16">
+        <div className="grid gap-12 mb-16 md:grid-cols-2 lg:grid-cols-4">
           
           {/* Colonne 1 - Branding */}
           <div>
@@ -99,9 +99,6 @@ export function Footer() {
               <a href="/honoraires" className="hover:text-[#362A24] transition-colors">
                 Honoraires
               </a>
-              <a href="/paiement" className="hover:text-[#362A24] transition-colors">
-                Paiement
-              </a>
               <a href="/actualites" className="hover:text-[#362A24] transition-colors">
                 Actualités
               </a>
@@ -113,6 +110,30 @@ export function Footer() {
               </a>
               <a href="/confidentialite" className="hover:text-[#362A24] transition-colors">
                 {t.footer.links.privacy}
+              </a>
+            </div>
+          </div>
+
+          {/* Colonne 4 - Paiement */}
+          <div>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-[#1A1A1A] mb-4">
+              {t.footer.paymentTitle}
+            </h4>
+            <div className="flex flex-col gap-3 text-gray-600">
+              <a href="/paiement" className="hover:text-[#362A24] transition-colors">
+                Paiement de la provision
+              </a>
+              <a href="/paiement/versement-libre" className="hover:text-[#362A24] transition-colors">
+                Versement libre
+              </a>
+              <a href="/paiement/plusieurs-fois" className="hover:text-[#362A24] transition-colors">
+                Paiement en 3 ou 4 fois
+              </a>
+              <a href="/paiement/mensualites" className="hover:text-[#362A24] transition-colors">
+                Règlement en mensualités
+              </a>
+              <a href="/paiement/stancer" className="hover:text-[#362A24] transition-colors">
+                Paiement en ligne (Stancer)
               </a>
             </div>
           </div>
