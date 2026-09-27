@@ -65,6 +65,13 @@ export const REPARTITIONS = [
   "Assurance juridique",
   "Je ne sais pas encore",
 ] as const;
+/* Honoraires partagés : la provision de 250 € est soit partagée, soit avancée
+   en entier par l'époux qui remplit le formulaire, pour lancer la procédure
+   sans attendre le règlement de l'autre. */
+export const PROVISIONS_PARTAGE = [
+  "Nous la partageons (125 € chacun)",
+  "Je l'avance en entier (250 €)",
+] as const;
 export const CATEGORIES_PIECES = [
   "Livret de famille",
   "Acte d'état civil",
@@ -188,6 +195,7 @@ export type Donnees = {
   ds: { convenu: string; beneficiaire: string; montant: string };
   nomUsage: { utilise: string; conserve: string };
   repartition: string;
+  provisionPartage: string;
   commentaires: string;
   pieces: Piece[];
 };
@@ -255,6 +263,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   ds: { convenu: "", beneficiaire: "", montant: "" },
   nomUsage: { utilise: "", conserve: "" },
   repartition: "",
+  provisionPartage: "",
   commentaires: "",
   pieces: [],
 });
@@ -666,6 +675,9 @@ export function recapitulatif(d: Donnees): Section[] {
       titre: "Honoraires et commentaires",
       lignes: [
         ["Répartition des honoraires", d.repartition],
+        ...(d.repartition === "Partage par moitié"
+          ? ([["Provision de 250 €", d.provisionPartage]] as [string, string][])
+          : []),
         ["Commentaires", d.commentaires],
       ],
     },

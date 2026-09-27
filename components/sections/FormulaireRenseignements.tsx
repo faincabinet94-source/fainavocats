@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
@@ -18,6 +18,7 @@ import {
   OUI_NON,
   PLAFONDS,
   PROCEDURES,
+  PROVISIONS_PARTAGE,
   QUI_CREDIT,
   QUI_IMMO,
   QUI_VEHICULE,
@@ -43,6 +44,7 @@ import {
   type Personne,
   type Piece,
 } from "@/lib/renseignements/modele";
+import { PROVISIONS, lienProvision } from "@/lib/paiement";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
    12 étapes. Remplace les formulaires Cognito n° 3, 13 et 14.
@@ -377,6 +379,7 @@ export default function FormulaireRenseignements() {
             ? "La fiche est transmise au cabinet."
             : "Nous avons bien reçu vos informations et vos pièces. Le cabinet revient vers vous pour la suite de votre dossier."}
         </p>
+        {!interne && <ReglerProvision d={d} />}
       </div>
     );
   }
@@ -757,6 +760,14 @@ export default function FormulaireRenseignements() {
       <Champ label="Qui prendra en charge les honoraires ?">
         <Choix options={REPARTITIONS} value={d.repartition} onChange={(v) => maj("repartition", v)} />
       </Champ>
+      {d.repartition === "Partage par moitié" && (
+        <Champ
+          label="Et la provision de 250 € qui lance la procédure ?"
+          aide="Si vous l'avancez en entier, nous commençons sans attendre le règlement de votre conjoint. Elle vient ensuite en déduction de votre part des honoraires."
+        >
+          <Choix options={PROVISIONS_PARTAGE} value={d.provisionPartage} onChange={(v) => maj("provisionPartage", v)} />
+        </Champ>
+      )}
       <Champ label="Souhaitez-vous préciser quelque chose ?" aide="Facultatif.">
         <textarea rows={5} className={inputCls} value={d.commentaires} onChange={(e) => maj("commentaires", e.target.value)} />
       </Champ>
@@ -1061,6 +1072,46 @@ function ChoixAvocat({ avocat, onChange }: { avocat: Avocat; onChange: (a: Avoca
           <p className="text-sm text-gray-500">L&apos;avocat sera ajouté à la table « Pro » d&apos;Airtable à l&apos;envoi du formulaire.</p>
         </div>
       )}
+    </div>
+  );
+}
+
+/* Fin du formulaire extérieur : règlement de la provision qui lance la
+   procédure. Qui règle, et combien, dépend de la répartition des honoraires
+   choisie à l'étape « Les honoraires ». */
+function ReglerProvision({ d }: { d: Donnees }) {
+  const partagee = d.repartition === "Partage par moitié" && d.provisionPartage === PROVISIONS_PARTAGE[0];
+  const parConjoint = d.repartition === "Mon conjoint les prendra à charge";
+  const p = partagee ? "moitie" : "totale";
+  const montant = PROVISIONS[p].montant;
+  const lienConjoint = lienProvision(p, d.conjoint.email);
+  const texte = parConjoint
+    ? `Votre conjoint prend les honoraires à sa charge : c'est à lui de régler la provision de ${montant}. Transmettez-lui le lien ci-dessous.`
+    : partagee
+      ? `Vous partagez la provision de 250 € : chacun règle ${montant}. La procédure commence dès réception des deux règlements.`
+      : `Une provision de ${montant} lance la procédure. Elle vient en déduction des honoraires : ce n'est pas un supplément.`;
+  return (
+    <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
+      <h3 className="font-serif text-xl text-[#1A1A1A]">Pour commencer la procédure</h3>
+      <p className="mt-2 text-[15px] leading-relaxed text-gray-600">{texte}</p>
+      {parConjoint ? (
+        <p className="mt-4 break-all rounded-lg bg-white px-4 py-3 text-sm text-[#362A24]">{lienConjoint}</p>
+      ) : (
+        <a
+          href={lienProvision(p, d.client.email)}
+          className="mt-5 inline-flex items-center gap-2.5 rounded-full bg-[#C2A679] px-7 py-3.5 text-sm font-medium text-[#1A1A1A] transition-colors hover:bg-[#B39566]"
+        >
+          <CreditCard className="h-4 w-4" strokeWidth={1.8} />
+          Régler la provision de {montant}
+        </a>
+      )}
+      {partagee && (
+        <p className="mt-4 text-sm leading-relaxed text-gray-600">
+          Lien à transmettre à votre conjoint pour sa part :
+          <span className="mt-2 block break-all rounded-lg bg-white px-4 py-3 text-[#362A24]">{lienConjoint}</span>
+        </p>
+      )}
+      <p className="mt-4 text-xs text-gray-500">Paiement sécurisé par Stripe.</p>
     </div>
   );
 }
