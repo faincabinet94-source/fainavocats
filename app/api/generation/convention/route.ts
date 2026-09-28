@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
 import { remplir } from "@/lib/generation/moteur";
-import { valeursConvention } from "@/lib/generation/valeurs";
+import { alertesConvention, valeursConvention } from "@/lib/generation/valeurs";
 import type { Donnees } from "@/lib/renseignements/modele";
 
 /* Génération d'une convention à partir d'un modèle Word Cognito.
@@ -19,7 +19,9 @@ import type { Donnees } from "@/lib/renseignements/modele";
  * Drive, où Me FAIN les modifie dans Word comme pour Cognito.
  *
  * Réponse : { docx: base64, rapport } ; le rapport liste les champs que le
- * modèle attend et que la saisie ne fournit pas, et les conditions illisibles. */
+ * modèle attend et que la saisie ne fournit pas, les conditions illisibles et
+ * les alertes (points de fond à vérifier : prestation compensatoire non
+ * renseignée, compétence ou loi applicable non acquises). */
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,7 +91,7 @@ export async function POST(request: Request) {
       }
     }
     const { docx, rapport } = await remplir(fichier, valeurs);
-    return NextResponse.json({ docx: docx.toString("base64"), rapport });
+    return NextResponse.json({ docx: docx.toString("base64"), rapport: { ...rapport, alertes: alertesConvention(donnees) } });
   } catch (e) {
     console.error("[generation] échec", e);
     return NextResponse.json({ message: "Le modèle n'a pas pu être lu" }, { status: 422 });

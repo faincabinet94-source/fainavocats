@@ -1,5 +1,6 @@
 import { AVOCAT_PARTENAIRE, age, chargeCognito, estPartenaire, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
+import { activite, analyserExtraneite } from "./extraneite";
 
 /* Valeurs des modèles de convention, sous les noms de champs de Cognito.
  *
@@ -144,10 +145,39 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   v.JourAlternance = d.jourAlternance || "dimanche";
 
   /* Nationalité étrangère hors Union européenne : conditionne la clause sur la
-     reconnaissance du divorce à l'étranger. */
+     reconnaissance du divorce à l'étranger (modèles jusqu'à DCM1AE 15.1). */
   const etrangers = etrangersHorsUE(d);
   v.EtrangerHorsUE = etrangers.length ? "Oui" : "Non";
   v.PaysEtEpouxEtrangers = etrangers.length ? phraseEtrangers(etrangers) : null;
+
+  /* Compétence, loi applicable et reconnaissance à l'étranger (DCM1AE 15.2) :
+     paragraphes rédigés selon les nationalités et les pays de résidence. */
+  Object.assign(v, analyserExtraneite(d).valeurs);
+
+  /* Profession : « exerce la profession d'officier d'état civil », « est sans
+     profession », « est actuellement à la recherche d'un emploi ». */
+  (["client", "conjoint"] as const).forEach((qui, i) => {
+    const s = i === 0 ? "" : "2";
+    const p = d[qui];
+    const x = activite(p.profession, p.civilite === "Madame");
+    v[`ProfessionEntete${s}`] = x ? x.entete : null;
+    v[`PhraseProfession${s}`] = x ? x.phrase : "exerce la profession de [PROFESSION À COMPLÉTER]";
+  });
+  for (let n = 1; n <= 5; n++) {
+    const e = d.enfants[n - 1];
+    const x = e ? activite(e.profession, e.sexe === "Féminin") : null;
+    v[`ActiviteEnfant${n}`] = x ? x.participe : e ? "exerçant la profession de [PROFESSION À COMPLÉTER]" : null;
+  }
+
+  /* Prestation compensatoire non renseignée (question laissée vide, possible
+     dans la version cabinet du formulaire) : aucune branche du modèle ne
+     s'imprimait. Clause « pas de prestation » par défaut, signalée dans l'acte
+     (PCParDefaut) et dans le rapport. */
+  v.PCParDefaut = "Non";
+  if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim()) {
+    v.PC = "Non";
+    v.PCParDefaut = "Oui";
+  }
 
   /* Avocat du conjoint : le confrère partenaire à défaut d'autre choix. La
      mention « Exerçant à titre individuel » n'est connue que pour lui : pour
@@ -176,6 +206,14 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   v.Pension1 = p1 === null ? null : { valeur: p1, texte: montant(p1) };
 
   return v;
+}
+
+/* Points à vérifier, repris dans le rapport de génération. */
+export function alertesConvention(d: Donnees): string[] {
+  const a = [...analyserExtraneite(d).alertes];
+  if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
+    a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
+  return a;
 }
 
 /* ---------- Nationalités ---------- */
