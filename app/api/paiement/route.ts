@@ -9,10 +9,9 @@ import { signalerReglement } from "@/lib/reglements";
  *      relit le paiement chez Stancer, encaisse un paiement resté
  *      « authorized », et transmet le règlement à Airtable (lib/reglements).
  *
- * 3-D Secure : jusqu'au 2026-09-28 le paiement était créé sans objet auth ;
- * la banque le refusait (DSP2). Doc v1, « Authenticated payments » : avec la
- * page de paiement, il suffit de passer auth.status = "request", sans objet
- * device, Stancer gère le reste.
+ * 3-D Secure : jusqu'au 2026-09-28 le paiement était créé sans auth ; la
+ * banque le refusait (DSP2). Doc v1, « Authenticated payments » : avec la
+ * page de paiement, pas d'objet device, Stancer gère l'authentification.
  *
  * Variables Netlify : STANCER_SECRET_KEY (sprod_…), STANCER_PUBLIC_KEY (pprod_…). */
 
@@ -54,13 +53,20 @@ export async function POST(request: NextRequest) {
     description: description.length >= 3 ? description : "Acompte honoraires",
     return_url: retour,
     capture: true,
-    auth: { status: "request", return_url: retour },
+    // Forme exacte de la bibliothèque officielle (lib-php, Payment::setAuth(true)
+    // puis Auth::jsonSerialize en v1) : { status: "request" }, sans return_url.
+    // Un return_url dans auth rend l'objet device obligatoire : c'est ce qui
+    // faisait refuser la création le 2026-09-28.
+    auth: { status: "request" },
     ...(nom || email ? { customer: { ...(nom && { name: nom }), ...(email && { email }) } } : {}),
   });
   const id = r.j?.id;
   if (!r.ok || typeof id !== "string") {
     console.error("[stancer] paiement refusé à la création", r.statut, r.j?.error || r.j);
-    return NextResponse.json({ error: "Erreur lors de la création du paiement. Veuillez réessayer." }, { status: 502 });
+    // Motif renvoyé par Stancer, affiché pour le diagnostic (pas de donnée sensible).
+    const motif = typeof r.j?.error?.message === "string" ? r.j.error.message : typeof r.j?.error === "string" ? r.j.error : "";
+    const detail = motif ? ` (Stancer : ${String(motif).slice(0, 200)})` : ` (code ${r.statut})`;
+    return NextResponse.json({ error: `Erreur lors de la création du paiement${detail}. Veuillez réessayer.` }, { status: 502 });
   }
   const url =
     r.j.payment_page_url ||
