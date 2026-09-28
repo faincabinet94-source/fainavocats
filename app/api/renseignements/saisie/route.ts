@@ -38,7 +38,8 @@ export async function POST(request: Request) {
   if (precedente?.envoye) return NextResponse.json({ message: "Ce formulaire a déjà été envoyé" }, { status: 410 });
   await saisies().setJSON(id, { donnees: corps.donnees, interne: Boolean(corps.interne), maj: new Date().toISOString() });
 
-  const lien = `${adresseSite(request)}/formulaire-renseignements?reprise=${id}`;
+  // Version cabinet : le lien rouvre la page avec son titre « interne ».
+  const lien = `${adresseSite(request)}/formulaire-renseignements?reprise=${id}${corps.interne ? "&interne=1" : ""}`;
   if (corps.envoyerLien) {
     const c = corps.donnees.client;
     const email = (c.email || "").trim().toLowerCase();

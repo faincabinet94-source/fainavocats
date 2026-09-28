@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,6 +60,14 @@ import { PaiementProvision } from "@/components/paiement/PaiementProvision";
      interne=1       version cabinet (remplie pendant le rendez-vous)
      entry={…}       pré-remplissage envoyé par Airtable (NOM, Email, Téléphone, Civilité, Prénoms)
      reprise=<id>    rouvre une saisie enregistrée */
+
+/* Intitulés courts de la version cabinet (même ordre). */
+const ETAPES_CABINET: Record<string, string> = {
+  "Votre procédure": "Procédure",
+  Vous: "Client",
+  "Votre conjoint": "Conjoint",
+  "Vos pièces": "Pièces",
+};
 
 const ETAPES = [
   "Votre procédure",
@@ -162,6 +170,30 @@ function enNombre(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/* Version cabinet : les choix s'affichent sous une forme courte (« Client »,
+   « Conjoint »…). Seul l'affichage change : la valeur enregistrée, reprise par
+   Airtable et la génération de la convention, reste la même. */
+const Cabinet = createContext(false);
+const LIBELLES_CABINET: Record<string, string> = {
+  "Commencer à distance": "Distance",
+  "Rendez-vous physique": "Présentiel",
+  Moi: "Client",
+  "Mon conjoint": "Conjoint",
+  "Mon époux (se)": "Conjoint",
+  "Mon époux(se)": "Conjoint",
+  "Conjoint(e)": "Conjoint",
+  "Nous avons donné congé*": "Congé",
+  "Je les prendrai à ma charge": "Client",
+  "Mon conjoint les prendra à charge": "Conjoint",
+  "Je ne sais pas encore": "Pas encore décidé",
+  "Nous la partageons (125 € chacun)": "Partagée (125 € chacun)",
+  "Je l'avance en entier (250 €)": "Avancée par le client (250 €)",
+};
+function useAffichage() {
+  const cabinet = useContext(Cabinet);
+  return (o: string) => (cabinet && LIBELLES_CABINET[o]) || o.replace("*", "");
+}
+
 function Choix({
   options,
   value,
@@ -171,6 +203,7 @@ function Choix({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const affiche = useAffichage();
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((o) => (
@@ -185,7 +218,7 @@ function Choix({
               : "border-[#D6D3CB] bg-white text-gray-600 hover:border-gray-400",
           )}
         >
-          {o.replace("*", "")}
+          {affiche(o)}
         </button>
       ))}
     </div>
@@ -193,12 +226,13 @@ function Choix({
 }
 
 function Liste({ options, value, onChange }: { options: readonly string[]; value: string; onChange: (v: string) => void }) {
+  const affiche = useAffichage();
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} className={inputCls}>
       <option value="">Choisir…</option>
       {options.map((o) => (
         <option key={o} value={o}>
-          {o.replace("*", "")}
+          {affiche(o)}
         </option>
       ))}
     </select>
@@ -344,6 +378,8 @@ export default function FormulaireRenseignements() {
   const tousManquants = useMemo(() => manquants(d, interne), [d, interne]);
   const manque = (champ: string) => tentative && tousManquants.some((m) => m.champ === champ);
   const suivi = (champ: string) => ({ champ, manque: manque(champ) });
+  /* Intitulé côté client, ou forme courte de la version cabinet. */
+  const cab = (client: string, cabinet: string) => (interne ? cabinet : client);
   const aFaire = useMemo(() => facultatifs(d, interne), [d, interne]);
   /* Envoi demandé alors que des informations facultatives manquent : on les
      rappelle, avec « Envoyer quand même ». */
@@ -539,13 +575,13 @@ export default function FormulaireRenseignements() {
   const contenu: React.ReactNode[] = [
     /* 1. Votre procédure */
     <div key="p" className="space-y-7">
-      <Champ label="Quelle procédure ?" aide="La séparation de corps met fin à la vie commune sans dissoudre le mariage." {...suivi("procedure")}>
+      <Champ label={cab("Quelle procédure ?", "Procédure")} aide="La séparation de corps met fin à la vie commune sans dissoudre le mariage." {...suivi("procedure")}>
         <Choix options={PROCEDURES} value={d.procedure} onChange={(v) => maj("procedure", v || d.procedure)} />
       </Champ>
-      <Champ label="Comment souhaitez-vous procéder ?" {...suivi("distance")}>
+      <Champ label={cab("Comment souhaitez-vous procéder ?", "Distance / Présentiel")} {...suivi("distance")}>
         <Choix options={DISTANCES} value={d.distance} onChange={(v) => maj("distance", v)} />
       </Champ>
-      <Champ label="Êtes-vous déjà client du cabinet ?">
+      <Champ label={cab("Êtes-vous déjà client du cabinet ?", "Déjà client ?")}>
         <Choix options={OUI_NON} value={d.dejaClient} onChange={(v) => maj("dejaClient", v)} />
       </Champ>
     </div>,
@@ -588,7 +624,7 @@ export default function FormulaireRenseignements() {
     </div>,
     /* 5. Le logement */
     <div key="l" className="space-y-6">
-      <Champ label="Vivez-vous déjà séparément ?" {...suivi("logement.separes")}>
+      <Champ label={cab("Vivez-vous déjà séparément ?", "Les époux vivent-ils déjà séparément ?")} {...suivi("logement.separes")}>
         <Choix options={OUI_NON} value={d.logement.separes} onChange={(v) => maj("logement.separes", v)} />
       </Champ>
       {d.logement.separes === "Oui" && (
@@ -600,13 +636,13 @@ export default function FormulaireRenseignements() {
         <Choix options={DOMICILES} value={d.logement.domicile} onChange={(v) => maj("logement.domicile", v)} />
       </Champ>
       <Champ
-        label={d.logement.separes === "Oui" ? "Votre logement actuel (adresse indiquée à l'étape 2)" : "Le domicile conjugal"}
+        label={d.logement.separes === "Oui" ? cab("Votre logement actuel (adresse indiquée à l'étape 2)", "Logement actuel du client (adresse à l'étape 2)") : "Le domicile conjugal"}
         aide="Le choix entre propriété en commun et indivise dépend du régime matrimonial indiqué à l'étape 4."
       >
         <Liste options={statutsLogement(d.mariage.regime)} value={d.client.statutLogement} onChange={(v) => maj("client.statutLogement", v)} />
       </Champ>
       {d.logement.separes === "Oui" && (
-        <Champ label="Le logement actuel de votre conjoint (adresse indiquée à l'étape 3)">
+        <Champ label={cab("Le logement actuel de votre conjoint (adresse indiquée à l'étape 3)", "Logement actuel du conjoint (adresse à l'étape 3)")}>
           <Liste options={statutsLogement(d.mariage.regime)} value={d.conjoint.statutLogement} onChange={(v) => maj("conjoint.statutLogement", v)} />
         </Champ>
       )}
@@ -753,7 +789,7 @@ export default function FormulaireRenseignements() {
       </section>
       <section className="space-y-5">
         <h3 className="text-[17px] font-medium text-[#1A1A1A]">Dettes et impôts</h3>
-        <Champ label="Avez-vous des arriérés de loyers ?">
+        <Champ label={cab("Avez-vous des arriérés de loyers ?", "Arriérés de loyers")}>
           <Choix options={OUI_NON} value={d.arrieresLoyers} onChange={(v) => maj("arrieresLoyers", v)} />
         </Champ>
         {d.arrieresLoyers === "Oui" && (
@@ -761,7 +797,7 @@ export default function FormulaireRenseignements() {
             <input className={cn(inputCls, "sm:max-w-xs")} value={d.montantArrieresLoyers} onChange={(e) => maj("montantArrieresLoyers", e.target.value)} inputMode="decimal" />
           </Champ>
         )}
-        <Champ label="Avez-vous des arriérés d'impôts ?">
+        <Champ label={cab("Avez-vous des arriérés d'impôts ?", "Arriérés d'impôts")}>
           <Choix options={OUI_NON} value={d.arrieresImpots} onChange={(v) => maj("arrieresImpots", v)} />
         </Champ>
         {d.arrieresImpots === "Oui" && (
@@ -769,7 +805,7 @@ export default function FormulaireRenseignements() {
             <input className={cn(inputCls, "sm:max-w-xs")} value={d.montantArrieresImpots} onChange={(e) => maj("montantArrieresImpots", e.target.value)} inputMode="decimal" />
           </Champ>
         )}
-        <Champ label="Faites-vous déjà des déclarations d'impôt séparées ?">
+        <Champ label={cab("Faites-vous déjà des déclarations d'impôt séparées ?", "Déclarations séparées")}>
           <Choix options={OUI_NON} value={d.impotsSepares} onChange={(v) => maj("impotsSepares", v)} />
         </Champ>
       </section>
@@ -778,7 +814,7 @@ export default function FormulaireRenseignements() {
     divorce ? (
       <div key="pc" className="space-y-6">
         <Champ
-          label="Avez-vous convenu d'une prestation compensatoire ?"
+          label={cab("Avez-vous convenu d'une prestation compensatoire ?", "Prestation compensatoire convenue ?")}
           aide="Une somme versée par l'un des époux à l'autre pour compenser l'écart de niveau de vie que crée le divorce."
           {...suivi("pc.convenue")}
         >
@@ -786,10 +822,10 @@ export default function FormulaireRenseignements() {
         </Champ>
         {d.pc.convenue === "Oui" && (
           <>
-            <Champ label="Qui la reçoit ?" {...suivi("pc.beneficiaire")}>
+            <Champ label={cab("Qui la reçoit ?", "Bénéficiaire")} {...suivi("pc.beneficiaire")}>
               <Choix options={BENEFICIAIRES} value={d.pc.beneficiaire} onChange={(v) => maj("pc.beneficiaire", v)} />
             </Champ>
-            <Champ label="Sous quelle forme ?" {...suivi("pc.forme")}>
+            <Champ label={cab("Sous quelle forme ?", "Forme")} {...suivi("pc.forme")}>
               <Choix options={FORMES_PC} value={d.pc.forme} onChange={(v) => maj("pc.forme", v)} />
             </Champ>
             <Champ champ="pc.montant" label="Montant total (€)">
@@ -801,14 +837,14 @@ export default function FormulaireRenseignements() {
     ) : (
       <div key="ds" className="space-y-6">
         <Champ
-          label="Avez-vous convenu d'un devoir de secours ?"
+          label={cab("Avez-vous convenu d'un devoir de secours ?", "Devoir de secours convenu ?")}
           aide="Une pension versée par l'un des époux à l'autre pendant la séparation de corps, le mariage n'étant pas dissous."
         >
           <Choix options={OUI_NON} value={d.ds.convenu} onChange={(v) => maj("ds.convenu", v)} />
         </Champ>
         {d.ds.convenu === "Oui" && (
           <>
-            <Champ label="Qui le reçoit ?">
+            <Champ label={cab("Qui le reçoit ?", "Bénéficiaire")}>
               <Choix options={BENEFICIAIRES} value={d.ds.beneficiaire} onChange={(v) => maj("ds.beneficiaire", v)} />
             </Champ>
             <Champ champ="ds.montant" label="Montant mensuel (€)">
@@ -831,19 +867,22 @@ export default function FormulaireRenseignements() {
     </div>,
     /* 10. Les honoraires */
     <div key="h" className="space-y-6">
-      <Champ label="Qui prendra en charge les honoraires ?" {...suivi("repartition")}>
+      <Champ label={cab("Qui prendra en charge les honoraires ?", "Prise en charge des honoraires")} {...suivi("repartition")}>
         <Choix options={REPARTITIONS} value={d.repartition} onChange={(v) => maj("repartition", v)} />
       </Champ>
       {d.repartition === "Partage par moitié" && (
         <Champ
-          label="Et la provision de 250 € qui lance la procédure ?"
-          aide="Si vous l'avancez en entier, nous commençons sans attendre le règlement de votre conjoint. Elle vient ensuite en déduction de votre part des honoraires."
+          label={cab("Et la provision de 250 € qui lance la procédure ?", "Provision de 250 €")}
+          aide={cab(
+            "Si vous l'avancez en entier, nous commençons sans attendre le règlement de votre conjoint. Elle vient ensuite en déduction de votre part des honoraires.",
+            "Avancée en entier : la procédure commence sans attendre le règlement du conjoint. Elle vient ensuite en déduction de la part du client.",
+          )}
           {...suivi("provisionPartage")}
         >
           <Choix options={PROVISIONS_PARTAGE} value={d.provisionPartage} onChange={(v) => maj("provisionPartage", v)} />
         </Champ>
       )}
-      <Champ label="Souhaitez-vous préciser quelque chose ?" aide="Facultatif.">
+      <Champ label={cab("Souhaitez-vous préciser quelque chose ?", "Commentaires")} aide={interne ? undefined : "Facultatif."}>
         <textarea rows={5} className={inputCls} value={d.commentaires} onChange={(e) => maj("commentaires", e.target.value)} />
       </Champ>
     </div>,
@@ -926,9 +965,11 @@ export default function FormulaireRenseignements() {
     </div>,
   ];
 
-  const titreEtape = etape === 7 && !divorce ? "Devoir de secours" : ETAPES[etape];
+  const nomEtape = (i: number) => (i === 7 && !divorce ? "Devoir de secours" : (interne && ETAPES_CABINET[ETAPES[i]]) || ETAPES[i]);
+  const titreEtape = nomEtape(etape);
 
   return (
+    <Cabinet.Provider value={interne}>
     <div ref={haut} className="scroll-mt-28">
       <div className="mb-8">
         <div className="flex items-baseline justify-between gap-4 text-sm text-gray-500">
@@ -952,7 +993,7 @@ export default function FormulaireRenseignements() {
                 i === etape ? "bg-[#362A24] text-white" : "bg-[#F4F2EC] text-gray-600 hover:bg-[#E5E2DA]",
               )}
             >
-              {i + 1}. {i === 7 && !divorce ? "Devoir de secours" : t}
+              {i + 1}. {nomEtape(i)}
             </button>
           ))}
         </div>
@@ -1051,6 +1092,7 @@ export default function FormulaireRenseignements() {
         </div>
       )}
     </div>
+    </Cabinet.Provider>
   );
 }
 
