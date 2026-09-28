@@ -419,6 +419,26 @@ export function manquants(d: Donnees, interne: boolean): Manque[] {
   return m;
 }
 
+/* Informations facultatives encore vides, rappelées avant l'envoi (avec
+   « Envoyer quand même »). Version cabinet : tout ce que la version client
+   exige et que la version cabinet n'exige pas. S'y ajoutent, dans les deux
+   versions, quelques informations utiles à la convention. */
+export function facultatifs(d: Donnees, interne: boolean): Manque[] {
+  const obligatoires = new Set(manquants(d, interne).map((x) => x.champ));
+  const m: Manque[] = interne ? manquants(d, false).filter((x) => !obligatoires.has(x.champ)) : [];
+  const vide = (x: string | undefined) => !x || !x.trim();
+  const ajouter = (etape: number, champ: string, libelle: string) => {
+    if (!obligatoires.has(champ) && !m.some((x) => x.champ === champ)) m.push({ etape, champ, libelle });
+  };
+  const divorce = d.procedure !== "Séparation de corps";
+  if (d.logement.separes === "Oui" && vide(d.logement.dateSeparation)) ajouter(4, "logement.dateSeparation", "la date de séparation");
+  if (divorce && d.pc.convenue === "Oui" && vide(d.pc.montant)) ajouter(7, "pc.montant", "le montant de la prestation compensatoire");
+  if (!divorce && d.ds.convenu === "Oui" && vide(d.ds.montant)) ajouter(7, "ds.montant", "le montant du devoir de secours");
+  if (divorce && vide(d.nomUsage.utilise)) ajouter(8, "nomUsage.utilise", "l'usage du nom de l'autre époux");
+  if (!d.pieces.length) ajouter(10, "pieces", "les pièces justificatives");
+  return m;
+}
+
 /* ---------- Saisie : majuscules et noms de lieux ---------- */
 
 /* Noms de famille et villes des adresses : en capitales, accents conservés
