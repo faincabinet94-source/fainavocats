@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search } from "lucide-react";
+import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
@@ -93,6 +93,9 @@ function avec<T>(obj: T, chemin: string, valeur: unknown): T {
   return copie;
 }
 
+/* Lieux de naissance et de mariage : forme attendue, reprise dans les actes. */
+const AIDE_LIEU = "Ville (Département), ou Ville (Pays) hors de France. Par exemple : Enghien-les-Bains (Val-d'Oise) ou Bruxelles (Belgique).";
+
 function Champ({
   label,
   aide,
@@ -108,13 +111,42 @@ function Champ({
 }) {
   return (
     <div id={id} className="min-w-0">
-      <div className={cn("text-[15px]", manque ? "text-[#B42318]" : "text-[#1A1A1A]")}>
-        {label}
-        {manque && <span className="ml-2 text-sm">(à renseigner)</span>}
+      <div className={cn("flex items-center gap-1.5 text-[15px]", manque ? "text-[#B42318]" : "text-[#1A1A1A]")}>
+        <span>{label}</span>
+        {aide && <InfoBulle texte={aide} />}
+        {manque && <span className="ml-1 text-sm">(à renseigner)</span>}
       </div>
-      {aide && <p className="mt-1 text-sm text-gray-500">{aide}</p>}
       <div className="mt-2">{children}</div>
     </div>
+  );
+}
+
+/* Aide d'un champ en info-bulle : au survol, au focus clavier, ou au toucher
+   sur téléphone. Le texte d'aide ne décale plus les champs d'une même ligne. */
+function InfoBulle({ texte }: { texte: string }) {
+  const [ouverte, setOuverte] = useState(false);
+  return (
+    <span className="relative inline-flex" onMouseEnter={() => setOuverte(true)} onMouseLeave={() => setOuverte(false)}>
+      <button
+        type="button"
+        aria-label={`Aide : ${texte}`}
+        aria-expanded={ouverte}
+        onClick={() => setOuverte(true)}
+        onFocus={() => setOuverte(true)}
+        onBlur={() => setOuverte(false)}
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-gray-400 hover:text-[#362A24] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#362A24]/30"
+      >
+        <Info className="h-4 w-4" strokeWidth={1.75} />
+      </button>
+      {ouverte && (
+        <span
+          role="tooltip"
+          className="absolute left-1/2 top-full z-20 mt-2 w-64 max-w-[80vw] -translate-x-1/2 rounded-lg bg-[#1A1A1A] px-3 py-2 text-[13px] font-normal leading-snug text-white shadow-lg sm:left-0 sm:translate-x-0"
+        >
+          {texte}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -414,8 +446,8 @@ export default function FormulaireRenseignements() {
           <Champ label="Date de naissance" manque={manque(k("dateNaissance"))}>
             <input type="date" className={inputCls} value={x.dateNaissance} onChange={(e) => maj(k("dateNaissance"), e.target.value)} />
           </Champ>
-          <Champ label="Lieu de naissance" aide="Ville, et pays si ce n'est pas la France." manque={manque(k("lieuNaissance"))}>
-            <input className={inputCls} value={x.lieuNaissance} onChange={(e) => maj(k("lieuNaissance"), e.target.value)} onBlur={(e) => maj(k("lieuNaissance"), nomDeLieu(e.target.value))} />
+          <Champ label="Lieu de naissance" aide={AIDE_LIEU} manque={manque(k("lieuNaissance"))}>
+            <input className={inputCls} placeholder="Ville (Département)" value={x.lieuNaissance} onChange={(e) => maj(k("lieuNaissance"), e.target.value)} onBlur={(e) => maj(k("lieuNaissance"), nomDeLieu(e.target.value))} />
           </Champ>
           <Champ label="Nationalité" manque={manque(k("nationalite"))}>
             <input className={inputCls} value={x.nationalite} onChange={(e) => maj(k("nationalite"), e.target.value)} />
@@ -436,7 +468,7 @@ export default function FormulaireRenseignements() {
           </Champ>
         </Grille>
         <Grille>
-          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt. Remplissez l'un ou l'autre : le second se calcule seul." manque={manque(k("revenus"))}>
+          <Champ label={`Revenus annuels nets ${new Date().getFullYear() - 1} (€)`} aide="Le revenu net imposable de l'avis d'impôt. Remplissez l'un ou l'autre : le second se calcule seul. Si vous percevez un 13e mois, renseignez le revenu annuel." manque={manque(k("revenus"))}>
             <input
               className={inputCls}
               value={x.revenusAnnuels}
@@ -448,7 +480,7 @@ export default function FormulaireRenseignements() {
               inputMode="decimal"
             />
           </Champ>
-          <Champ label="Revenus mensuels nets (€)" manque={manque(k("revenus"))}>
+          <Champ label="Revenus mensuels nets (€)" aide="Sur douze mois. Si vous percevez un 13e mois, renseignez plutôt le revenu annuel." manque={manque(k("revenus"))}>
             <input
               className={inputCls}
               value={x.revenus}
@@ -499,8 +531,8 @@ export default function FormulaireRenseignements() {
         <Champ label="Date du mariage" manque={manque("mariage.date")}>
           <input type="date" className={inputCls} value={d.mariage.date} onChange={(e) => maj("mariage.date", e.target.value)} />
         </Champ>
-        <Champ label="Lieu du mariage" manque={manque("mariage.lieu")}>
-          <input className={inputCls} value={d.mariage.lieu} onChange={(e) => maj("mariage.lieu", e.target.value)} onBlur={(e) => maj("mariage.lieu", nomDeLieu(e.target.value))} />
+        <Champ label="Lieu du mariage" aide={AIDE_LIEU} manque={manque("mariage.lieu")}>
+          <input className={inputCls} placeholder="Ville (Département)" value={d.mariage.lieu} onChange={(e) => maj("mariage.lieu", e.target.value)} onBlur={(e) => maj("mariage.lieu", nomDeLieu(e.target.value))} />
         </Champ>
       </Grille>
       <Champ label="Régime matrimonial" aide="Sans contrat de mariage, c'est en principe la communauté réduite aux acquêts." manque={manque("mariage.regime")}>
@@ -572,8 +604,8 @@ export default function FormulaireRenseignements() {
             <Champ label="Date de naissance" manque={manque(`enfants.${i}.dateNaissance`)}>
               <input type="date" className={inputCls} value={x.dateNaissance} onChange={(e) => maj(`enfants.${i}.dateNaissance`, e.target.value)} />
             </Champ>
-            <Champ label="Lieu de naissance" manque={manque(`enfants.${i}.lieuNaissance`)}>
-              <input className={inputCls} value={x.lieuNaissance} onChange={(e) => maj(`enfants.${i}.lieuNaissance`, e.target.value)} onBlur={(e) => maj(`enfants.${i}.lieuNaissance`, nomDeLieu(e.target.value))} />
+            <Champ label="Lieu de naissance" aide={AIDE_LIEU} manque={manque(`enfants.${i}.lieuNaissance`)}>
+              <input className={inputCls} placeholder="Ville (Département)" value={x.lieuNaissance} onChange={(e) => maj(`enfants.${i}.lieuNaissance`, e.target.value)} onBlur={(e) => maj(`enfants.${i}.lieuNaissance`, nomDeLieu(e.target.value))} />
             </Champ>
             <Champ label="Résidence de l'enfant" manque={manque(`enfants.${i}.garde`)}>
               <Liste options={GARDES} value={x.garde} onChange={(v) => maj(`enfants.${i}.garde`, v)} />
