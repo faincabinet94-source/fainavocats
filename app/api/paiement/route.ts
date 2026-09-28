@@ -53,9 +53,11 @@ export async function POST(request: NextRequest) {
     description: description.length >= 3 ? description : "Acompte honoraires",
     return_url: retour,
     capture: true,
-    // Forme de l'exemple de la doc v1 (« "auth": true ») ; l'objet
-    // { status: "request", return_url } a été refusé à la création.
-    auth: true,
+    // Forme exacte de la bibliothèque officielle (lib-php, Payment::setAuth(true)
+    // puis Auth::jsonSerialize en v1) : { status: "request" }, sans return_url.
+    // Un return_url dans auth rend l'objet device obligatoire : c'est ce qui
+    // faisait refuser la création le 2026-09-28.
+    auth: { status: "request" },
     ...(nom || email ? { customer: { ...(nom && { name: nom }), ...(email && { email }) } } : {}),
   });
   const id = r.j?.id;
