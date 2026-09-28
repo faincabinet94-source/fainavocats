@@ -30,6 +30,10 @@ export async function POST(request: NextRequest) {
       description: description || "Acompte honoraires - Fain Avocats",
       return_url: `${origin}/paiement/stancer?status=done`,
       capture: true,
+      // 3-D Secure obligatoire (DSP2) : sans auth, la banque refuse le paiement
+      // sans que le client ait eu à s'authentifier. La doc Stancer demande de
+      // forcer l'authentification avec auth=true, avec une return_url.
+      auth: true,
     };
 
     if (customer) {
