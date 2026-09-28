@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { signalerReglement } from "@/lib/reglements";
+import { stancer, verifierStancer } from "@/lib/stancer";
 
 /* Paiement Stancer (API v1, page de paiement hébergée).
  *
@@ -7,7 +7,8 @@ import { signalerReglement } from "@/lib/reglements";
  *      → { redirect_url, id }  page https://payment.stancer.com/<clé publique>/<paym_…>
  * GET  ?id=paym_…  → { etat: "ok" | "echec" | "attente" }  au retour du client :
  *      relit le paiement chez Stancer, encaisse un paiement resté
- *      « authorized », et transmet le règlement à Airtable (lib/reglements).
+ *      « authorized », et transmet le règlement à Airtable (lib/stancer).
+ *      Les notifications de Stancer font de même (/api/stancer/notification).
  *
  * 3-D Secure : jusqu'au 2026-09-28 le paiement était créé sans auth ; la
  * banque le refusait (DSP2). Doc v1, « Authenticated payments » : avec la
@@ -17,21 +18,6 @@ import { signalerReglement } from "@/lib/reglements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const API = "https://api.stancer.com/v1";
-// Doc v1, « Payment status codes ».
-const OK = ["to_capture", "capture_sent", "captured"];
-const ECHEC = ["refused", "failed", "canceled", "expired", "disputed"];
-
-async function stancer(chemin: string, corps?: unknown, methode?: "POST" | "PATCH") {
-  const auth = Buffer.from(`${process.env.STANCER_SECRET_KEY || ""}:`).toString("base64");
-  const r = await fetch(`${API}/${chemin}`, {
-    method: corps === undefined ? "GET" : methode || "POST",
-    headers: { Authorization: `Basic ${auth}`, ...(corps === undefined ? {} : { "Content-Type": "application/json" }) },
-    body: corps === undefined ? undefined : JSON.stringify(corps),
-  });
-  return { ok: r.ok, statut: r.status, j: await r.json().catch(() => ({})) };
-}
 
 export async function POST(request: NextRequest) {
   if (!process.env.STANCER_SECRET_KEY)
@@ -77,44 +63,5 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const id = new URL(request.url).searchParams.get("id") || "";
-  if (!process.env.STANCER_SECRET_KEY || !/^paym_[A-Za-z0-9]+$/.test(id)) return NextResponse.json({ etat: "attente" });
-
-  const r = await stancer(`checkout/${id}`);
-  if (!r.ok) return NextResponse.json({ etat: "attente" });
-  let p = r.j;
-
-  // Autorisé mais pas encore encaissé : on demande l'encaissement (doc v1,
-  // PATCH /v1/checkout/<id> avec status « capture »).
-  if (p.status === "authorized") {
-    const c = await stancer(`checkout/${id}`, { status: "capture" }, "PATCH");
-    if (c.ok && c.j?.status) p = c.j;
-  }
-
-  const statut = String(p.status || "");
-  if (ECHEC.includes(statut)) return NextResponse.json({ etat: "echec" });
-  if (!OK.includes(statut)) return NextResponse.json({ etat: "attente" });
-
-  let email = "";
-  let nom = "";
-  const cust = p.customer;
-  if (cust && typeof cust === "object") {
-    email = cust.email || "";
-    nom = cust.name || "";
-  } else if (typeof cust === "string" && cust.startsWith("cust_")) {
-    const c = await stancer(`customers/${cust}`);
-    if (c.ok) {
-      email = c.j.email || "";
-      nom = c.j.name || "";
-    }
-  }
-  await signalerReglement({
-    mode: "STANCER API",
-    montant: (Number(p.amount) || 0) / 100,
-    email,
-    nom,
-    reference: `stancer:${p.id || id}`,
-    date: p.created ? new Date(p.created * 1000).toISOString() : new Date().toISOString(),
-    detail: String(p.description || ""),
-  });
-  return NextResponse.json({ etat: "ok" });
+  return NextResponse.json({ etat: (await verifierStancer(id)).etat });
 }
