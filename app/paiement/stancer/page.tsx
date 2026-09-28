@@ -16,6 +16,8 @@ const amounts = [
   { label: "2 500 €", value: 250000 },
 ];
 
+const CLE_INTENTION = "fain-stancer-intention";
+
 function PaiementContent() {
   const searchParams = useSearchParams();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -26,11 +28,35 @@ function PaiementContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [verification, setVerification] = useState(false);
 
+  /* Retour de la page Stancer : l'identifiant de l'intention (pi_…) a été
+     gardé avant le départ ; le site vérifie chez Stancer que le paiement est
+     passé au lieu de l'annoncer d'office. */
   useEffect(() => {
-    if (searchParams.get("status") === "done") {
+    if (searchParams.get("status") !== "done") return;
+    let id = "";
+    try {
+      id = sessionStorage.getItem(CLE_INTENTION) || "";
+    } catch {}
+    if (!id) {
       setPaymentSuccess(true);
+      return;
     }
+    setVerification(true);
+    fetch(`/api/paiement?id=${encodeURIComponent(id)}`)
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.etat === "echec") setError("Le paiement n'a pas abouti : aucun montant n'a été prélevé. Vous pouvez réessayer, ou nous appeler au 01 40 68 02 37.");
+        else setPaymentSuccess(true);
+        if (j.etat !== "attente") {
+          try {
+            sessionStorage.removeItem(CLE_INTENTION);
+          } catch {}
+        }
+      })
+      .catch(() => setPaymentSuccess(true))
+      .finally(() => setVerification(false));
   }, [searchParams]);
 
   const getAmountInCents = () => {
@@ -85,6 +111,9 @@ function PaiementContent() {
       const data = await response.json();
 
       if (data.redirect_url) {
+        try {
+          if (data.id) sessionStorage.setItem(CLE_INTENTION, data.id);
+        } catch {}
         window.location.href = data.redirect_url;
       } else if (data.error) {
         setError(data.error);
@@ -99,6 +128,20 @@ function PaiementContent() {
       setIsLoading(false);
     }
   };
+
+  if (verification) {
+    return (
+      <>
+        <Navbar />
+        <main className="bg-[#F4F2EC] min-h-screen pt-32 pb-24">
+          <Container>
+            <p className="max-w-2xl mx-auto text-center text-gray-600 text-lg">Vérification du paiement…</p>
+          </Container>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   if (paymentSuccess) {
     return (
