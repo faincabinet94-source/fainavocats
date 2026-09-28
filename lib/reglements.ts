@@ -13,7 +13,7 @@ import { versN8n } from "@/lib/renseignements/n8n";
  * Airtable « Stripe » (webhook checkout.session.completed). Serveur uniquement. */
 
 export type Reglement = {
-  mode: "CB SUM UP" | "ALMA" | "Stripe abo"; // choix du champ Mode, à l'identique
+  mode: "CB SUM UP" | "ALMA" | "Stripe abo" | "STANCER API"; // choix du champ Mode, à l'identique
   montant: number; // en euros
   email: string;
   nom: string;
