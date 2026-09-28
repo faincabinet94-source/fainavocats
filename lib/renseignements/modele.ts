@@ -315,7 +315,36 @@ export type Manque = { etape: number; champ: string; libelle: string };
    n° 13 (séparation de corps) pour la version client, n° 14 pour la version
    cabinet, plus légère parce que remplie pendant le rendez-vous. Les champs
    conditionnels suivent les mêmes conditions que dans Cognito. */
+/* Version cabinet : les libellés parlent « du client » et « du conjoint »
+   plutôt qu'au client lui-même. */
+const CABINET: [RegExp, string][] = [
+  [/^votre civilité$/, "la civilité du client"],
+  [/^votre nom$/, "le nom du client"],
+  [/^vos prénoms$/, "les prénoms du client"],
+  [/^votre date de naissance$/, "la date de naissance du client"],
+  [/^votre lieu de naissance$/, "le lieu de naissance du client"],
+  [/^votre nationalité$/, "la nationalité du client"],
+  [/^votre profession$/, "la profession du client"],
+  [/^votre courriel$/, "le courriel du client"],
+  [/^votre téléphone$/, "le téléphone du client"],
+  [/^vos revenus$/, "les revenus du client"],
+  [/^votre adresse$/, "l'adresse du client"],
+  [/^votre code postal$/, "le code postal du client"],
+  [/^votre ville$/, "la ville du client"],
+  [/^un courriel valide$/, "un courriel valide pour le client"],
+  [/^si vous vivez déjà séparément$/, "si les époux vivent déjà séparément"],
+  [/ de votre conjoint/g, " du conjoint"],
+  [/ pour votre conjoint/g, " pour le conjoint"],
+];
+const pourCabinet = (m: Manque[]): Manque[] =>
+  m.map((x) => ({ ...x, libelle: CABINET.reduce((l, [re, par]) => l.replace(re, par), x.libelle) }));
+
 export function manquants(d: Donnees, interne: boolean): Manque[] {
+  const m = manquantsBruts(d, interne);
+  return interne ? pourCabinet(m) : m;
+}
+
+function manquantsBruts(d: Donnees, interne: boolean): Manque[] {
   const m: Manque[] = [];
   const v = (x: string | undefined) => !x || !x.trim();
   const exiger = (etape: number, champ: string, valeur: string | undefined, libelle: string) => {
@@ -425,7 +454,7 @@ export function manquants(d: Donnees, interne: boolean): Manque[] {
    versions, quelques informations utiles à la convention. */
 export function facultatifs(d: Donnees, interne: boolean): Manque[] {
   const obligatoires = new Set(manquants(d, interne).map((x) => x.champ));
-  const m: Manque[] = interne ? manquants(d, false).filter((x) => !obligatoires.has(x.champ)) : [];
+  const m: Manque[] = interne ? manquantsBruts(d, false).filter((x) => !obligatoires.has(x.champ)) : [];
   const vide = (x: string | undefined) => !x || !x.trim();
   const ajouter = (etape: number, champ: string, libelle: string) => {
     if (!obligatoires.has(champ) && !m.some((x) => x.champ === champ)) m.push({ etape, champ, libelle });
@@ -436,7 +465,7 @@ export function facultatifs(d: Donnees, interne: boolean): Manque[] {
   if (!divorce && d.ds.convenu === "Oui" && vide(d.ds.montant)) ajouter(7, "ds.montant", "le montant du devoir de secours");
   if (divorce && vide(d.nomUsage.utilise)) ajouter(8, "nomUsage.utilise", "l'usage du nom de l'autre époux");
   if (!d.pieces.length) ajouter(10, "pieces", "les pièces justificatives");
-  return m;
+  return interne ? pourCabinet(m) : m;
 }
 
 /* ---------- Saisie : majuscules et noms de lieux ---------- */
