@@ -169,6 +169,11 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
     v[`ActiviteEnfant${n}`] = x ? x.participe : e ? "exerçant la profession de [PROFESSION À COMPLÉTER]" : null;
   }
 
+  /* Information des enfants mineurs (art. 229-2 1° C. civ.) : une phrase pour
+     les enfants de moins de 12 ans, une pour ceux de 12 à 17 ans, chacune
+     groupant tous les enfants concernés (DCM1AE 15.2). */
+  Object.assign(v, informationEnfants(d, le).valeurs);
+
   /* Prestation compensatoire non renseignée (question laissée vide, possible
      dans la version cabinet du formulaire) : aucune branche du modèle ne
      s'imprimait. Clause « pas de prestation » par défaut, signalée dans l'acte
@@ -209,11 +214,72 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
 }
 
 /* Points à vérifier, repris dans le rapport de génération. */
-export function alertesConvention(d: Donnees): string[] {
-  const a = [...analyserExtraneite(d).alertes];
+export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
+  const a = [...analyserExtraneite(d).alertes, ...informationEnfants(d, le).alertes];
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
     a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
   return a;
+}
+
+/* ---------- Information des enfants mineurs ---------- */
+
+/* Seuil retenu par le cabinet : discernement présumé à partir de 12 ans. */
+const AGE_DISCERNEMENT = 12;
+
+type Mineur = { prenom: string; feminin: boolean; age: string };
+
+/* « Elya, Milhane et Hanaé » */
+const enumerer = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} et ${xs[xs.length - 1]}`);
+
+/* « âgés respectivement de 10, 6 et 4 ans » ; unités répétées dès qu'un âge
+   s'exprime en mois (« de 7 ans et de 7 mois »). */
+function ages(es: Mineur[]): string {
+  const enMois = es.some((e) => e.age.endsWith("mois"));
+  if (es.length === 1) return es[0].age;
+  if (enMois) return enumerer(es.map((e, i) => (i ? `de ${e.age}` : e.age)));
+  return `${enumerer(es.map((e) => e.age.replace(/ ans?$/, "")))} ans`;
+}
+
+export function informationEnfants(d: Donnees, le: Date = new Date()) {
+  const alertes: string[] = [];
+  const sans: Mineur[] = [];
+  const avec: Mineur[] = [];
+  d.enfants.forEach((e, i) => {
+    const prenom = (e.prenoms || "").trim().replace(/\s+/g, " ") || `n° ${i + 1}`;
+    const ans = age(e.dateNaissance, le);
+    if (ans === null) {
+      alertes.push(`Date de naissance de l'enfant ${prenom} non renseignée : information prévue à l'article 229-2 1° à rédiger à la main.`);
+      return;
+    }
+    if (ans >= 18) return;
+    const mois = moisRevolus(e.dateNaissance, le);
+    const texte = ans < 1 && mois !== null ? `${mois} mois` : `${ans} an${ans > 1 ? "s" : ""}`;
+    (ans < AGE_DISCERNEMENT ? sans : avec).push({ prenom, feminin: e.sexe === "Féminin", age: texte });
+  });
+
+  const phrase = (es: Mineur[], discernement: boolean): string | null => {
+    if (!es.length) return null;
+    const pl = es.length > 1;
+    const fem = es.every((e) => e.feminin);
+    const accord = (fem ? "e" : "") + (pl ? "s" : "");
+    const noms = enumerer(es.map((e) => e.prenom));
+    if (!discernement) {
+      return pl
+        ? `Les enfants mineur${accord} ${noms} n’ont pu bénéficier de l’information prévue à l’article 229-2 1°, les parents ayant déclaré qu’âgé${accord} respectivement de ${ages(es)}, ${fem ? "elles" : "ils"} ne sont pas doté${accord} du discernement nécessaire.`
+        : `L’enfant mineur${accord} ${noms} n’a pu bénéficier de l’information prévue à l’article 229-2 1°, les parents ayant déclaré qu’âgé${accord} de ${ages(es)}, ${fem ? "elle" : "il"} n’est pas doté${accord} du discernement nécessaire.`;
+    }
+    return pl
+      ? `Les enfants mineur${accord} ${noms}, âgé${accord} respectivement de ${ages(es)}, ont été informé${accord} par leurs parents de leur droit à être entendu${accord} par le juge dans les conditions prévues à l'article 388-1 du Code civil. ${fem ? "Elles" : "Ils"} ne souhaitent pas faire usage de cette faculté. La copie des formulaires d'information mentionnant leur droit à être entendu${accord} dans les conditions de l'article 388-1 du Code civil est annexée à la présente convention de divorce.`
+      : `L’enfant mineur${accord} ${noms}, âgé${accord} de ${ages(es)}, a été informé${accord} par ses parents de son droit à être entendu${accord} par le juge dans les conditions prévues à l'article 388-1 du Code civil. ${fem ? "Elle" : "Il"} ne souhaite pas faire usage de cette faculté. La copie du formulaire d'information mentionnant son droit à être entendu${accord} dans les conditions de l'article 388-1 du Code civil est annexée à la présente convention de divorce.`;
+  };
+
+  return {
+    valeurs: {
+      InfoEnfantsSansDiscernement: phrase(sans, false),
+      InfoEnfantsDiscernement: phrase(avec, true),
+    } as Record<string, string | null>,
+    alertes,
+  };
 }
 
 /* ---------- Nationalités ---------- */

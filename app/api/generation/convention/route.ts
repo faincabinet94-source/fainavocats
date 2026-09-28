@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       }
     }
     const { docx, rapport } = await remplir(fichier, valeurs);
-    return NextResponse.json({ docx: docx.toString("base64"), rapport: { ...rapport, alertes: alertesConvention(donnees) } });
+    return NextResponse.json({ docx: docx.toString("base64"), rapport: { ...rapport, alertes: alertesConvention(donnees, le) } });
   } catch (e) {
     console.error("[generation] échec", e);
     return NextResponse.json({ message: "Le modèle n'a pas pu être lu" }, { status: 422 });
