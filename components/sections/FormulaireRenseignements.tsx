@@ -59,7 +59,10 @@ import { PaiementProvision } from "@/components/paiement/PaiementProvision";
      procedure=sdc   présélectionne la séparation de corps
      interne=1       version cabinet (remplie pendant le rendez-vous)
      entry={…}       pré-remplissage envoyé par Airtable (NOM, Email, Téléphone, Civilité, Prénoms)
-     reprise=<id>    rouvre une saisie enregistrée */
+     reprise=<id>    rouvre une saisie enregistrée
+     correction=<fiche>.<jeton>   rouvre un formulaire déjà envoyé, depuis le
+                     champ « Lien formulaire » du dossier, pour corriger la
+                     même fiche « Formulaires reçus » (version cabinet) */
 
 /* Intitulés courts de la version cabinet (même ordre). */
 const ETAPES_CABINET: Record<string, string> = {
@@ -294,6 +297,10 @@ export default function FormulaireRenseignements() {
   const [pret, setPret] = useState(false);
   const [id, setId] = useState("");
   const [interne, setInterne] = useState(false);
+  /* Correction d'un formulaire déjà envoyé : rien n'est enregistré sur le
+     site, l'envoi met à jour la fiche d'origine. */
+  const [correction, setCorrection] = useState("");
+  const [dossierCorrige, setDossierCorrige] = useState("");
   const [d, setD] = useState<Donnees>(() => donneesVides());
   const [etape, setEtape] = useState(0);
   const [tentative, setTentative] = useState(false);
@@ -314,7 +321,26 @@ export default function FormulaireRenseignements() {
   useEffect(() => {
     const repriseId = params.get("reprise");
     const estInterne = params.get("interne") === "1";
+    const lienCorrection = params.get("correction");
     (async () => {
+      if (lienCorrection) {
+        try {
+          const r = await fetch(`/api/renseignements/fiche?c=${encodeURIComponent(lienCorrection)}`);
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.donnees) {
+            setCorrection(lienCorrection);
+            setDossierCorrige(j.dossier || "");
+            setD(completer(j.donnees));
+            setInterne(true);
+            setPret(true);
+            return;
+          }
+          setErreur(j.message || "Ce lien de correction n'est pas valable.");
+        } catch {
+          setErreur("Ce lien de correction n'a pas pu être ouvert.");
+        }
+        return;
+      }
       if (repriseId) {
         try {
           const r = await fetch(`/api/renseignements/saisie?id=${encodeURIComponent(repriseId)}`);
@@ -457,6 +483,23 @@ export default function FormulaireRenseignements() {
        reprise ou pré-remplie avant ces règles. */
     const n = normaliser(d);
     setD(n);
+    if (correction) {
+      try {
+        const r = await fetch("/api/renseignements/correction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ c: correction, donnees: n }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.message || "Enregistrement impossible");
+        setEnvoi("ok");
+        haut.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (e) {
+        setEnvoi("erreur");
+        setErreur(e instanceof Error ? e.message : "Enregistrement impossible");
+      }
+      return;
+    }
     try {
       await sauver(false, n);
       const r = await fetch("/api/renseignements/envoi", {
@@ -476,6 +519,19 @@ export default function FormulaireRenseignements() {
 
   if (!pret) {
     return <div className="py-16 text-center text-gray-500">{erreur || "Chargement du formulaire…"}</div>;
+  }
+
+  if (envoi === "ok" && correction) {
+    return (
+      <div ref={haut} className="rounded-2xl border border-[#E5E2DA] bg-white p-8 text-center sm:p-12">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
+        <h2 className="mt-5 font-serif text-3xl text-[#1A1A1A]">Corrections enregistrées</h2>
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
+          La fiche « Formulaires reçus »{dossierCorrige ? ` ${dossierCorrige}` : ""} est mise à jour. Pour produire la convention
+          corrigée, cochez de nouveau « Générer la convention » sur la fiche.
+        </p>
+      </div>
+    );
   }
 
   if (envoi === "ok") {
@@ -892,6 +948,12 @@ export default function FormulaireRenseignements() {
         Livret de famille, actes d&apos;état civil récents, pièces d&apos;identité des deux époux. PDF ou photo,
         5 Mo au plus par fichier. Vous pouvez aussi les transmettre plus tard.
       </p>
+      {correction ? (
+        <p className="rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-3 text-sm text-gray-600">
+          Correction d&apos;un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les
+          directement dans Airtable.
+        </p>
+      ) : (
       <Grille>
         <Champ champ="pieces" label="Type de pièce">
           <Liste options={CATEGORIES_PIECES} value={categoriePiece} onChange={(v) => setCategoriePiece(v || CATEGORIES_PIECES[0])} />
@@ -912,6 +974,7 @@ export default function FormulaireRenseignements() {
           </label>
         </Champ>
       </Grille>
+      )}
       {erreurPiece && <p className="text-sm text-[#B42318]">{erreurPiece}</p>}
       {d.pieces.length > 0 && (
         <ul className="divide-y divide-[#EDEDEA] rounded-xl border border-[#E5E2DA]">
@@ -922,9 +985,9 @@ export default function FormulaireRenseignements() {
                 <span className="shrink-0 text-gray-500">{p.categorie}</span>
                 <span className="truncate text-[#1A1A1A]">{p.nom}</span>
               </span>
-              <button type="button" onClick={() => maj("pieces", d.pieces.filter((x) => x.id !== p.id))} className="shrink-0 text-gray-400 hover:text-[#B42318]" aria-label="Retirer">
+              {!correction && <button type="button" onClick={() => maj("pieces", d.pieces.filter((x) => x.id !== p.id))} className="shrink-0 text-gray-400 hover:text-[#B42318]" aria-label="Retirer">
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </button>}
             </li>
           ))}
         </ul>
@@ -975,7 +1038,11 @@ export default function FormulaireRenseignements() {
         <div className="flex items-baseline justify-between gap-4 text-sm text-gray-500">
           <span>
             Étape {etape + 1} sur {ETAPES.length}
-            {interne && <span className="ml-3 rounded-full bg-[#F4F2EC] px-2.5 py-0.5 text-xs text-[#362A24]">Version cabinet</span>}
+            {interne && (
+              <span className="ml-3 rounded-full bg-[#F4F2EC] px-2.5 py-0.5 text-xs text-[#362A24]">
+                {correction ? `Correction${dossierCorrige ? ` : ${dossierCorrige}` : ""}` : "Version cabinet"}
+              </span>
+            )}
           </span>
           <span>{d.procedure}</span>
         </div>
@@ -1025,7 +1092,7 @@ export default function FormulaireRenseignements() {
               disabled={envoi === "envoi" || televersements > 0}
               className="rounded-full bg-[#C2A679] px-6 py-2.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#B39566] disabled:opacity-60"
             >
-              {envoi === "envoi" ? "Envoi en cours…" : "Envoyer quand même"}
+              {envoi === "envoi" ? "Envoi en cours…" : correction ? "Enregistrer quand même" : "Envoyer quand même"}
             </button>
             <button type="button" onClick={() => setRappel(false)} className="rounded-full border border-[#D6D3CB] px-6 py-2.5 text-sm text-gray-700 hover:border-gray-400">
               Compléter d&apos;abord
@@ -1043,14 +1110,16 @@ export default function FormulaireRenseignements() {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={enregistrerEtReprendre}
-            disabled={reprise.etat === "envoi"}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm text-[#362A24] underline-offset-4 hover:underline disabled:opacity-50"
-          >
-            <Save className="h-4 w-4" /> {reprise.etat === "envoi" ? "Enregistrement…" : "Enregistrer et reprendre plus tard"}
-          </button>
+          {!correction && (
+            <button
+              type="button"
+              onClick={enregistrerEtReprendre}
+              disabled={reprise.etat === "envoi"}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm text-[#362A24] underline-offset-4 hover:underline disabled:opacity-50"
+            >
+              <Save className="h-4 w-4" /> {reprise.etat === "envoi" ? "Enregistrement…" : "Enregistrer et reprendre plus tard"}
+            </button>
+          )}
           {etape < ETAPES.length - 1 && (
             <button type="button" onClick={() => aller(etape + 1)} className="rounded-full bg-[#362A24] px-8 py-3 text-sm text-white hover:bg-[#2C221D]">
               Suivant
@@ -1069,7 +1138,7 @@ export default function FormulaireRenseignements() {
                 complet ? "bg-[#C2A679] font-medium text-[#1A1A1A] hover:bg-[#B39566]" : "bg-[#362A24] text-white hover:bg-[#2C221D]",
               )}
             >
-              {envoi === "envoi" ? "Envoi en cours…" : "Envoyer le formulaire"}
+              {envoi === "envoi" ? "Envoi en cours…" : correction ? "Enregistrer les corrections" : "Envoyer le formulaire"}
             </button>
           )}
         </div>
