@@ -188,6 +188,24 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      groupant tous les enfants concernés (DCM1AE 15.2). */
   Object.assign(v, informationEnfants(d, le).valeurs);
 
+  /* Bordereau des pièces : formulaires d'information annexés, un par enfant
+     mineur de 12 à 17 ans parmi les quatre que le modèle sait décrire
+     (DCM1AE 15.3, mêmes bornes que les formulaires). */
+  const informes = d.enfants.slice(0, 4).filter((e) => {
+    const ans = age(e.dateNaissance, le);
+    return ans !== null && ans >= AGE_DISCERNEMENT && ans < 18;
+  });
+  const prenoms = enumerer(informes.map((e) => (e.prenoms || "").trim().replace(/\s+/g, " ")));
+  v.AnnexeFormulaires = !informes.length
+    ? null
+    : informes.length === 1
+      ? `Formulaire d’information de l’enfant mineur ${prenoms}`
+      : `Formulaires d’information des enfants mineurs ${prenoms}`;
+
+  /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
+     la valeur reste le nombre pour les conditions. */
+  if (typeof v.CréditsCommuns === "number") v.CréditsCommuns = { valeur: v.CréditsCommuns, texte: enLettres(v.CréditsCommuns) };
+
   /* Prestation compensatoire non renseignée (question laissée vide, possible
      dans la version cabinet du formulaire) : aucune branche du modèle ne
      s'imprimait. Clause « pas de prestation » par défaut, signalée dans l'acte
