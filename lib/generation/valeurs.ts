@@ -76,7 +76,13 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   const a2 = age(d.conjoint.dateNaissance, le);
   v.Age1 = a1;
   v.Age2 = a2;
-  v.DuréeMariage = age(d.mariage.date, le);
+
+  /* Durée du mariage en toutes lettres (« douze ans ») ; la valeur reste le
+     nombre pour les conditions. L'unité suit à part (DCM1AE 15.3) ; les
+     modèles antérieurs écrivent « ans » en dur. */
+  const duree = age(d.mariage.date, le);
+  v.DuréeMariage = duree === null ? null : { valeur: duree, texte: enLettres(duree) };
+  v.DuréeMariageAns = duree === null ? null : duree > 1 ? "ans" : "an";
 
   /* AgeE : âge en années pour les conditions ; affiché en mois avant un an,
      comme le suppose la clause du nourrisson (« âgé de {AgeE1} mois »). */
@@ -131,6 +137,14 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
     const annuel = a ?? (m !== null ? Math.round(m * 12) : null);
     v[`Revenus${s}`] = mensuel === null ? null : { valeur: mensuel, texte: montant(mensuel) };
     v[`RevenusAnnuels${s}`] = annuel === null ? null : { valeur: annuel, texte: montant(annuel) };
+    /* Fin de phrase après « il » ou « elle » (DCM1AE 15.3) : aucun revenu
+       déclaré, revenus chiffrés, ou revenus à compléter. */
+    v[`PhraseRevenus${s}`] =
+      annuel === null || mensuel === null
+        ? "a déclaré percevoir des revenus nets de [REVENUS À COMPLÉTER]"
+        : annuel === 0 && mensuel === 0
+          ? "n’a déclaré percevoir aucun revenu"
+          : `a déclaré percevoir des revenus nets de ${montant(annuel)} Euros, soit ${montant(mensuel)} Euros mensuels`;
   });
 
   /* Logement et accords : statut du logement de chaque époux, pronoms. */
@@ -174,6 +188,41 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      groupant tous les enfants concernés (DCM1AE 15.2). */
   Object.assign(v, informationEnfants(d, le).valeurs);
 
+  /* Bordereau des pièces : formulaires d'information annexés, un par enfant
+     mineur de 12 à 17 ans parmi les quatre que le modèle sait décrire
+     (DCM1AE 15.3, mêmes bornes que les formulaires). */
+  const informes = d.enfants.slice(0, 4).filter((e) => {
+    const ans = age(e.dateNaissance, le);
+    return ans !== null && ans >= AGE_DISCERNEMENT && ans < 18;
+  });
+  const prenoms = enumerer(informes.map((e) => (e.prenoms || "").trim().replace(/\s+/g, " ")));
+  v.AnnexeFormulaires = !informes.length
+    ? null
+    : informes.length === 1
+      ? `Formulaire d’information de l’enfant mineur ${prenoms}`
+      : `Formulaires d’information des enfants mineurs ${prenoms}`;
+
+  /* Crédits communs (DCM1AE 15.3) : qui supportera chacun, d'après la réponse
+     du formulaire ; montants et date de dernière échéance non saisis signalés
+     dans l'acte plutôt que laissés en blanc. */
+  d.credits.slice(0, 6).forEach((c, i) => {
+    const s = i === 0 ? "" : String(i + 1);
+    const seul = (p: typeof d.client) => `par ${p.civilite} ${(p.nom || "").trim().toUpperCase()} seul${p.civilite === "Madame" ? "e" : ""}`;
+    v[`CreditSupporte${s}`] =
+      c.qui === "50/50" ? "par moitié par chacun des époux"
+      : c.qui === "Moi" ? seul(d.client)
+      : c.qui === "Conjoint(e)" ? seul(d.conjoint)
+      : "[RÉPARTITION À COMPLÉTER]";
+    for (const k of ["TotalEmprunté", "Mensualite", "RestantDû", "DateDernièreÉchéance"]) {
+      if (v[`${k}${s}`] === null || v[`${k}${s}`] === undefined || v[`${k}${s}`] === "") v[`${k}${s}`] = "[À COMPLÉTER]";
+    }
+  });
+  for (let n = d.credits.length + 1; n <= 6; n++) v[`CreditSupporte${n === 1 ? "" : n}`] = null;
+
+  /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
+     la valeur reste le nombre pour les conditions. */
+  if (typeof v.CréditsCommuns === "number") v.CréditsCommuns = { valeur: v.CréditsCommuns, texte: enLettres(v.CréditsCommuns) };
+
   /* Prestation compensatoire non renseignée (question laissée vide, possible
      dans la version cabinet du formulaire) : aucune branche du modèle ne
      s'imprimait. Clause « pas de prestation » par défaut, signalée dans l'acte
@@ -210,15 +259,101 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   const p1 = nombre(d.enfants[0]?.pension);
   v.Pension1 = p1 === null ? null : { valeur: p1, texte: montant(p1) };
 
+  Object.assign(v, sansContribution(d).valeurs);
+
   return v;
 }
 
 /* Points à vérifier, repris dans le rapport de génération. */
 export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
-  const a = [...analyserExtraneite(d).alertes, ...informationEnfants(d, le).alertes];
+  const a = [...analyserExtraneite(d).alertes, ...informationEnfants(d, le).alertes, ...sansContribution(d).alertes];
+  d.credits.slice(0, 6).forEach((c, i) => {
+    const vides = [
+      [c.totalEmprunte, "montant total"], [c.mensualite, "mensualité"], [c.restantDu, "restant dû"], [c.derniereEcheance, "dernière échéance"],
+    ].filter(([x]) => !(x || "").trim()).map(([, l]) => l);
+    if (!["50/50", "Moi", "Conjoint(e)"].includes(c.qui)) vides.push("répartition");
+    if (vides.length) a.push(`Crédit n° ${i + 1} (${(c.banque || "").trim() || "banque non renseignée"}) : ${vides.join(", ")} à compléter dans l'acte.`);
+  });
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
     a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
   return a;
+}
+
+/* ---------- Nombres en toutes lettres ---------- */
+
+const UNITES = [
+  "zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix",
+  "onze", "douze", "treize", "quatorze", "quinze", "seize",
+];
+const DIZAINES = ["", "dix", "vingt", "trente", "quarante", "cinquante", "soixante"];
+
+/* 0 à 999, orthographe traditionnelle : « vingt et un », « soixante et
+   onze », « quatre-vingts », « quatre-vingt-un », « deux cents ». */
+export function enLettres(n: number): string {
+  if (!Number.isInteger(n) || n < 0 || n > 999) return String(n);
+  if (n <= 16) return UNITES[n];
+  if (n < 20) return `dix-${UNITES[n - 10]}`;
+  if (n < 100) {
+    let d = Math.floor(n / 10);
+    let u = n % 10;
+    if (d === 7 || d === 9) { d -= 1; u += 10; }
+    const base = d === 8 ? "quatre-vingt" : DIZAINES[d];
+    if (u === 0) return d === 8 ? "quatre-vingts" : base;
+    if ((u === 1 || u === 11) && d < 8) return `${base} et ${enLettres(u)}`;
+    return `${base}-${enLettres(u)}`;
+  }
+  const c = Math.floor(n / 100);
+  const r = n % 100;
+  const cent = c === 1 ? "cent" : `${UNITES[c]} cent${r ? "" : "s"}`;
+  return r ? `${cent} ${enLettres(r)}` : cent;
+}
+
+/* ---------- Absence de contribution à l'entretien des enfants ---------- */
+
+/* Aucune contribution chiffrée hors résidence alternée (pension 0 ou non
+   saisie pour chaque enfant) : rien ne s'imprimait. Clause par défaut, en
+   trois paragraphes (DCM1AE 15.3) : impécuniosité du parent chez qui les
+   enfants ne résident pas, engagement de verser la contribution du barème dès
+   qu'il aura retrouvé un emploi rémunéré au moins au SMIC, et partage par
+   moitié des frais dans l'attente. */
+const BAREME_CEE = "https://www.justice.fr/simulateurs/pension-alimentaire/bareme";
+
+export function sansContribution(d: Donnees) {
+  const vides = { SansCEE: "Non", SansCEE1: null, SansCEE2: null, SansCEE3: null } as Record<string, string | null>;
+  const alertes: string[] = [];
+  if (d.procedure === "Séparation de corps" || !d.enfants.length) return { valeurs: vides, alertes };
+  if (d.enfants.some((e) => (nombre(e.pension) ?? 0) > 0)) return { valeurs: vides, alertes };
+  const garde = d.enfants[0]?.garde;
+  if (garde !== "Moi" && garde !== "Mon époux(se)") return { valeurs: vides, alertes };
+
+  const debiteur = garde === "Mon époux(se)" ? d.client : d.conjoint;
+  const creancier = garde === "Mon époux(se)" ? d.conjoint : d.client;
+  const nom = (p: typeof d.client) => `${p.civilite} ${(p.nom || "").trim().toUpperCase()}`.trim();
+  const il = debiteur.civilite === "Madame" ? "elle" : "il";
+  const ses = (() => {
+    const n = d.enfants.length;
+    const filles = d.enfants.every((e) => e.sexe === "Féminin");
+    const fils = d.enfants.every((e) => e.sexe === "Masculin");
+    if (n === 1) return filles ? "sa fille" : fils ? "son fils" : "son enfant";
+    return `ses ${enLettres(n)} ${filles ? "filles" : fils ? "fils" : "enfants"}`;
+  })();
+  const des = d.enfants.length > 1 ? "des enfants" : "de l’enfant";
+
+  alertes.push(
+    `Aucune contribution à l'entretien et à l'éducation des enfants saisie : clause « impécuniosité de ${nom(debiteur)} » insérée par défaut, à vérifier.`,
+  );
+  const revenus = nombre(debiteur.revenusAnnuels) ?? nombre(debiteur.revenus);
+  if (revenus) alertes.push(`${nom(debiteur)} déclare des revenus : la clause d'impécuniosité est à revoir.`);
+
+  return {
+    valeurs: {
+      SansCEE: "Oui",
+      SansCEE1: `Compte tenu de l’impécuniosité de ${nom(debiteur)}, il ne sera mis à sa charge aucune contribution mensuelle à l’entretien et à l’éducation ${des}.`,
+      SansCEE2: `${nom(debiteur)} s’engage à verser à ${nom(creancier)} une contribution mensuelle à l’entretien et à l’éducation de ${ses}, conforme au barème d’usage émis par le Ministère de la Justice (et disponible sur ce site : ${BAREME_CEE}) dès lors qu’${il} aura retrouvé un emploi rémunéré au moins au SMIC.`,
+      SansCEE3: `Dans l’attente, ${il} s’engage à partager par moitié avec ${nom(creancier)} les frais de scolarité, d’activités extra-scolaires et les dépenses médicales non remboursées.`,
+    } as Record<string, string | null>,
+    alertes,
+  };
 }
 
 /* ---------- Information des enfants mineurs ---------- */
