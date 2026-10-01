@@ -202,6 +202,23 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
       ? `Formulaire d’information de l’enfant mineur ${prenoms}`
       : `Formulaires d’information des enfants mineurs ${prenoms}`;
 
+  /* Crédits communs (DCM1AE 15.3) : qui supportera chacun, d'après la réponse
+     du formulaire ; montants et date de dernière échéance non saisis signalés
+     dans l'acte plutôt que laissés en blanc. */
+  d.credits.slice(0, 6).forEach((c, i) => {
+    const s = i === 0 ? "" : String(i + 1);
+    const seul = (p: typeof d.client) => `par ${p.civilite} ${(p.nom || "").trim().toUpperCase()} seul${p.civilite === "Madame" ? "e" : ""}`;
+    v[`CreditSupporte${s}`] =
+      c.qui === "50/50" ? "par moitié par chacun des époux"
+      : c.qui === "Moi" ? seul(d.client)
+      : c.qui === "Conjoint(e)" ? seul(d.conjoint)
+      : "[RÉPARTITION À COMPLÉTER]";
+    for (const k of ["TotalEmprunté", "Mensualite", "RestantDû", "DateDernièreÉchéance"]) {
+      if (v[`${k}${s}`] === null || v[`${k}${s}`] === undefined || v[`${k}${s}`] === "") v[`${k}${s}`] = "[À COMPLÉTER]";
+    }
+  });
+  for (let n = d.credits.length + 1; n <= 6; n++) v[`CreditSupporte${n === 1 ? "" : n}`] = null;
+
   /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
      la valeur reste le nombre pour les conditions. */
   if (typeof v.CréditsCommuns === "number") v.CréditsCommuns = { valeur: v.CréditsCommuns, texte: enLettres(v.CréditsCommuns) };
@@ -250,6 +267,13 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
 /* Points à vérifier, repris dans le rapport de génération. */
 export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
   const a = [...analyserExtraneite(d).alertes, ...informationEnfants(d, le).alertes, ...sansContribution(d).alertes];
+  d.credits.slice(0, 6).forEach((c, i) => {
+    const vides = [
+      [c.totalEmprunte, "montant total"], [c.mensualite, "mensualité"], [c.restantDu, "restant dû"], [c.derniereEcheance, "dernière échéance"],
+    ].filter(([x]) => !(x || "").trim()).map(([, l]) => l);
+    if (!["50/50", "Moi", "Conjoint(e)"].includes(c.qui)) vides.push("répartition");
+    if (vides.length) a.push(`Crédit n° ${i + 1} (${(c.banque || "").trim() || "banque non renseignée"}) : ${vides.join(", ")} à compléter dans l'acte.`);
+  });
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
     a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
   return a;
