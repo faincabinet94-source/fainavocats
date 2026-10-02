@@ -49,9 +49,7 @@ import {
   type Personne,
   type Piece,
 } from "@/lib/renseignements/modele";
-import { PROVISIONS, memoriserDemande } from "@/lib/paiement";
-import { EcrireConjoint } from "@/components/paiement/EcrireConjoint";
-import { PaiementProvision } from "@/components/paiement/PaiementProvision";
+import { ChoixLancement } from "@/components/sections/ChoixLancement";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
    12 étapes. Remplace les formulaires Cognito n° 3, 13 et 14.
@@ -542,9 +540,9 @@ export default function FormulaireRenseignements() {
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
           {interne
             ? "La fiche est transmise au cabinet."
-            : "Nous avons bien reçu vos informations et vos pièces. Le cabinet revient vers vous pour la suite de votre dossier."}
+            : "Nous avons bien reçu vos informations et vos pièces."}
         </p>
-        {!interne && <ReglerProvision d={d} />}
+        {!interne && <ChoixLancement id={id} d={d} />}
       </div>
     );
   }
@@ -1297,46 +1295,6 @@ function ChoixAvocat({ avocat, onChange }: { avocat: Avocat; onChange: (a: Avoca
           <p className="text-sm text-gray-500">L&apos;avocat sera ajouté à la table « Pro » d&apos;Airtable à l&apos;envoi du formulaire.</p>
         </div>
       )}
-    </div>
-  );
-}
-
-/* Fin du formulaire extérieur : règlement de la provision qui lance la
-   procédure. Qui règle, et combien, dépend de la répartition des honoraires
-   choisie à l'étape « Les honoraires ». */
-function ReglerProvision({ d }: { d: Donnees }) {
-  const partagee = d.repartition === "Partage par moitié" && d.provisionPartage === PROVISIONS_PARTAGE[0];
-  const parConjoint = d.repartition === "Mon conjoint les prendra à charge";
-  const p = partagee ? "moitie" : "totale";
-  const montant = PROVISIONS[p].montant;
-  const emailConjoint = d.conjoint.email.trim();
-  const demande = { email: emailConjoint, prenomClient: d.client.prenoms.split(" ")[0] || "", procedure: d.procedure, part: p } as const;
-  const texte = parConjoint
-    ? `Votre conjoint prend les honoraires à sa charge : c'est à lui de régler la provision de ${montant}. Vous pouvez lui envoyer le lien de paiement en cliquant sur « Écrire à mon conjoint ».`
-    : partagee
-      ? `Vous partagez la provision de 250 € : chacun règle ${montant}. Une fois votre part réglée, vous pouvez envoyer le lien de paiement à votre conjoint en cliquant sur « Écrire à mon conjoint ». La procédure commence dès réception des deux règlements.`
-      : `Une provision de ${montant} lance la procédure. Elle vient en déduction des honoraires : ce n'est pas un supplément.`;
-  /* Sans courriel du conjoint dans le formulaire, le message s'ouvre sans
-     destinataire : le client le saisit dans sa messagerie. */
-  const ecrire = () => <EcrireConjoint demande={demande} />;
-  return (
-    <div className="mx-auto mt-8 max-w-xl rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left">
-      <h3 className="font-serif text-xl text-[#1A1A1A]">Pour commencer la procédure</h3>
-      <p className="mt-2 text-[15px] leading-relaxed text-gray-600">{texte}</p>
-      {parConjoint ? (
-        ecrire()
-      ) : (
-        <div className="flex flex-col items-start">
-          <PaiementProvision
-            part={p}
-            email={d.client.email}
-            libelle={`Régler ${partagee ? "ma part" : "la provision"} de ${montant}`}
-            avant={() => partagee && memoriserDemande(demande)}
-          />
-          {partagee && ecrire()}
-        </div>
-      )}
-      <p className="mt-4 text-xs text-gray-500">Paiement sécurisé par Stripe.</p>
     </div>
   );
 }
