@@ -2,14 +2,15 @@
    option 2 « vérifier d'abord l'accord de mon époux »). Partagé entre la page
    et la route app/api/renseignements/lancement. */
 
-/* Textes exacts des cases (coffre, textes-parcours-conjoint.md, section 2). */
+/* Textes exacts des cases (coffre, textes-parcours-conjoint.md, section 2), alignés
+   sur les conventions d'honoraires CH DCM1A M et T d'Airtable (articles 9 et 10). */
 export const CASES_IMMEDIAT = {
   certification:
     "Je certifie que mon époux et moi sommes d'accord sur l'ensemble des conséquences de notre divorce, et notamment : l'usage du nom de famille après le divorce ; le sort du logement familial ; le partage de nos biens communs ou indivis et de nos dettes ; la prestation compensatoire, ou l'absence de prestation compensatoire ; la résidence des enfants et le droit de visite et d'hébergement ; la contribution à l'entretien et à l'éducation des enfants.",
   execution:
-    "Je demande expressément que l'établissement du projet de convention de divorce commence immédiatement, avant la fin du délai de rétractation de quatorze jours. Je reconnais perdre mon droit de rétractation dès que le projet de convention aura été établi. Si je me rétracte avant, je reste redevable du travail déjà accompli.",
+    "Je demande expressément que l'établissement du projet de convention de divorce commence immédiatement, avant la fin du délai de rétractation de quatorze jours. Si je me rétracte, je reste redevable d'un montant proportionné au travail déjà accompli. Une fois le projet de convention de divorce établi, ce montant est la provision de 250 €.",
   provision:
-    "J'ai pris connaissance de la convention d'honoraires. La provision de 250 € rémunère l'établissement du projet de convention de divorce. Aucun remboursement n'est possible une fois ce projet établi.",
+    "J'ai pris connaissance de la convention d'honoraires. La provision de 250 € rémunère l'analyse de ma situation et l'établissement du projet de convention de divorce. Elle reste acquise une fois ce projet établi, même si le divorce par consentement mutuel ne peut aboutir. Elle s'impute sur mes honoraires.",
 } as const;
 
 
@@ -21,7 +22,8 @@ export function casesImmediat(procedure: string): Record<keyof typeof CASES_IMME
       .replace("de notre divorce", "de notre séparation de corps")
       .replace("après le divorce", "pendant la séparation de corps")
       .replace("la prestation compensatoire, ou l'absence de prestation compensatoire", "le devoir de secours, ou l'absence de devoir de secours")
-      .replace(/convention de divorce/g, "convention de séparation de corps");
+      .replace(/convention de divorce/g, "convention de séparation de corps")
+      .replace("le divorce par consentement mutuel", "la séparation de corps par consentement mutuel");
   return {
     certification: r(CASES_IMMEDIAT.certification),
     execution: r(CASES_IMMEDIAT.execution),
