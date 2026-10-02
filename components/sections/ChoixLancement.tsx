@@ -23,7 +23,7 @@ const retour = "mt-4 inline-flex items-center gap-1.5 text-sm text-gray-500 hove
 
 export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
   const [etape, setEtape] = useState<Etape>("choix");
-  const [cases, setCases] = useState({ certification: false, execution: false, provision: false });
+  const [cases, setCases] = useState({ certification: false, provision: false });
   const [email, setEmail] = useState(d.conjoint.email || "");
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
@@ -81,9 +81,9 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
     return (
       <div className={cn("mx-auto mt-8 max-w-xl", carte)}>
         <h3 className="font-serif text-xl text-[#1A1A1A]">Lancer la procédure maintenant</h3>
-        <p className="mt-2 text-sm text-gray-500">Les trois cases sont nécessaires.</p>
+        <p className="mt-2 text-sm text-gray-500">Les deux cases sont nécessaires.</p>
         <div className="mt-4 space-y-4">
-          {(["certification", "execution", "provision"] as const).map((k) => (
+          {(["certification", "provision"] as const).map((k) => (
             <label key={k} className="flex cursor-pointer items-start gap-3 text-[14px] leading-relaxed text-gray-700">
               <input
                 type="checkbox"

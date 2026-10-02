@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   if (corps.choix === "immediat") {
     const cases = corps.cases || {};
     if (!Object.keys(CASES_IMMEDIAT).every((k) => cases[k] === true))
-      return NextResponse.json({ message: "Les trois cases doivent être cochées" }, { status: 400 });
+      return NextResponse.json({ message: "Les deux cases doivent être cochées" }, { status: 400 });
     const textes = casesImmediat(d.procedure);
     lancement = { choix: "Immédiat", le, cases: textes };
     charge = { action: "immediat", numero: s.numero, dossier: dossier(d), le, cases: textes };
