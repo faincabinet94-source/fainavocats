@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { ID_VALIDE, saisies } from "@/lib/renseignements/stockage";
 import { versN8n } from "@/lib/renseignements/n8n";
@@ -62,6 +63,9 @@ export async function POST(request: Request) {
     charge = {
       action: "verification",
       numero: s.numero,
+      /* Jeton du lien envoyé au conjoint (champ « Jeton conjoint ») : tiré
+         ici, n8n se contente de l'écrire et de l'envoyer. */
+      jeton: randomBytes(16).toString("hex"),
       dossier: dossier(d),
       procedure: d.procedure,
       le,
