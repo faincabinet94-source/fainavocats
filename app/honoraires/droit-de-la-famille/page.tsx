@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
   title: "Honoraires Droit de la Famille | Tarifs Divorce Avocat Paris - Fain Avocats",
   description:
-    `Tarifs et honoraires en droit de la famille : divorce par consentement mutuel à partir de ${euros(t.DCM1A / 2)} par époux, consultation ${euros(t.CONSULTATION)}, taux horaire 220€ HT. Facilités de paiement. Cabinet Fain Avocats Paris 16ème.`,
+    `Tarifs et honoraires en droit de la famille : divorce par consentement mutuel à partir de ${euros(t.DCM1A / 2)} par époux, consultation ${euros(t.CONSULTATION)}, taux horaire ${euros(t.TAUX_HORAIRE)} HT. Facilités de paiement. Cabinet Fain Avocats Paris 16ème.`,
   keywords: [
     "honoraires avocat divorce",
     "tarif divorce consentement mutuel",
@@ -109,7 +109,7 @@ export default async function HonorairesFamillePage() {
                       Taux horaire pratiqué
                     </span>
                     <span className="font-serif text-xl text-[#362A24] font-semibold">
-                      220 € HT / heure
+                      {euros(t.TAUX_HORAIRE)} HT / heure
                     </span>
                   </div>
                 </div>
