@@ -30,6 +30,8 @@ import {
   completer,
   creditVide,
   donneesVides,
+  COURRIEL_VALIDE,
+  donneesDeTest,
   enfantVide,
   estMajeur,
   manquants,
@@ -300,6 +302,10 @@ export default function FormulaireRenseignements() {
   const [correction, setCorrection] = useState("");
   const [dossierCorrige, setDossierCorrige] = useState("");
   const [d, setD] = useState<Donnees>(() => donneesVides());
+  /* Mode test (?test=1) : bouton qui remplit tout avec des données fictives. */
+  const [modeTest, setModeTest] = useState(false);
+  const [testA, setTestA] = useState("");
+  const [testB, setTestB] = useState("");
   const [etape, setEtape] = useState(0);
   const [tentative, setTentative] = useState(false);
   const [envoi, setEnvoi] = useState<"idle" | "envoi" | "ok" | "erreur">("idle");
@@ -369,6 +375,7 @@ export default function FormulaireRenseignements() {
         /* pré-remplissage illisible : on part d'un formulaire vide */
       }
       if (estInterne) base.distance = "Rendez-vous physique";
+      setModeTest(params.get("test") === "1" && !estInterne);
       setId(nouvelId());
       setInterne(estInterne);
       setD(base);
@@ -1068,6 +1075,28 @@ export default function FormulaireRenseignements() {
           ))}
         </div>
       </div>
+
+      {modeTest && (
+        <div className="mb-8 rounded-2xl border border-dashed border-[#B8A99A] bg-[#FBFAF7] p-5 text-sm text-gray-700">
+          <p className="font-medium text-[#1A1A1A]">Mode test</p>
+          <p className="mt-1">Remplit tout le formulaire avec des données fictives (Madame Alice TEST et Monsieur Bruno TEST, sans enfant ni bien, honoraires et provision partagés).</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <input value={testA} onChange={(e) => setTestA(e.target.value)} placeholder="Courriel de l'époux qui lance (A)" className="min-w-[14rem] flex-1 rounded-lg border border-[#D6D3CB] px-3 py-2" />
+            <input value={testB} onChange={(e) => setTestB(e.target.value)} placeholder="Courriel du conjoint (B)" className="min-w-[14rem] flex-1 rounded-lg border border-[#D6D3CB] px-3 py-2" />
+            <button
+              type="button"
+              disabled={!COURRIEL_VALIDE.test(testA.trim()) || !COURRIEL_VALIDE.test(testB.trim())}
+              onClick={() => {
+                setD((x) => ({ ...donneesDeTest(testA.trim(), testB.trim()), pieces: x.pieces }));
+                aller(ETAPES.length - 1);
+              }}
+              className="rounded-full bg-[#362A24] px-5 py-2 text-xs font-bold uppercase tracking-widest text-white disabled:opacity-40"
+            >
+              Remplir avec des données de test
+            </button>
+          </div>
+        </div>
+      )}
 
       <h2 className="mb-6 font-serif text-3xl text-[#1A1A1A]">{titreEtape}</h2>
       {contenu[etape]}
