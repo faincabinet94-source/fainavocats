@@ -38,7 +38,15 @@ export async function POST(request: Request) {
   const id = corps.id || "";
   if (!ID_VALIDE.test(id)) return NextResponse.json({ message: "Requête invalide" }, { status: 400 });
 
-  const s = (await saisies().get(id, { type: "json" })) as Saisie | null;
+  /* L'écran de choix s'affiche dès la fin de l'envoi : la saisie marquée
+     « envoyée » peut ne pas être encore lisible (Netlify Blobs). On relit
+     quelques secondes avant de conclure. */
+  let s: Saisie | null = null;
+  for (let essai = 0; essai < 6; essai++) {
+    s = (await saisies().get(id, { type: "json" })) as Saisie | null;
+    if (s?.envoye && s.numero) break;
+    await new Promise((r) => setTimeout(r, 800));
+  }
   if (!s?.envoye || !s.numero || s.interne) return NextResponse.json({ message: "Formulaire introuvable" }, { status: 404 });
   if (s.lancement) return NextResponse.json({ ok: true, deja: true });
 
