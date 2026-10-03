@@ -145,5 +145,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    // ---------------------------------------------------------------------
+    // ENTREE TEMPORAIRE : A RETIRER (voir condition ci-dessous)
+    //
+    // /doc est un formulaire d'intake client, en `noindex` depuis le 16/08/2026.
+    // Il est pourtant reste indexe : la Search Console montre (releve du 03/10/2026)
+    // une derniere exploration au 2 aout 2026, soit AVANT la pose du noindex, et
+    // signale « aucun sitemap referent » et « aucune page d'origine ». La page est
+    // orpheline : Googlebot n'a aucun chemin pour y revenir, donc le noindex n'est
+    // jamais constate. « Demander une indexation » est refuse sur une page noindex.
+    //
+    // Declarer ici une page en noindex est volontaire et contraire a l'usage normal :
+    // c'est le seul moyen de donner a Googlebot un chemin vers une page orpheline.
+    // Le rapport Pages de la Search Console le signalera, c'est attendu.
+    //
+    // lastModified = 16/08/2026, date reelle de la pose du noindex. Elle est
+    // posterieure a la derniere exploration : c'est ce qui invite au recrawl.
+    //
+    // A RETIRER des que l'inspection d'URL de /doc affiche « URL non presente sur
+    // Google ». Echeance de securite : la suppression temporaire demandee le
+    // 19/08/2026 expire vers le 19/02/2027 ; passe cette date sans recrawl, la page
+    // reapparait dans les resultats.
+    // ---------------------------------------------------------------------
+    {
+      url: 'https://fain-avocats.fr/doc',
+      lastModified: new Date('2026-08-16'),
+      changeFrequency: 'monthly',
+      priority: 0.1,
+    },
   ]
 }
