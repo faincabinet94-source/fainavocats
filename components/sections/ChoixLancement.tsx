@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, CheckCircle2, Mail, Zap } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Mail, ShieldCheck, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PROVISIONS } from "@/lib/paiement";
 import { casesImmediat } from "@/lib/renseignements/lancement";
@@ -29,7 +29,14 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
   const [erreur, setErreur] = useState("");
   const textes = casesImmediat(d.procedure);
   const sdc = d.procedure === "Séparation de corps";
-  const epoux = "votre époux(se)";
+  /* Accords selon la civilité du conjoint ; neutre à défaut. */
+  const fem = d.conjoint.civilite === "Madame";
+  const masc = d.conjoint.civilite === "Monsieur";
+  const epoux = fem ? "votre épouse" : masc ? "votre époux" : "votre époux(se)";
+  const Epoux = epoux.charAt(0).toUpperCase() + epoux.slice(1);
+  const e = fem ? "e" : masc ? "" : "(e)";
+  const informe = d.client.civilite === "Madame" ? "informée" : "informé";
+  const proc = sdc ? "la séparation de corps" : "le divorce";
 
   async function transmettre(choix: "immediat" | "verification") {
     setEnvoi(true);
@@ -72,7 +79,7 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
         <h3 className="mt-3 font-serif text-xl text-[#1A1A1A]">Nous écrivons à {epoux}</h3>
         <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
           Un message part à l&apos;adresse {email.trim()}, pour recueillir son avis. Vous n&apos;avez rien à régler à ce stade.
-          Nous vous écrivons dès sa réponse. Sans réponse, nous le relançons, et vous en êtes informé à chaque fois.
+          Nous vous écrivons dès sa réponse. Sans réponse, nous {fem ? "la" : "le"} relançons, et vous en êtes {informe} à chaque fois.
         </p>
       </div>
     );
@@ -117,8 +124,8 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
       <div className={cn("mx-auto mt-8 max-w-xl", carte)}>
         <h3 className="font-serif text-xl text-[#1A1A1A]">Vérifier d&apos;abord l&apos;accord de {epoux}</h3>
         <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
-          Nous lui demandons s&apos;il accepte {sdc ? "une séparation de corps" : "un divorce"} par consentement mutuel, et
-          s&apos;il est d&apos;accord sur chacun des points. Ses réponses ne vous sont pas communiquées : en cas de
+          Nous lui demandons {fem ? "si elle" : "s'il"} accepte {sdc ? "une séparation de corps" : "un divorce"} par consentement mutuel, et
+          {fem ? "si elle" : "s'il"} est d&apos;accord sur chacun des points. Ses réponses ne vous sont pas communiquées : en cas de
           désaccord, vous saurez seulement sur quels points.
         </p>
         <label className="mt-5 block text-sm font-medium text-[#1A1A1A]">
@@ -143,47 +150,73 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
       </div>
     );
 
+  const Ligne = ({ titre, children }: { titre: string; children: React.ReactNode }) => (
+    <li className="flex gap-3">
+      <span className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#362A24]" />
+      <span>
+        <strong className="font-semibold text-[#1A1A1A]">{titre} :</strong> {children}
+      </span>
+    </li>
+  );
+
   return (
-    <div className="mx-auto mt-8 max-w-2xl text-left">
-      <h3 className="text-center font-serif text-2xl text-[#1A1A1A]">Comment souhaitez-vous poursuivre ?</h3>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <div className={cn(carte, "flex flex-col")}>
-          <Zap className="h-6 w-6 text-[#362A24]" strokeWidth={1.5} />
-          <h4 className="mt-3 font-serif text-lg text-[#1A1A1A]">Lancer la procédure maintenant</h4>
-          <p className="mt-2 text-[14px] leading-relaxed text-gray-600">
-            Vous nous confirmez que {epoux} et vous êtes d&apos;accord sur l&apos;ensemble des conséquences de votre{" "}
-            {sdc ? "séparation de corps" : "divorce"}. Nous préparons sans attendre le projet de convention à partir des
-            informations que vous avez fournies.
+    <div className="mx-auto mt-10 max-w-2xl text-left">
+      <h3 className="text-center font-serif text-3xl text-[#1A1A1A]">Comment souhaitez-vous poursuivre ?</h3>
+
+      <div className="mt-8 space-y-6">
+        <div className={cn(carte, "p-7 sm:p-8")}>
+          <div className="flex items-center gap-3">
+            <Zap className="h-6 w-6 text-[#362A24]" strokeWidth={1.5} />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Option rapide</span>
+          </div>
+          <h4 className="mt-3 font-serif text-2xl text-[#1A1A1A]">Lancer la procédure maintenant</h4>
+          <p className="mt-3 text-[15px] italic leading-relaxed text-gray-600">
+            Vous nous confirmez que {epoux} et vous êtes d&apos;ores et déjà d&apos;accord sur toutes les conséquences de {proc}.
           </p>
-          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[14px] leading-relaxed text-gray-600">
-            <li>
-              Vous réglez une provision de 250 €, qui couvre l&apos;établissement du projet de convention. Si les honoraires
-              sont partagés, elle vient en déduction de votre part.
-            </li>
-            <li>Votre époux(se) est ensuite invité(e) à vérifier les informations qui le concernent et à choisir son avocat.</li>
-            <li>Si {epoux} se révèle en désaccord une fois le projet établi, la provision reste due : le travail aura été accompli.</li>
+          <ul className="mt-5 space-y-3 text-[15px] leading-relaxed text-gray-700">
+            <Ligne titre="Action">Nous préparons votre projet de convention sans attendre.</Ligne>
+            <Ligne titre="Frais immédiats">
+              Vous réglez une provision de 250 € pour la rédaction. Si les honoraires sont partagés, cette somme est déduite
+              de votre part.
+            </Ligne>
+            <Ligne titre="Étape suivante">
+              {Epoux} est invité{e} à vérifier ses informations et à choisir son avocat.
+            </Ligne>
           </ul>
-          <div className="mt-auto pt-5">
+          <div className="mt-5 flex gap-3 rounded-lg border border-[#E9D9B8] bg-[#FBF5E8] p-4 text-[14px] leading-relaxed text-gray-700">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#9A6B1F]" strokeWidth={1.75} />
+            <p>
+              <strong className="font-semibold text-[#1A1A1A]">Important :</strong> si {epoux} exprime un désaccord une fois
+              le projet rédigé, la provision de 250 € reste due, le travail de rédaction ayant été accompli.
+            </p>
+          </div>
+          <div className="pt-6">
             <button type="button" className={bouton} onClick={() => setEtape("immediat")}>
               Lancer la procédure
             </button>
           </div>
         </div>
-        <div className={cn(carte, "flex flex-col")}>
-          <CheckCircle2 className="h-6 w-6 text-[#362A24]" strokeWidth={1.5} />
-          <h4 className="mt-3 font-serif text-lg text-[#1A1A1A]">Vérifier d&apos;abord l&apos;accord de {epoux}</h4>
-          <p className="mt-2 text-[14px] leading-relaxed text-gray-600">
-            Nous écrivons à {epoux} pour lui demander s&apos;il accepte {sdc ? "une séparation de corps" : "un divorce"} par
-            consentement mutuel, et s&apos;il est d&apos;accord sur chacun des points. Vous ne réglez rien à ce stade.
+
+        <div className={cn(carte, "p-7 sm:p-8")}>
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="h-6 w-6 text-[#362A24]" strokeWidth={1.5} />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500">Option prudente</span>
+          </div>
+          <h4 className="mt-3 font-serif text-2xl text-[#1A1A1A]">Vérifier d&apos;abord l&apos;accord de {epoux}</h4>
+          <p className="mt-3 text-[15px] italic leading-relaxed text-gray-600">
+            Nous nous assurons que {epoux} accepte {sdc ? "la séparation de corps" : "le divorce"} par consentement mutuel,
+            sur tous les points, avant d&apos;engager des frais.
           </p>
-          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[14px] leading-relaxed text-gray-600">
-            <li>Si vous êtes d&apos;accord sur tout, la procédure peut commencer.</li>
-            <li>
-              Sinon, nous vous indiquons sur quels points vous divergez, sans le détail de ses réponses, et nous vous
-              proposons la suite.
-            </li>
+          <ul className="mt-5 space-y-3 text-[15px] leading-relaxed text-gray-700">
+            <Ligne titre="Action">Nous écrivons à {epoux} pour recueillir son accord.</Ligne>
+            <Ligne titre="C'est gratuit">Vous ne réglez rien à ce stade.</Ligne>
+            <Ligne titre="En cas d'accord sur tout">La procédure peut commencer.</Ligne>
+            <Ligne titre="En cas de désaccord">
+              Nous vous indiquons les points de divergence, sans vous transmettre le détail de ses réponses, et nous vous
+              conseillons sur la marche à suivre.
+            </Ligne>
           </ul>
-          <div className="mt-auto pt-5">
+          <div className="pt-6">
             <button type="button" className={bouton} onClick={() => setEtape("verification")}>
               Vérifier d&apos;abord son accord
             </button>
