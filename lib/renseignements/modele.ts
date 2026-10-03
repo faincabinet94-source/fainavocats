@@ -933,3 +933,45 @@ export function recapitulatifHtml(d: Donnees): string {
     )
     .join("");
 }
+
+/* Mode test (?test=1) : saisie fictive complète, pour essayer le parcours
+   sans tout remplir. Divorce amiable sans enfant ni bien, conjoint assisté par
+   l'avocat partenaire, honoraires et provision partagés par moitié. Les deux
+   courriels sont ceux de la personne qui teste. */
+export function donneesDeTest(emailA: string, emailB: string): Donnees {
+  const d = donneesVides("Divorce");
+  const personne = (civilite: string, prenoms: string, email: string, naissance: string): Personne => ({
+    civilite,
+    nom: "TEST",
+    prenoms,
+    dateNaissance: naissance,
+    lieuNaissance: "Paris",
+    nationalite: "Française",
+    adresse: "1 rue de l'Essai",
+    cp: "75016",
+    ville: "Paris",
+    profession: "Salarié",
+    revenus: "2500",
+    revenusAnnuels: "",
+    statutLogement: "Location",
+    email,
+    telephone: "0600000000",
+  });
+  return {
+    ...d,
+    distance: "Commencer à distance",
+    dejaClient: "Non",
+    client: personne("Madame", "Alice", emailA, "1985-04-12"),
+    conjoint: personne("Monsieur", "Bruno", emailB, "1983-09-30"),
+    mariage: { ...d.mariage, date: "2015-06-20", lieu: "Paris", regime: "communauté de biens réduite aux acquêts" },
+    logement: { separes: "Oui", dateSeparation: "2026-01-01", domicile: "", delai: "" },
+    arrieresLoyers: "Non",
+    arrieresImpots: "Non",
+    impotsSepares: "Oui",
+    pc: { convenue: "Non", beneficiaire: "", forme: "", accordMontant: "", montant: "" },
+    nomUsage: { utilise: "Non", conserve: "" },
+    repartition: "Partage par moitié",
+    provisionPartage: "Nous la partageons (125 € chacun)",
+    commentaires: "Formulaire de test, à supprimer.",
+  };
+}
