@@ -52,6 +52,7 @@ import {
   type Piece,
 } from "@/lib/renseignements/modele";
 import { ChoixLancement } from "@/components/sections/ChoixLancement";
+import { lirePoints } from "@/lib/renseignements/revoir";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
    12 étapes. Remplace les formulaires Cognito n° 3, 13 et 14.
@@ -62,7 +63,10 @@ import { ChoixLancement } from "@/components/sections/ChoixLancement";
      reprise=<id>    rouvre une saisie enregistrée
      correction=<fiche>.<jeton>   rouvre un formulaire déjà envoyé, depuis le
                      champ « Lien formulaire » du dossier, pour corriger la
-                     même fiche « Formulaires reçus » (version cabinet) */
+                     même fiche « Formulaires reçus » (version cabinet)
+     revoir=<fiche>.<jeton>&points=a|b   même chose, version client, depuis
+                     le mail de désaccord sur l'accord du conjoint : les
+                     points divergents sont rappelés en tête */
 
 /* Intitulés courts de la version cabinet (même ordre). */
 const ETAPES_CABINET: Record<string, string> = {
@@ -301,6 +305,9 @@ export default function FormulaireRenseignements() {
      site, l'envoi met à jour la fiche d'origine. */
   const [correction, setCorrection] = useState("");
   const [dossierCorrige, setDossierCorrige] = useState("");
+  /* Désaccord avec le conjoint : correction par l'époux lui-même. */
+  const [revoir, setRevoir] = useState<{ intitule: string; etape: number | null }[] | null>(null);
+  const [resultat, setResultat] = useState<{ issue: string | null; limite: boolean } | null>(null);
   const [d, setD] = useState<Donnees>(() => donneesVides());
   /* Mode test (?test=1) : bouton qui remplit tout avec des données fictives. */
   const [modeTest, setModeTest] = useState(false);
@@ -325,7 +332,8 @@ export default function FormulaireRenseignements() {
   useEffect(() => {
     const repriseId = params.get("reprise");
     const estInterne = params.get("interne") === "1";
-    const lienCorrection = params.get("correction");
+    const lienRevoir = params.get("revoir");
+    const lienCorrection = params.get("correction") || lienRevoir;
     (async () => {
       if (lienCorrection) {
         try {
@@ -335,11 +343,16 @@ export default function FormulaireRenseignements() {
             setCorrection(lienCorrection);
             setDossierCorrige(j.dossier || "");
             setD(completer(j.donnees));
-            setInterne(true);
+            setInterne(!lienRevoir);
+            if (lienRevoir) setRevoir(lirePoints(params.get("points")));
             setPret(true);
             return;
           }
-          setErreur(j.message || "Ce lien de correction n'est pas valable.");
+          setErreur(
+            lienRevoir
+              ? "Ce lien n'est plus valable. Écrivez-nous à contact@divorcefacil.com."
+              : j.message || "Ce lien de correction n'est pas valable.",
+          );
         } catch {
           setErreur("Ce lien de correction n'a pas pu être ouvert.");
         }
@@ -493,10 +506,11 @@ export default function FormulaireRenseignements() {
         const r = await fetch("/api/renseignements/correction", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ c: correction, donnees: n }),
+          body: JSON.stringify({ c: correction, donnees: n, revoir: Boolean(revoir) }),
         });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.message || "Enregistrement impossible");
+        setResultat({ issue: j.issue ?? null, limite: Boolean(j.limite) });
         setEnvoi("ok");
         haut.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (e) {
@@ -524,6 +538,25 @@ export default function FormulaireRenseignements() {
 
   if (!pret) {
     return <div className="py-16 text-center text-gray-500">{erreur || "Chargement du formulaire…"}</div>;
+  }
+
+  if (envoi === "ok" && correction && revoir) {
+    const accord = resultat?.issue === "Accord complet";
+    return (
+      <div ref={haut} className="rounded-2xl border border-[#E5E2DA] bg-white p-8 text-center sm:p-12">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
+        <h2 className="mt-5 font-serif text-3xl text-[#1A1A1A]">{accord ? "Vos réponses concordent désormais" : "Vos corrections sont enregistrées"}</h2>
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
+          {accord
+            ? "Vos réponses et celles de votre époux(se) concordent sur tous les points. Nous vous écrivons par courriel pour la suite."
+            : resultat?.limite
+              ? "Le nombre de comparaisons possibles par ce formulaire est atteint. Le cabinet reprend contact avec vous par courriel."
+              : resultat?.issue === "Désaccord"
+                ? "Vos réponses et celles de votre époux(se) diffèrent encore sur au moins un point. Nous vous écrivons par courriel, ainsi qu'à votre époux(se)."
+                : "Nous vous écrivons par courriel pour la suite."}
+        </p>
+      </div>
+    );
   }
 
   if (envoi === "ok" && correction) {
@@ -960,8 +993,9 @@ export default function FormulaireRenseignements() {
       </p>
       {correction ? (
         <p className="rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-3 text-sm text-gray-600">
-          Correction d&apos;un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les
-          directement dans Airtable.
+          {revoir
+            ? "Les pièces déjà transmises restent attachées à votre dossier. Pour en ajouter, écrivez-nous à contact@divorcefacil.com."
+            : "Correction d'un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les directement dans Airtable."}
         </p>
       ) : (
       <Grille>
@@ -1071,10 +1105,37 @@ export default function FormulaireRenseignements() {
               )}
             >
               {i + 1}. {nomEtape(i)}
+              {revoir?.some((p) => p.etape === i) && <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-[#B7791F] align-middle" aria-label="point à revoir" />}
             </button>
           ))}
         </div>
       </div>
+
+      {revoir && (
+        <div className="mb-8 rounded-2xl border border-[#E6D9BF] bg-[#FBF7EE] p-5 text-sm leading-relaxed text-[#4A3B24]">
+          <p className="font-medium text-[#1A1A1A]">Points à revoir</p>
+          <p className="mt-1">
+            Vos réponses et celles de votre époux(se) ne concordent pas encore sur {revoir.length > 1 ? "les points suivants" : "le point suivant"}.
+            Si vous en avez reparlé ensemble, ou si une réponse a été mal saisie, corrigez-la puis enregistrez : nous comparerons de nouveau vos réponses.
+          </p>
+          {revoir.length > 0 && (
+            <ul className="mt-3 space-y-1">
+              {revoir.map((p) => (
+                <li key={p.intitule} className="flex items-baseline gap-2">
+                  <span className="h-1.5 w-1.5 shrink-0 translate-y-[-2px] rounded-full bg-[#B7791F]" />
+                  {p.etape !== null ? (
+                    <button type="button" onClick={() => aller(p.etape!)} className="text-left underline underline-offset-2">
+                      {p.intitule}
+                    </button>
+                  ) : (
+                    <span>{p.intitule}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {modeTest && (
         <div className="mb-8 rounded-2xl border border-dashed border-[#B8A99A] bg-[#FBFAF7] p-5 text-sm text-gray-700">

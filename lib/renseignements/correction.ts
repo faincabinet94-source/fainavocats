@@ -73,3 +73,30 @@ export function champsCorriges(d: Donnees): Record<string, unknown> {
   void _version;
   return { ...champsIdentite(d), ...reste };
 }
+
+/* Nouvelle comparaison par le portail, après enregistrement des corrections.
+   Rend l'issue, ou null si le portail n'a pas pu comparer. */
+export async function recomparer(fiche: string): Promise<{ issue?: string; limite?: boolean } | null> {
+  const secret = process.env.AVIS_RECOMPARER_SECRET;
+  if (!secret) {
+    console.error("[renseignements] AVIS_RECOMPARER_SECRET absent : pas de nouvelle comparaison");
+    return null;
+  }
+  const url = process.env.AVIS_RECOMPARER_URL || "https://espace.divorcefacil.com/avis/recomparer";
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-avis-secret": secret },
+      body: JSON.stringify({ fiche }),
+      signal: AbortSignal.timeout(20000),
+    });
+    const j = (await r.json().catch(() => ({}))) as { issue?: string; limite?: boolean };
+    if (r.ok) return j;
+    if (r.status === 409) return { issue: j.issue, limite: Boolean(j.limite) };
+    console.error("[renseignements] recomparaison", r.status);
+    return null;
+  } catch (e) {
+    console.error("[renseignements] portail injoignable", e);
+    return null;
+  }
+}
