@@ -29,8 +29,8 @@ export const TARIFS_DEFAUT: Tarifs = {
   CERTIF_39: 240,
   PROVISION_DEPART: 250,
   CONSULTATION: 120,
-  TAUX_HORAIRE: 220,
-  TAUX_NEGOCIATIONS: 220,
+  TAUX_HORAIRE: 225,
+  TAUX_NEGOCIATIONS: 225,
 };
 
 /** Garde les seuls montants numériques, par-dessus les valeurs de secours. */
