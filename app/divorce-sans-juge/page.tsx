@@ -4,6 +4,10 @@ import { Footer } from "@/components/sections/Footer";
 import { FloatingCTA } from "@/components/ui/FloatingCTA";
 import { DivorceSansJuge } from "@/components/sections/DivorceSansJuge";
 import { FAQ_ITEMS } from "@/lib/divorce-sans-juge";
+import { lireTarifs } from "@/lib/tarifs-serveur";
+
+/* Tarifs relus au plus une fois par heure (table Tarifs d'Airtable, via n8n). */
+export const revalidate = 3600;
 
 const URL = "https://fain-avocats.fr/divorce-sans-juge";
 
@@ -68,7 +72,8 @@ const jsonLd = {
   ],
 };
 
-export default function DivorceSansJugePage() {
+export default async function DivorceSansJugePage() {
+  const tarifs = await lireTarifs();
   return (
     <>
       <Navbar />
@@ -77,7 +82,7 @@ export default function DivorceSansJugePage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <DivorceSansJuge />
+        <DivorceSansJuge tarifs={tarifs} />
       </main>
       <Footer />
       <FloatingCTA />

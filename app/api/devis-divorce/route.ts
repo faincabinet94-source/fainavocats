@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lireTarifs } from "@/lib/tarifs-serveur";
 
 /* Réception du formulaire de devis.
  *
@@ -143,6 +144,9 @@ export async function POST(request: Request) {
     commentaires: propre(corps.commentaires, 4000),
     recuLe: new Date().toISOString(),
     origine: depuisDivorcefacil ? "divorcefacil.co" : "site/devis/divorce",
+    /* Grille de la table Tarifs : le devis du courriel se calcule sur les
+       mêmes montants que le simulateur. */
+    tarifs: await lireTarifs(),
   };
 
   try {

@@ -57,7 +57,7 @@ export const QUI_IMMO = ["Moi", "Mon époux (se)", "en vente", "maintien en indi
 export const QUI_VEHICULE = ["Moi", "Mon époux (se)", "en vente"] as const;
 export const QUI_CREDIT = ["50/50", "Moi", "Conjoint(e)", "Autre"] as const;
 export const BENEFICIAIRES = ["Moi", "Mon époux(se)"] as const;
-export const FORMES_PC = ["Capital", "Abandon de soulte", "Rente mensuelle", "Rente viagère", "Ne sait pas encore"] as const;
+export const FORMES_PC = ["Capital", "Abandon de soulte", "Rente mensuelle", "Rente viagère"] as const;
 export const REPARTITIONS = [
   "Partage par moitié",
   "Je les prendrai à ma charge",
@@ -191,7 +191,9 @@ export type Donnees = {
   arrieresImpots: string;
   montantArrieresImpots: string;
   impotsSepares: string;
-  pc: { convenue: string; beneficiaire: string; forme: string; montant: string };
+  /* accordMontant : les époux sont-ils d'accord sur le montant (décision de
+     Me FAIN du 2026-10-03) ; le montant n'est demandé qu'en cas d'accord. */
+  pc: { convenue: string; beneficiaire: string; forme: string; accordMontant?: string; montant: string };
   ds: { convenu: string; beneficiaire: string; montant: string };
   nomUsage: { utilise: string; conserve: string };
   repartition: string;
@@ -259,7 +261,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   arrieresImpots: "",
   montantArrieresImpots: "",
   impotsSepares: "",
-  pc: { convenue: "", beneficiaire: "", forme: "", montant: "" },
+  pc: { convenue: "", beneficiaire: "", forme: "", accordMontant: "", montant: "" },
   ds: { convenu: "", beneficiaire: "", montant: "" },
   nomUsage: { utilise: "", conserve: "" },
   repartition: "",
@@ -440,6 +442,8 @@ function manquantsBruts(d: Donnees, interne: boolean): Manque[] {
     if (d.pc.convenue === "Oui") {
       exiger(7, "pc.beneficiaire", d.pc.beneficiaire, "qui reçoit la prestation compensatoire");
       exiger(7, "pc.forme", d.pc.forme, "la forme de la prestation compensatoire");
+      exiger(7, "pc.accordMontant", d.pc.accordMontant, "si vous êtes d'accord sur le montant de la prestation compensatoire");
+      if (d.pc.accordMontant === "Oui") exiger(7, "pc.montant", d.pc.montant, "le montant de la prestation compensatoire");
     }
   }
 
@@ -461,7 +465,6 @@ export function facultatifs(d: Donnees, interne: boolean): Manque[] {
   };
   const divorce = d.procedure !== "Séparation de corps";
   if (d.logement.separes === "Oui" && vide(d.logement.dateSeparation)) ajouter(4, "logement.dateSeparation", "la date de séparation");
-  if (divorce && d.pc.convenue === "Oui" && vide(d.pc.montant)) ajouter(7, "pc.montant", "le montant de la prestation compensatoire");
   if (!divorce && d.ds.convenu === "Oui" && vide(d.ds.montant)) ajouter(7, "ds.montant", "le montant du devoir de secours");
   if (divorce && vide(d.nomUsage.utilise)) ajouter(8, "nomUsage.utilise", "l'usage du nom de l'autre époux");
   if (!d.pieces.length) ajouter(10, "pieces", "les pièces justificatives");
@@ -633,7 +636,7 @@ export function chargeCognito(d: Donnees, opts: { interne: boolean; numero: numb
     PC: d.procedure === "Divorce" ? vide(d.pc.convenue) : null,
     BénéficiairePC: d.procedure === "Divorce" ? vide(d.pc.beneficiaire) : null,
     FormePC: d.procedure === "Divorce" ? vide(d.pc.forme) : null,
-    MontantPC: d.procedure === "Divorce" ? nombre(d.pc.montant) : null,
+    MontantPC: d.procedure === "Divorce" && d.pc.accordMontant !== "Non" ? nombre(d.pc.montant) : null,
     DS: d.procedure === "Séparation de corps" ? vide(d.ds.convenu) : null,
     BénéficiaireDS: d.procedure === "Séparation de corps" ? vide(d.ds.beneficiaire) : null,
     MontantDS: d.procedure === "Séparation de corps" ? nombre(d.ds.montant) : null,
@@ -718,7 +721,7 @@ export function champsComplementaires(d: Donnees, lienReprise: string) {
     "Prestation compensatoire": divorce ? vide(d.pc.convenue) : null,
     "PC bénéficiaire": divorce && d.pc.convenue === "Oui" ? beneficiaire(d.pc.beneficiaire) : null,
     "PC forme": divorce && d.pc.convenue === "Oui" ? vide(d.pc.forme) : null,
-    "PC montant": divorce && d.pc.convenue === "Oui" ? nombre(d.pc.montant) : null,
+    "PC montant": divorce && d.pc.convenue === "Oui" && d.pc.accordMontant !== "Non" ? nombre(d.pc.montant) : null,
     "Devoir de secours": divorce ? null : vide(d.ds.convenu),
     "DS bénéficiaire": !divorce && d.ds.convenu === "Oui" ? beneficiaire(d.ds.beneficiaire) : null,
     "DS montant mensuel": !divorce && d.ds.convenu === "Oui" ? nombre(d.ds.montant) : null,
@@ -872,6 +875,7 @@ export function recapitulatif(d: Donnees): Section[] {
             ["Convenue", d.pc.convenue],
             ["Bénéficiaire", d.pc.beneficiaire],
             ["Forme", d.pc.forme],
+            ["Accord sur le montant", d.pc.accordMontant || ""],
             ["Montant total", d.pc.montant && `${d.pc.montant} €`],
           ],
         }

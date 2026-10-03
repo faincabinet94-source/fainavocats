@@ -882,9 +882,14 @@ export default function FormulaireRenseignements() {
             <Champ label={cab("Sous quelle forme ?", "Forme")} {...suivi("pc.forme")}>
               <Choix options={FORMES_PC} value={d.pc.forme} onChange={(v) => maj("pc.forme", v)} />
             </Champ>
-            <Champ champ="pc.montant" label="Montant total (€)">
-              <input className={cn(inputCls, "sm:max-w-xs")} value={d.pc.montant} onChange={(e) => maj("pc.montant", e.target.value)} inputMode="decimal" />
+            <Champ label={cab("Êtes-vous d'accord sur son montant ?", "Accord sur le montant ?")} {...suivi("pc.accordMontant")}>
+              <Choix options={OUI_NON} value={d.pc.accordMontant ?? ""} onChange={(v) => maj("pc.accordMontant", v)} />
             </Champ>
+            {d.pc.accordMontant === "Oui" && (
+              <Champ label="Montant total (€)" {...suivi("pc.montant")}>
+                <input className={cn(inputCls, "sm:max-w-xs")} value={d.pc.montant} onChange={(e) => maj("pc.montant", e.target.value)} inputMode="decimal" />
+              </Champ>
+            )}
           </>
         )}
       </div>

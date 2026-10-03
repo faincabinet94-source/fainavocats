@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { grilles, TARIFS_DEFAUT, type Tarifs } from "@/lib/tarifs";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -31,24 +32,8 @@ import { useTranslation } from "@/hooks/useTranslation";
  * RC     : requête conjointe, lue comme les 1A.
  * Airtable fait foi : toute évolution se répercute ici.
  * ------------------------------------------------------------------ */
-/* DCM 1A — le conjoint passe par le confrère partenaire : tarif additif, le socle
-   couvre déjà LES DEUX avocats. Honoraires en cours de révision (2026-08-23). */
-const SUP_CABINET = 120; // premier rendez-vous au cabinet plutôt qu'en ligne
-const SUP_PRESTA = 250;
-/* Grille 1A — les deux avocats compris. Reprend exactement la table Produits
-   de la base Prospects (DCM1A / 1AE / 1AB / 1AEB). Additive depuis le 2026-08-24 :
-   enfants +250, immobilier +350, prestation compensatoire +250, sans exception. */
-const GRID_DCM1A: Record<string, number> = { "": 650, E: 900, B: 1000, EB: 1250 };
-
-/* DCM 2A — le conjoint a son propre avocat : le prix ne couvre que notre client.
-   Grille inchangée pour l'instant. */
-const GRID_DCM2A: Record<string, number> = { "": 1200, E: 1500, B: 1800, EB: 2000 };
-
-const GRID_DC: Record<string, number> = { "": 2000, E: 3000, B: 3000, EB: 4000 };
-const GRID_RC: Record<string, number> = { "": 1800, E: 2000, B: 2200, EB: 2400 };
-const DEPOT = 49.44;   // 41,20 € HT, tarif réglementé du notaire
-const CERTIF_66 = 300; // certificat européen, TTC, hors forfait
-
+/* Grilles : lues dans la table Tarifs d'Airtable (lib/tarifs.ts), passées par
+   la page. Airtable fait foi : plus aucun montant n'est écrit ici. */
 const eur = (n: number) => n.toLocaleString("fr-FR") + " €";
 const eur2 = (n: number) =>
   n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
@@ -58,7 +43,7 @@ type NatKey = "FR" | "UE" | "MA" | "DZ" | "TN" | "XX";
 const HERO_FACTS = [
   { value: "2", label: "avocats obligatoires, un par époux" },
   { value: "15 j", label: "de réflexion avant signature" },
-  { value: "49,44 €", label: "de dépôt chez le notaire, TTC" },
+  { value: "DEPOT", label: "de dépôt chez le notaire, TTC" },
   { value: "4 à 6 sem.", label: "pour un dossier simple" },
 ];
 
@@ -181,7 +166,10 @@ function Segmented({
   );
 }
 
-export function DivorceSansJuge() {
+export function DivorceSansJuge({ tarifs = TARIFS_DEFAUT }: { tarifs?: Tarifs }) {
+  const { g1a: GRID_DCM1A, g2a: GRID_DCM2A, gdc: GRID_DC, grc: GRID_RC, depot: DEPOT, certif66: CERTIF_66, supCabinet: SUP_CABINET, supPresta: SUP_PRESTA } =
+    grilles(tarifs);
+  const depotHT = eur2(Math.round((DEPOT / 1.2) * 100) / 100);
   const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -286,8 +274,8 @@ export function DivorceSansJuge() {
     });
     lines.push({
       label: "Dépôt de la convention",
-      note: "Tarif réglementé du notaire, 41,20 € HT, soit 24,72 € par époux",
-      amount: "49,44 €",
+      note: `Tarif réglementé du notaire, ${depotHT} HT, soit ${eur2(DEPOT / 2)} par époux`,
+      amount: eur2(DEPOT),
     });
     const total = hono + DEPOT;
     headline = "Pour le couple, les deux avocats compris";
@@ -309,7 +297,7 @@ export function DivorceSansJuge() {
     lines.push({
       label: "Votre part du dépôt",
       note: "Moitié du tarif réglementé du notaire",
-      amount: "24,72 €",
+      amount: eur2(DEPOT / 2),
     });
     sideNote = accord
       ? "Votre conjoint ayant son propre avocat, chacun règle le sien."
@@ -463,7 +451,7 @@ export function DivorceSansJuge() {
                   )}
                 >
                   <div className="font-serif text-3xl leading-none text-[#362A24] md:text-4xl">
-                    {f.value}
+                    {f.value === "DEPOT" ? eur2(DEPOT) : f.value}
                   </div>
                   <div className="mt-2 text-[13px] leading-snug text-gray-500">{f.label}</div>
                 </div>

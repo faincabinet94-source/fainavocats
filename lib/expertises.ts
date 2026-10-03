@@ -91,7 +91,7 @@ export const expertises: Record<string, ExpertiseData> = {
       {
         question: "Combien coûte un divorce par consentement mutuel ?",
         answer:
-          "Le coût varie selon la complexité du dossier (patrimoine, enfants). Nous proposons des forfaits à partir de 750€ TTC. Une convention d'honoraires transparente vous est systématiquement remise avant toute démarche.",
+          "Le coût varie selon la complexité du dossier (enfants, bien immobilier, prestation compensatoire). Nous proposons des forfaits qui comprennent les honoraires des deux avocats ; le simulateur de la page « Divorce sans juge » donne le montant exact selon votre situation. Une convention d'honoraires vous est systématiquement remise avant toute démarche.",
       },
       {
         question: "Quelle est la durée d'une procédure de divorce ?",

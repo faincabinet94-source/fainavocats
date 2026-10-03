@@ -3,11 +3,18 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { euros } from "@/lib/tarifs";
+import { lireTarifs } from "@/lib/tarifs-serveur";
 
-export const metadata: Metadata = {
+/* Montants relus au plus une fois par heure dans la table Tarifs d'Airtable. */
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await lireTarifs();
+  return {
   title: "Honoraires Droit de la Famille | Tarifs Divorce Avocat Paris - Fain Avocats",
   description:
-    "Tarifs et honoraires en droit de la famille : divorce par consentement mutuel à partir de 500€, consultation 120€, taux horaire 220€ HT. Facilités de paiement. Cabinet Fain Avocats Paris 16ème.",
+    `Tarifs et honoraires en droit de la famille : divorce par consentement mutuel à partir de ${euros(t.DCM1A / 2)} par époux, consultation ${euros(t.CONSULTATION)}, taux horaire ${euros(t.TAUX_HORAIRE)} HT. Facilités de paiement. Cabinet Fain Avocats Paris 16ème.`,
   keywords: [
     "honoraires avocat divorce",
     "tarif divorce consentement mutuel",
@@ -16,9 +23,11 @@ export const metadata: Metadata = {
     "honoraires avocat famille paris",
     "tarif divorce avocat",
   ],
-};
+  };
+}
 
-export default function HonorairesFamillePage() {
+export default async function HonorairesFamillePage() {
+  const t = await lireTarifs();
   return (
     <>
       <Navbar />
@@ -67,8 +76,11 @@ export default function HonorairesFamillePage() {
                     <span className="text-[#1A1A1A] font-medium">
                       Divorce par consentement mutuel
                     </span>
-                    <span className="font-serif text-xl text-[#362A24] font-semibold">
-                      à partir de 500 €
+                    <span className="text-right font-serif text-xl text-[#362A24] font-semibold">
+                      à partir de {euros(t.DCM1A / 2)} par époux
+                      <span className="block font-sans text-xs font-normal text-gray-500">
+                        les deux avocats compris, dépôt chez le notaire en sus ({euros(t.DEPOT_NOTAIRE / 2)} par époux)
+                      </span>
                     </span>
                   </div>
                   <div className="h-px bg-gray-300" />
@@ -77,7 +89,7 @@ export default function HonorairesFamillePage() {
                       1ère consultation en droit de la famille
                     </span>
                     <span className="font-serif text-xl text-[#362A24] font-semibold">
-                      120 €
+                      {euros(t.CONSULTATION)}
                     </span>
                   </div>
                 </div>
@@ -97,7 +109,7 @@ export default function HonorairesFamillePage() {
                       Taux horaire pratiqué
                     </span>
                     <span className="font-serif text-xl text-[#362A24] font-semibold">
-                      220 € HT / heure
+                      {euros(t.TAUX_HORAIRE)} HT / heure
                     </span>
                   </div>
                 </div>
