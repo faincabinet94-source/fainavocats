@@ -1,12 +1,15 @@
 "use client";
 
 import { Container } from "@/components/ui/Container";
-import { Menu, X, Phone, Search } from "lucide-react";
+import { Menu, X, Phone, Search, UserRound } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LogoFain } from "@/components/ui/LogoFain";
+
+/* Espace client du cabinet (portail, dépôt faincabinet94-source/client). */
+const ESPACE_CLIENT = "https://client.voxagentis.com/connexion";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -106,6 +109,16 @@ export function Navbar() {
               </a>
 
               <a
+                href={ESPACE_CLIENT}
+                aria-label="Espace client"
+                title="Espace client"
+                className="flex items-center gap-2 whitespace-nowrap text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors py-2"
+              >
+                <UserRound className="w-[18px] h-[18px]" strokeWidth={1.75} />
+                <span className="hidden 2xl:inline">Espace client</span>
+              </a>
+
+              <a
                 href="tel:+33140680237"
                 className="shrink-0 whitespace-nowrap bg-[#362A24] text-white px-5 xl:px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#2C221D] transition-colors"
               >
@@ -168,6 +181,18 @@ export function Navbar() {
           >
             <Search className="w-7 h-7" strokeWidth={1.75} />
             Rechercher
+          </a>
+
+          <a
+            href={ESPACE_CLIENT}
+            className={cn(
+              "flex items-center gap-3 font-serif text-4xl text-[#1A1A1A] hover:text-[#362A24] transition-all duration-500 transform",
+              mobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+            )}
+            style={{ transitionDelay: `${(navigation.length + 1) * 80}ms` }}
+          >
+            <UserRound className="w-7 h-7" strokeWidth={1.75} />
+            Espace client
           </a>
         </div>
 
