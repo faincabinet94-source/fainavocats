@@ -66,7 +66,9 @@ import { lirePoints } from "@/lib/renseignements/revoir";
                      même fiche « Formulaires reçus » (version cabinet)
      revoir=<fiche>.<jeton>&points=a|b   même chose, version client, depuis
                      le mail de désaccord sur l'accord du conjoint : les
-                     points divergents sont rappelés en tête */
+                     points divergents sont rappelés en tête
+     modifier=<fiche>.<jeton>   même chose, version client, depuis le bouton
+                     « Modifier mon formulaire » de l'espace client */
 
 /* Intitulés courts de la version cabinet (même ordre). */
 const ETAPES_CABINET: Record<string, string> = {
@@ -307,6 +309,8 @@ export default function FormulaireRenseignements() {
   const [dossierCorrige, setDossierCorrige] = useState("");
   /* Désaccord avec le conjoint : correction par l'époux lui-même. */
   const [revoir, setRevoir] = useState<{ intitule: string; etape: number | null }[] | null>(null);
+  /* Modification par le client depuis son espace (pas de points à revoir). */
+  const [modification, setModification] = useState(false);
   const [resultat, setResultat] = useState<{ issue: string | null; limite: boolean } | null>(null);
   const [d, setD] = useState<Donnees>(() => donneesVides());
   /* Mode test (?test=1) : bouton qui remplit tout avec des données fictives. */
@@ -333,7 +337,9 @@ export default function FormulaireRenseignements() {
     const repriseId = params.get("reprise");
     const estInterne = params.get("interne") === "1";
     const lienRevoir = params.get("revoir");
-    const lienCorrection = params.get("correction") || lienRevoir;
+    const lienModifier = params.get("modifier");
+    const lienCorrection = params.get("correction") || lienRevoir || lienModifier;
+    const versionClient = Boolean(lienRevoir || lienModifier);
     (async () => {
       if (lienCorrection) {
         try {
@@ -343,14 +349,15 @@ export default function FormulaireRenseignements() {
             setCorrection(lienCorrection);
             setDossierCorrige(j.dossier || "");
             setD(completer(j.donnees));
-            setInterne(!lienRevoir);
+            setInterne(!versionClient);
             if (lienRevoir) setRevoir(lirePoints(params.get("points")));
+            else if (lienModifier) setModification(true);
             setPret(true);
             return;
           }
           setErreur(
-            lienRevoir
-              ? "Ce lien n'est plus valable. Écrivez-nous à contact@divorcefacil.com."
+            versionClient
+              ? "Ce lien n'est plus valable. Rouvrez votre formulaire depuis votre espace client, ou écrivez-nous."
               : j.message || "Ce lien de correction n'est pas valable.",
           );
         } catch {
@@ -506,7 +513,7 @@ export default function FormulaireRenseignements() {
         const r = await fetch("/api/renseignements/correction", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ c: correction, donnees: n, revoir: Boolean(revoir) }),
+          body: JSON.stringify({ c: correction, donnees: n, revoir: Boolean(revoir) || modification }),
         });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.message || "Enregistrement impossible");
@@ -538,6 +545,20 @@ export default function FormulaireRenseignements() {
 
   if (!pret) {
     return <div className="py-16 text-center text-gray-500">{erreur || "Chargement du formulaire…"}</div>;
+  }
+
+  if (envoi === "ok" && correction && modification) {
+    return (
+      <div ref={haut} className="rounded-2xl border border-[#E5E2DA] bg-white p-8 text-center sm:p-12">
+        <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
+        <h2 className="mt-5 font-serif text-3xl text-[#1A1A1A]">Vos modifications sont enregistrées</h2>
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
+          {resultat?.issue === "Accord complet"
+            ? "Vos réponses et celles de votre époux(se) concordent désormais sur tous les points. Nous vous écrivons par courriel pour la suite."
+            : "Le cabinet en tient compte pour la suite de votre dossier. Vous pouvez revenir à votre espace client."}
+        </p>
+      </div>
+    );
   }
 
   if (envoi === "ok" && correction && revoir) {
@@ -993,7 +1014,7 @@ export default function FormulaireRenseignements() {
       </p>
       {correction ? (
         <p className="rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-3 text-sm text-gray-600">
-          {revoir
+          {revoir || modification
             ? "Les pièces déjà transmises restent attachées à votre dossier. Pour en ajouter, écrivez-nous à contact@divorcefacil.com."
             : "Correction d'un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les directement dans Airtable."}
         </p>
