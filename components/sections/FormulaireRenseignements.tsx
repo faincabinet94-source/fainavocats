@@ -622,7 +622,7 @@ export default function FormulaireRenseignements() {
           <Champ label={lui ? "Nom de famille" : "Nom"} aide={lui ? "Nom de naissance." : undefined} {...suivi(k("nom"))}>
             <input className={inputCls} value={x.nom} onChange={(e) => maj(k("nom"), enCapitales(e.target.value))} autoComplete={lui ? "off" : "family-name"} />
           </Champ>
-          <Champ label="Prénoms" aide="Tous les prénoms, dans l'ordre de l'état civil." {...suivi(k("prenoms"))}>
+          <Champ label="Prénoms dans l'ordre de l'état civil" aide="Tous les prénoms, par exemple : Paul Jean-Pierre Benoît." {...suivi(k("prenoms"))}>
             <input className={inputCls} value={x.prenoms} onChange={(e) => maj(k("prenoms"), e.target.value)} autoComplete={lui ? "off" : "given-name"} />
           </Champ>
           <Champ label="Date de naissance" {...suivi(k("dateNaissance"))}>
