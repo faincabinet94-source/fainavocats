@@ -86,7 +86,7 @@ export function Navbar() {
             </a>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-5 xl:gap-8 2xl:gap-10">
+            <div className="hidden xl:flex items-center gap-4 2xl:gap-8">
               {navigation.map((item) => (
                 <a
                   key={item.name}
@@ -115,7 +115,7 @@ export function Navbar() {
                 className="flex items-center gap-2 whitespace-nowrap text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors py-2"
               >
                 <UserRound className="w-[18px] h-[18px]" strokeWidth={1.75} />
-                <span className="hidden 2xl:inline">Espace client</span>
+                <span className="hidden xl:inline">Espace client</span>
               </a>
 
               <a
@@ -128,7 +128,7 @@ export function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden z-50 p-2 -mr-2 text-[#1A1A1A] hover:bg-gray-100 rounded-full transition-colors"
+              className="xl:hidden z-50 p-2 -mr-2 text-[#1A1A1A] hover:bg-gray-100 rounded-full transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Menu"
             >
@@ -141,7 +141,7 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          "fixed inset-0 bg-[#F4F2EC] z-[60] flex flex-col justify-between transition-all duration-500 lg:hidden",
+          "fixed inset-0 bg-[#F4F2EC] z-[60] flex flex-col justify-between transition-all duration-500 xl:hidden",
           mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
       >
