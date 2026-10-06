@@ -171,6 +171,79 @@ function InfoBulle({ texte }: { texte: string }) {
   );
 }
 
+/* Saisie d'une date en JJ/MM/AAAA. Le sélecteur natif (type="date") suit la
+   langue du navigateur : réglé en anglais, il attend le mois en premier, et
+   un « 10/06/1982 » tapé à la française devenait le 6 octobre. La date est
+   rendue en ISO (AAAA-MM-JJ) comme avant, et relue en toutes lettres sous le
+   champ pour que l'erreur se voie avant l'envoi. */
+const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+function isoVersSaisie(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : "";
+}
+
+function saisieVersIso(saisie: string): string | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(saisie);
+  if (!m) return null;
+  const [j, mo, a] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  if (a < 1900 || a > 2100) return null;
+  const d = new Date(Date.UTC(a, mo - 1, j));
+  if (d.getUTCFullYear() !== a || d.getUTCMonth() !== mo - 1 || d.getUTCDate() !== j) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+function enLettres(iso: string): string {
+  const [a, mo, j] = iso.split("-").map(Number);
+  return `${j === 1 ? "1er" : j} ${MOIS[mo - 1]} ${a}`;
+}
+
+function SaisieDate({
+  value,
+  onChange,
+  className,
+}: {
+  value: string;
+  onChange: (iso: string) => void;
+  className?: string;
+}) {
+  const [texte, setTexte] = useState(() => isoVersSaisie(value));
+  // Valeur changée de l'extérieur (formulaire rechargé, correction) : on la reprend.
+  useEffect(() => {
+    const iso = saisieVersIso(texte);
+    if (value ? iso !== value : iso !== null) setTexte(isoVersSaisie(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const saisir = (brut: string) => {
+    const c = brut.replace(/\D/g, "").slice(0, 8);
+    const t = c.slice(0, 2) + (c.length > 2 ? "/" + c.slice(2, 4) : "") + (c.length > 4 ? "/" + c.slice(4) : "");
+    setTexte(t);
+    onChange(saisieVersIso(t) ?? "");
+  };
+
+  const iso = saisieVersIso(texte);
+  const complet = texte.length === 10;
+  return (
+    <>
+      <input
+        type="text"
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="JJ/MM/AAAA"
+        maxLength={10}
+        className={className}
+        value={texte}
+        onChange={(e) => saisir(e.target.value)}
+        aria-invalid={complet && !iso}
+      />
+      <p className={cn("mt-1 text-[13px]", complet && !iso ? "text-[#B42318]" : "text-gray-500")}>
+        {iso ? enLettres(iso) : complet ? "Date invalide : vérifiez le jour et le mois." : "Jour, mois, année : par exemple 10/06/1982."}
+      </p>
+    </>
+  );
+}
+
 /* « 2 500,50 » → 2500.5 ; null si la saisie n'est pas un nombre. */
 function enNombre(s: string): number | null {
   const t = (s || "").replace(/\s/g, "").replace(",", ".").replace(/[^0-9.]/g, "");
@@ -626,7 +699,7 @@ export default function FormulaireRenseignements() {
             <input className={inputCls} value={x.prenoms} onChange={(e) => maj(k("prenoms"), e.target.value)} autoComplete={lui ? "off" : "given-name"} />
           </Champ>
           <Champ label="Date de naissance" {...suivi(k("dateNaissance"))}>
-            <input type="date" className={inputCls} value={x.dateNaissance} onChange={(e) => maj(k("dateNaissance"), e.target.value)} />
+            <SaisieDate className={inputCls} value={x.dateNaissance} onChange={(v) => maj(k("dateNaissance"), v)} />
           </Champ>
           <Champ label="Lieu de naissance" aide={AIDE_LIEU} {...suivi(k("lieuNaissance"))}>
             <input className={inputCls} placeholder="Ville (Département)" value={x.lieuNaissance} onChange={(e) => maj(k("lieuNaissance"), e.target.value)} onBlur={(e) => maj(k("lieuNaissance"), nomDeLieu(e.target.value))} />
@@ -711,7 +784,7 @@ export default function FormulaireRenseignements() {
     <div key="m" className="space-y-5">
       <Grille>
         <Champ label="Date du mariage" {...suivi("mariage.date")}>
-          <input type="date" className={inputCls} value={d.mariage.date} onChange={(e) => maj("mariage.date", e.target.value)} />
+          <SaisieDate className={inputCls} value={d.mariage.date} onChange={(v) => maj("mariage.date", v)} />
         </Champ>
         <Champ label="Lieu du mariage" aide={AIDE_LIEU} {...suivi("mariage.lieu")}>
           <input className={inputCls} placeholder="Ville (Département)" value={d.mariage.lieu} onChange={(e) => maj("mariage.lieu", e.target.value)} onBlur={(e) => maj("mariage.lieu", nomDeLieu(e.target.value))} />
@@ -732,7 +805,7 @@ export default function FormulaireRenseignements() {
             <input className={inputCls} value={d.mariage.villeNotaire} onChange={(e) => maj("mariage.villeNotaire", e.target.value)} />
           </Champ>
           <Champ label="Date du contrat">
-            <input type="date" className={inputCls} value={d.mariage.dateContrat} onChange={(e) => maj("mariage.dateContrat", e.target.value)} />
+            <SaisieDate className={inputCls} value={d.mariage.dateContrat} onChange={(v) => maj("mariage.dateContrat", v)} />
           </Champ>
         </Grille>
       )}
@@ -744,7 +817,7 @@ export default function FormulaireRenseignements() {
       </Champ>
       {d.logement.separes === "Oui" && (
         <Champ champ="logement.dateSeparation" label="Depuis quand ?" aide="Date approximative si vous ne connaissez pas le jour exact.">
-          <input type="date" className={cn(inputCls, "sm:max-w-xs")} value={d.logement.dateSeparation} onChange={(e) => maj("logement.dateSeparation", e.target.value)} />
+          <SaisieDate className={cn(inputCls, "sm:max-w-xs")} value={d.logement.dateSeparation} onChange={(v) => maj("logement.dateSeparation", v)} />
         </Champ>
       )}
       <Champ label="Qui conservera le domicile conjugal ?" {...suivi("logement.domicile")}>
@@ -784,7 +857,7 @@ export default function FormulaireRenseignements() {
               <Choix options={SEXES} value={x.sexe} onChange={(v) => maj(`enfants.${i}.sexe`, v)} />
             </Champ>
             <Champ label="Date de naissance" {...suivi(`enfants.${i}.dateNaissance`)}>
-              <input type="date" className={inputCls} value={x.dateNaissance} onChange={(e) => maj(`enfants.${i}.dateNaissance`, e.target.value)} />
+              <SaisieDate className={inputCls} value={x.dateNaissance} onChange={(v) => maj(`enfants.${i}.dateNaissance`, v)} />
             </Champ>
             <Champ label="Lieu de naissance" aide={AIDE_LIEU} {...suivi(`enfants.${i}.lieuNaissance`)}>
               <input className={inputCls} placeholder="Ville (Département)" value={x.lieuNaissance} onChange={(e) => maj(`enfants.${i}.lieuNaissance`, e.target.value)} onBlur={(e) => maj(`enfants.${i}.lieuNaissance`, nomDeLieu(e.target.value))} />
@@ -892,7 +965,7 @@ export default function FormulaireRenseignements() {
                 <input className={inputCls} value={x.mensualite} onChange={(e) => maj(`credits.${i}.mensualite`, e.target.value)} inputMode="decimal" />
               </Champ>
               <Champ label="Dernière échéance">
-                <input type="date" className={inputCls} value={x.derniereEcheance} onChange={(e) => maj(`credits.${i}.derniereEcheance`, e.target.value)} />
+                <SaisieDate className={inputCls} value={x.derniereEcheance} onChange={(v) => maj(`credits.${i}.derniereEcheance`, v)} />
               </Champ>
             </Grille>
             <Champ label="Qui le supportera ?" {...suivi(`credits.${i}.qui`)}>
