@@ -644,8 +644,8 @@ export function DivorceSansJuge({ tarifs = TARIFS_DEFAUT }: { tarifs?: Tarifs })
                         value={avocatChoisi}
                         onChange={(v) => setAvocatChoisi(v)}
                         options={[
-                          { label: "Notre confrère partenaire", value: "1A" },
-                          { label: "Son propre avocat", value: "2A" },
+                          { label: "Un confrère partenaire", value: "1A" },
+                          { label: "Un avocat extérieur", value: "2A" },
                         ]}
                       />
                     </div>
@@ -654,10 +654,12 @@ export function DivorceSansJuge({ tarifs = TARIFS_DEFAUT }: { tarifs?: Tarifs })
                   {partenaire && (
                     <div>
                       <div className="text-[17px] text-[#1A1A1A]">
-                        En ligne, ou un premier rendez-vous au cabinet ?
+                        Comment souhaitez-vous démarrer ?
                       </div>
                       <p className="mb-3.5 mt-1 text-sm text-gray-500">
-                        La procédure se mène entièrement à distance si vous le souhaitez.
+                        {mode === "ligne"
+                          ? "Vous lancez la procédure en ligne, validez la convention en ligne et venez signer au cabinet à l'issue du délai de réflexion de 15 jours."
+                          : "Vous souhaitez un premier rendez-vous au cabinet pour lancer la procédure."}
                       </p>
                       <Segmented
                         value={mode}

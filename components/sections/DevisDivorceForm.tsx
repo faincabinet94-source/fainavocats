@@ -370,8 +370,14 @@ export function DevisDivorceForm() {
         </Champ>
 
         <Champ
-          label="Comment préférez-vous procéder ?"
-          aide="La procédure se mène entièrement à distance si vous le souhaitez."
+          label="Comment souhaitez-vous démarrer ?"
+          aide={
+            mode === "Au cabinet"
+              ? "Vous souhaitez un premier rendez-vous au cabinet pour lancer la procédure."
+              : mode === null
+                ? "En ligne ou au cabinet : dans les deux cas, la convention se signe au cabinet."
+                : "Vous lancez la procédure en ligne, validez la convention en ligne et venez signer au cabinet à l'issue du délai de réflexion de 15 jours."
+          }
         >
           <Choix
             value={mode}
