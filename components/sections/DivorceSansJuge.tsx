@@ -637,8 +637,7 @@ export function DivorceSansJuge({ tarifs = TARIFS_DEFAUT }: { tarifs?: Tarifs })
                       <p className="mb-3.5 mt-1 text-sm text-gray-500">
                         Chacun des époux doit obligatoirement avoir le sien : l&apos;avocat
                         commun n&apos;est plus possible. Tout étant arrêté entre vous, votre
-                        conjoint peut être conseillé par notre confrère partenaire, d&apos;un
-                        cabinet distinct.
+                        conjoint peut être conseillé par l&apos;un de nos confrères partenaires.
                       </p>
                       <Segmented
                         value={avocatChoisi}
