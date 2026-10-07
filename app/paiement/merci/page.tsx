@@ -8,8 +8,9 @@ import { RetourEspace } from "@/components/paiement/RetourEspace";
 import { retourEspaceDemande } from "@/lib/paiement";
 
 /* Retour après paiement : Alma (?alma=1&pid=…), Stripe mensualités
-   (?mensualites=cs_…) ou SumUp après une authentification bancaire
-   (?sumup=…). Vérifie auprès du prestataire que le paiement est passé. */
+   (?mensualites=cs_…), Stripe honoraires (?stripe=cs_…) ou SumUp après une
+   authentification bancaire (?sumup=…). Vérifie auprès du prestataire que
+   le paiement est passé. */
 
 function Contenu() {
   const q = useSearchParams();
@@ -21,7 +22,12 @@ function Contenu() {
     setRetour(retourEspaceDemande(q));
     const pid = q.get("pid");
     const session = q.get("mensualites");
+    const honoraires = q.get("stripe");
     const verif = async () => {
+      if (honoraires) {
+        const j = await fetch(`/api/honoraires?session_id=${encodeURIComponent(honoraires)}`).then((r) => r.json());
+        return setEtat(j.statut === "complete" || j.statut === "inconnu" ? "ok" : "echec");
+      }
       if (session) {
         const j = await fetch(`/api/mensualites?session_id=${encodeURIComponent(session)}`).then((r) => r.json());
         if (j.statut !== "complete") return setEtat("echec");
