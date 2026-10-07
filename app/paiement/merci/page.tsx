@@ -4,6 +4,8 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { PagePaiement } from "@/components/paiement/PagePaiement";
+import { RetourEspace } from "@/components/paiement/RetourEspace";
+import { retourEspaceDemande } from "@/lib/paiement";
 
 /* Retour après paiement : Alma (?alma=1&pid=…), Stripe mensualités
    (?mensualites=cs_…) ou SumUp après une authentification bancaire
@@ -13,8 +15,10 @@ function Contenu() {
   const q = useSearchParams();
   const [etat, setEtat] = useState<"verif" | "ok" | "echec">("verif");
   const [detail, setDetail] = useState("");
+  const [retour, setRetour] = useState(false);
 
   useEffect(() => {
+    setRetour(retourEspaceDemande(q));
     const pid = q.get("pid");
     const session = q.get("mensualites");
     const verif = async () => {
@@ -45,6 +49,7 @@ function Contenu() {
             <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
             <h2 className="mt-4 font-serif text-2xl text-[#1A1A1A]">Merci, votre paiement est bien enregistré</h2>
             <p className="mt-3 text-[15px] text-gray-600">Un reçu vous est adressé par courriel. {detail}</p>
+            <RetourEspace actif={retour} auto />
           </>
         )}
         {etat === "echec" && (

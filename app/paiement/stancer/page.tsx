@@ -5,6 +5,8 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { memoriserRetour, retourEspaceDemande } from "@/lib/paiement";
+import { RetourEspace } from "@/components/paiement/RetourEspace";
 
 const amounts = [
   { label: "125 €", value: 12500 },
@@ -18,12 +20,27 @@ const amounts = [
 
 const CLE_INTENTION = "fain-stancer-intention";
 
+/* Paramètres facultatifs (liens de l'espace client) :
+     montant  montant en euros, prérempli (un montant type est sélectionné s'il correspond)
+     email    courriel, prérempli
+     retour   « espace » : la page de confirmation ramène le client dans son espace */
+function montantInitial(s: string | null): { type: number | null; libre: string } {
+  const t = (s || "").replace(/\s/g, "").replace(",", ".");
+  if (!/^\d+(\.\d{1,2})?$/.test(t) || !(Number(t) > 0)) return { type: null, libre: "" };
+  const cents = Math.round(Number(t) * 100);
+  return amounts.some((a) => a.value === cents) ? { type: cents, libre: "" } : { type: null, libre: t.replace(".", ",") };
+}
+
 function PaiementContent() {
   const searchParams = useSearchParams();
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [customAmount, setCustomAmount] = useState("");
+  const initial = montantInitial(searchParams.get("montant"));
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(initial.type);
+  const [customAmount, setCustomAmount] = useState(initial.libre);
   const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
+  const [clientEmail, setClientEmail] = useState(searchParams.get("email") || "");
+  const retour = searchParams.get("retour");
+  useEffect(() => memoriserRetour(retour), [retour]);
+  const [retourEspace, setRetourEspace] = useState(false);
   const [dossierRef, setDossierRef] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -35,6 +52,7 @@ function PaiementContent() {
      passé au lieu de l'annoncer d'office. */
   useEffect(() => {
     if (searchParams.get("status") !== "done") return;
+    setRetourEspace(retourEspaceDemande(searchParams));
     let id = "";
     try {
       id = sessionStorage.getItem(CLE_INTENTION) || "";
@@ -105,6 +123,7 @@ function PaiementContent() {
             name: clientName,
             email: clientEmail,
           },
+          retour,
         }),
       });
 
@@ -172,12 +191,16 @@ function PaiementContent() {
                 Votre paiement a été effectué avec succès. Vous recevrez un
                 e-mail de confirmation à l&apos;adresse indiquée.
               </p>
-              <a
-                href="/"
-                className="inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
-              >
-                Retour à l&apos;accueil
-              </a>
+              {retourEspace ? (
+                <RetourEspace actif auto />
+              ) : (
+                <a
+                  href="/"
+                  className="inline-flex items-center gap-3 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#2C221D] transition-all duration-300"
+                >
+                  Retour à l&apos;accueil
+                </a>
+              )}
             </div>
           </Container>
         </main>

@@ -3,7 +3,8 @@ import { PRIX_PROVISIONS, type Provision } from "@/lib/paiement";
 
 /* Paiement de la provision intégré au site (Stripe Checkout intégré).
  *
- * POST { part: "totale" | "moitie", email? } → { clientSecret, publishableKey }
+ * POST { part: "totale" | "moitie", email?, retour? } → { clientSecret, publishableKey }
+ *      retour « espace » : la page de confirmation ramène le client dans son espace
  * GET  ?session_id=cs_… → { statut } (« complete » quand le paiement est passé)
  *
  * Variables Netlify : STRIPE_SECRET_KEY (clé restreinte, droit d'écriture sur
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
   const part: Provision = b.part === "moitie" ? "moitie" : "totale";
   const email = typeof b.email === "string" && COURRIEL.test(b.email.trim()) ? b.email.trim() : "";
   const origine = new URL(request.url).origin;
+  const retour = b.retour === "espace" ? "&retour=espace" : "";
 
   const parametres = (uiMode: string) => {
     const p = new URLSearchParams({
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
       locale: "fr",
       "line_items[0][price]": PRIX_PROVISIONS[part],
       "line_items[0][quantity]": "1",
-      return_url: `${origine}/provision-reglee?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${origine}/provision-reglee?session_id={CHECKOUT_SESSION_ID}${retour}`,
       "metadata[origine]": "site, provision",
     });
     if (email) p.set("customer_email", email);

@@ -1,18 +1,20 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CreditCard, Lock } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
-import { PROVISIONS, type Provision } from "@/lib/paiement";
+import { PROVISIONS, memoriserRetour, type Provision } from "@/lib/paiement";
 import { CheckoutIntegre } from "@/components/paiement/PaiementProvision";
 
 /* Règlement de la provision de départ, paiement Stripe intégré à la page.
    Paramètres facultatifs, pour les liens envoyés par le cabinet :
      email   courriel du client, prérempli
-     part    « moitie » pour mettre en avant la demi-provision (honoraires partagés) */
+     part    « moitie » pour mettre en avant la demi-provision (honoraires partagés)
+     retour  « espace » quand le client vient de l'espace client : la page de
+             confirmation l'y ramène */
 
 const OPTIONS: { p: Provision; titre: string; texte: string }[] = [
   {
@@ -31,6 +33,8 @@ function PaiementContent() {
   const params = useSearchParams();
   const email = params.get("email") || "";
   const enAvant: Provision = params.get("part") === "moitie" ? "moitie" : "totale";
+  const retour = params.get("retour");
+  useEffect(() => memoriserRetour(retour), [retour]);
   const [choix, setChoix] = useState<Provision | null>(null);
   const marque = choix || enAvant;
 
@@ -78,7 +82,7 @@ function PaiementContent() {
 
             {choix && (
               <div id="paiement" className="mt-8 rounded-lg bg-white p-2 sm:p-6">
-                <CheckoutIntegre key={choix} part={choix} email={email} />
+                <CheckoutIntegre key={choix} part={choix} email={email} retour={retour} />
               </div>
             )}
 
