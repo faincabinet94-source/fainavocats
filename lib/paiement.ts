@@ -106,7 +106,7 @@ export function lireDemande(): DemandeConjoint | null {
    espace » et y renvoie d'elle-même. */
 export const RETOUR_ESPACE = "espace";
 export const ESPACE_CLIENT_URL =
-  process.env.NEXT_PUBLIC_ESPACE_CLIENT_URL || "https://client.voxagentis.com/espace/honoraires";
+  process.env.NEXT_PUBLIC_ESPACE_CLIENT_URL || "https://espace.fain-avocats.fr/espace/honoraires";
 const CLE_RETOUR = "fain-paiement-retour";
 
 /* À l'arrivée sur une page de paiement : garde la demande de retour le temps
