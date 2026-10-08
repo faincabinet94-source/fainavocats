@@ -599,7 +599,12 @@ export function chargeCognito(d: Donnees, opts: { interne: boolean; numero: numb
     Form: {
       Id: "site",
       InternalName: "FormulaireRenseignementsSite",
-      Name: opts.interne ? "Formulaire de renseignements interne" : "Formulaire de renseignements",
+      /* Version cabinet : nom distinct de celui de l'ancien Cognito n° 14, pour que
+         « Cognito -> AirTable » ne passe plus la fiche en « Client » à la création.
+         C'est n8n qui le fait, avec le type et l'avocat du conjoint, quand il
+         complète la fiche : « Formulaire devient client » part alors d'une fiche
+         complète (dossier RONCIN, 2026-10-08). */
+      Name: opts.interne ? "Formulaire de renseignements interne (site)" : "Formulaire de renseignements",
     },
     Entry: { Number: opts.numero, DateCreated: opts.date, DateSubmitted: opts.date, ViewLink: "", AdminLink: "" },
     Dossier: dossier(d),
@@ -710,8 +715,24 @@ const beneficiaire = (s: string) => (s === "Moi" ? "Le client" : s ? "Le conjoin
 
 /* Champs ajoutés le 2026-09-25 dans « Formulaires reçus », écrits par n8n une
    fois la fiche créée par l'automatisation. Noms de champs Airtable exacts. */
-export function champsComplementaires(d: Donnees, lienReprise: string) {
+/* Code du dossier (glossaire du cabinet) : DCM ou SDC, 1A quand le conjoint est
+   assisté par le confrère partenaire, 2A pour un avocat extérieur, E avec des
+   enfants, B avec un bien immobilier commun. Retouchable dans Airtable (un
+   confrère extérieur en cas de conflit d'intérêts reste un 1A). */
+export function typeDossier(d: Donnees): string {
+  const prefixe = d.procedure === "Séparation de corps" ? "SDC" : "DCM";
+  const avocat = !d.avocatConjoint || !d.avocatConjoint.nom || estPartenaire(d.avocatConjoint) ? "1A" : "2A";
+  return prefixe + avocat + (d.enfants.length ? "E" : "") + (d.immobilier.length ? "B" : "");
+}
+
+export function champsComplementaires(d: Donnees, lienReprise: string, interne = false) {
   const divorce = d.procedure === "Divorce";
+  const av = d.avocatConjoint && d.avocatConjoint.nom ? d.avocatConjoint : AVOCAT_PARTENAIRE;
+  /* Version cabinet : le statut « Client » arrive avec le type et l'avocat, dans
+     la même mise à jour, et déclenche « Formulaire devient client ». */
+  const cabinet = interne
+    ? { Type: typeDossier(d), Status: d.dejaClient === "Oui" ? "Client déjà existant" : "Client" }
+    : {};
   const domicile = [d.logement.domicile, d.logement.delai ? `relogement sous ${d.logement.delai}` : ""]
     .filter(Boolean)
     .join(", ");
@@ -737,6 +758,8 @@ export function champsComplementaires(d: Donnees, lienReprise: string) {
     "Arriérés de loyers": d.arrieresLoyers === "Oui" ? nombre(d.montantArrieresLoyers) : null,
     "Arriérés d'impôts": d.arrieresImpots === "Oui" ? nombre(d.montantArrieresImpots) : null,
     "Lien de reprise": lienReprise,
+    "Avocat conjoint (Pro)": /^rec[A-Za-z0-9]{14}$/.test(av.id) ? [av.id] : null,
+    ...cabinet,
   };
 }
 
