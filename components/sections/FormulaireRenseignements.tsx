@@ -13,6 +13,8 @@ import {
   DOMICILES,
   FORMES_PC,
   AVOCAT_PARTENAIRE,
+  CONSEILS,
+  conseilDuConjoint,
   GARDES,
   JOURS,
   OUI_NON,
@@ -464,6 +466,12 @@ export default function FormulaireRenseignements() {
         if (e.Email) c.email = e.Email;
         if (e["Téléphone"]) c.telephone = e["Téléphone"];
         base.client = c;
+        /* Réponse de la demande de devis : 1A confrère partenaire, 2A avocat extérieur. */
+        if (e.Avocat === "1A") base.conseilConjoint = CONSEILS[0];
+        if (e.Avocat === "2A") {
+          base.conseilConjoint = CONSEILS[1];
+          base.avocatConjoint = avocatVide();
+        }
       } catch {
         /* pré-remplissage illisible : on part d'un formulaire vide */
       }
@@ -760,6 +768,9 @@ export default function FormulaireRenseignements() {
     );
   };
 
+  /* Conseil du conjoint, déduit de l'avocat pour une saisie antérieure à la question. */
+  const conseil = d.conseilConjoint || (conseilDuConjoint(d) === "exterieur" ? CONSEILS[1] : "");
+
   const contenu: React.ReactNode[] = [
     /* 1. Votre procédure */
     <div key="p" className="space-y-7">
@@ -778,7 +789,43 @@ export default function FormulaireRenseignements() {
     /* 3. Votre conjoint */
     <div key="c" className="space-y-8">
       {P("conjoint")}
-      {interne && <ChoixAvocat avocat={d.avocatConjoint} onChange={(a) => maj("avocatConjoint", a)} />}
+      <Champ
+        label={cab("Qui conseillera votre conjoint ?", "Conseil du conjoint")}
+        aide={interne ? undefined : "Chaque époux a obligatoirement son propre avocat. Votre conjoint peut être conseillé par l'un de nos confrères partenaires."}
+      >
+        <Choix
+          options={CONSEILS}
+          value={conseil}
+          onChange={(v) => {
+            maj("conseilConjoint", v);
+            if (v === CONSEILS[1]) {
+              if (estPartenaire(d.avocatConjoint)) maj("avocatConjoint", avocatVide());
+            } else maj("avocatConjoint", { ...AVOCAT_PARTENAIRE });
+          }}
+        />
+      </Champ>
+      {conseil === CONSEILS[1] &&
+        (interne ? (
+          <ChoixAvocat avocat={d.avocatConjoint} onChange={(a) => maj("avocatConjoint", a)} />
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">Si vous le connaissez, indiquez son avocat. Sinon, laissez ces champs vides : vous pourrez nous le transmettre plus tard.</p>
+            <Grille>
+              <Champ label="Prénom de son avocat">
+                <input className={inputCls} value={d.avocatConjoint.prenom} onChange={(e) => maj("avocatConjoint", { ...d.avocatConjoint, id: "", prenom: e.target.value })} />
+              </Champ>
+              <Champ label="Nom de son avocat">
+                <input className={inputCls} value={d.avocatConjoint.nom} onChange={(e) => maj("avocatConjoint", { ...d.avocatConjoint, id: "", nom: e.target.value })} />
+              </Champ>
+              <Champ label="Ville de son cabinet">
+                <input className={inputCls} value={d.avocatConjoint.ville} onChange={(e) => maj("avocatConjoint", { ...d.avocatConjoint, id: "", ville: e.target.value })} />
+              </Champ>
+              <Champ label="Son courriel">
+                <input type="email" className={inputCls} value={d.avocatConjoint.email} onChange={(e) => maj("avocatConjoint", { ...d.avocatConjoint, id: "", email: e.target.value })} />
+              </Champ>
+            </Grille>
+          </div>
+        ))}
     </div>,
     /* 4. Le mariage */
     <div key="m" className="space-y-5">
@@ -1368,8 +1415,9 @@ function ListeManquants({ m, aller }: { m: Manque[]; aller: (x: Manque) => void 
   );
 }
 
-/* Version cabinet : avocat du conjoint. Confrère partenaire par défaut, sinon
-   un avocat de la table « 👔Pro » (recherche par nom) ou un nouvel avocat. */
+/* Version cabinet, conjoint conseillé par un avocat extérieur : un avocat de la
+   table « 👔Pro » (recherche par nom), un nouvel avocat, ou rien quand son nom
+   n'est pas encore connu. */
 function ChoixAvocat({ avocat, onChange }: { avocat: Avocat; onChange: (a: Avocat) => void }) {
   const [q, setQ] = useState("");
   const [resultats, setResultats] = useState<Avocat[]>([]);
@@ -1408,22 +1456,9 @@ function ChoixAvocat({ avocat, onChange }: { avocat: Avocat; onChange: (a: Avoca
     <div className="space-y-4 rounded-xl border border-gray-200 p-5">
       <div>
         <p className="font-medium text-gray-900">L&apos;avocat du conjoint</p>
-        <p className="mt-1 text-sm text-gray-600">{texteAvocat(avocat) || "Aucun avocat indiqué"}</p>
+        <p className="mt-1 text-sm text-gray-600">{(!estPartenaire(avocat) && avocat.nom.trim() && texteAvocat(avocat)) || "Nom pas encore connu : laisser vide, à compléter plus tard dans Airtable"}</p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {!estPartenaire(avocat) && (
-          <button
-            type="button"
-            onClick={() => {
-              onChange({ ...AVOCAT_PARTENAIRE });
-              setSaisie(false);
-              setQ("");
-            }}
-            className="rounded-full border border-gray-300 px-4 py-2 text-sm hover:border-gray-500"
-          >
-            Revenir à Maître {AVOCAT_PARTENAIRE.prenom} {AVOCAT_PARTENAIRE.nom}
-          </button>
-        )}
         <button
           type="button"
           onClick={() => {

@@ -150,6 +150,25 @@ export const avocatVide = (): Avocat => ({
 });
 export const estPartenaire = (a: Avocat) => a.id === AVOCAT_PARTENAIRE.id;
 
+/* Qui conseille le conjoint : réponse à la question du formulaire (client et
+   cabinet), reprise de la demande de devis quand elle y figure (1A, 2A).
+   « Un avocat extérieur » sans nom : le conjoint a un avocat dont le nom n'est
+   pas encore connu. Saisies antérieures sans réponse : déduit de l'avocat. */
+export const CONSEILS = ["Un confrère partenaire", "Un avocat extérieur"] as const;
+export function conseilDuConjoint(d: Donnees): "partenaire" | "exterieur" | "" {
+  if (d.conseilConjoint === CONSEILS[1]) return "exterieur";
+  if (d.conseilConjoint === CONSEILS[0]) return "partenaire";
+  if (d.avocatConjoint && d.avocatConjoint.nom && !estPartenaire(d.avocatConjoint)) return "exterieur";
+  return "";
+}
+/* Avocat du conjoint à retenir : le partenaire par défaut ; null quand il est
+   extérieur et que son nom n'est pas encore connu. */
+export function avocatRetenu(d: Donnees): Avocat | null {
+  if (conseilDuConjoint(d) !== "exterieur") return AVOCAT_PARTENAIRE;
+  const a = d.avocatConjoint;
+  return a && a.nom.trim() && !estPartenaire(a) ? a : null;
+}
+
 export const texteAvocat = (a: Avocat) =>
   [
     ["Maître", a.prenom, (a.nom || "").trim().toUpperCase()].filter(Boolean).join(" "),
@@ -181,6 +200,7 @@ export type Donnees = {
   logement: { separes: string; dateSeparation: string; domicile: string; delai: string };
   nomFamilleEnfants: string;
   jourAlternance: string;
+  conseilConjoint?: string;
   avocatConjoint: Avocat;
   enfants: Enfant[];
   immobilier: Bien[];
@@ -251,6 +271,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   logement: { separes: "", dateSeparation: "", domicile: "", delai: "" },
   nomFamilleEnfants: "",
   jourAlternance: "",
+  conseilConjoint: "",
   avocatConjoint: { ...AVOCAT_PARTENAIRE },
   enfants: [],
   immobilier: [],
@@ -721,18 +742,17 @@ const beneficiaire = (s: string) => (s === "Moi" ? "Le client" : s ? "Le conjoin
    confrère extérieur en cas de conflit d'intérêts reste un 1A). */
 export function typeDossier(d: Donnees): string {
   const prefixe = d.procedure === "Séparation de corps" ? "SDC" : "DCM";
-  const avocat = !d.avocatConjoint || !d.avocatConjoint.nom || estPartenaire(d.avocatConjoint) ? "1A" : "2A";
+  const avocat = conseilDuConjoint(d) === "exterieur" ? "2A" : "1A";
   return prefixe + avocat + (d.enfants.length ? "E" : "") + (d.immobilier.length ? "B" : "");
 }
 
 export function champsComplementaires(d: Donnees, lienReprise: string, interne = false) {
   const divorce = d.procedure === "Divorce";
-  const av = d.avocatConjoint && d.avocatConjoint.nom ? d.avocatConjoint : AVOCAT_PARTENAIRE;
+  const av = avocatRetenu(d);
   /* Version cabinet : le statut « Client » arrive avec le type et l'avocat, dans
-     la même mise à jour, et déclenche « Formulaire devient client ». */
-  const cabinet = interne
-    ? { Type: typeDossier(d), Status: d.dejaClient === "Oui" ? "Client déjà existant" : "Client" }
-    : {};
+     la même mise à jour, et déclenche « Formulaire devient client ». Le type
+     part aussi de la version client (montants de la fiche). */
+  const cabinet = interne ? { Status: d.dejaClient === "Oui" ? "Client déjà existant" : "Client" } : {};
   const domicile = [d.logement.domicile, d.logement.delai ? `relogement sous ${d.logement.delai}` : ""]
     .filter(Boolean)
     .join(", ");
@@ -758,7 +778,8 @@ export function champsComplementaires(d: Donnees, lienReprise: string, interne =
     "Arriérés de loyers": d.arrieresLoyers === "Oui" ? nombre(d.montantArrieresLoyers) : null,
     "Arriérés d'impôts": d.arrieresImpots === "Oui" ? nombre(d.montantArrieresImpots) : null,
     "Lien de reprise": lienReprise,
-    "Avocat conjoint (Pro)": /^rec[A-Za-z0-9]{14}$/.test(av.id) ? [av.id] : null,
+    "Avocat conjoint (Pro)": av && /^rec[A-Za-z0-9]{14}$/.test(av.id) ? [av.id] : null,
+    Type: typeDossier(d),
     ...cabinet,
   };
 }
@@ -816,8 +837,8 @@ export function recapitulatif(d: Donnees): Section[] {
       titre: "Le conjoint",
       lignes: [
         ...p(d.conjoint),
-        ...(d.avocatConjoint && !estPartenaire(d.avocatConjoint)
-          ? ([["Avocat du conjoint", texteAvocat(d.avocatConjoint)]] as [string, string][])
+        ...(conseilDuConjoint(d) === "exterieur"
+          ? ([["Avocat du conjoint", avocatRetenu(d) ? texteAvocat(avocatRetenu(d) as Avocat) : "Avocat extérieur, nom pas encore connu"]] as [string, string][])
           : []),
       ],
     },
