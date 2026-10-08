@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, age, chargeCognito, estPartenaire, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, age, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -235,8 +235,9 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
 
   /* Avocat du conjoint : le confrère partenaire à défaut d'autre choix. La
      mention « Exerçant à titre individuel » n'est connue que pour lui : pour
-     un autre avocat, la ligne disparaît du modèle. */
-  const av = d.avocatConjoint && d.avocatConjoint.nom ? d.avocatConjoint : AVOCAT_PARTENAIRE;
+     un autre avocat, la ligne disparaît du modèle. Avocat extérieur dont le
+     nom n'est pas encore connu : mention à compléter, signalée au rapport. */
+  const av: Avocat = avocatRetenu(d) ?? { ...AVOCAT_PARTENAIRE, id: "", prenom: "", nom: "[AVOCAT DU CONJOINT À COMPLÉTER]", barreau: "", adresse: "", cp: "", ville: "", email: "" };
   const nomAv = (av.nom || "").trim().toUpperCase();
   v.AvocatConjoint = [av.prenom, nomAv].filter(Boolean).join(" ");
   v.NomAvocatConjoint = nomAv;
@@ -274,6 +275,7 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
     if (!["50/50", "Moi", "Conjoint(e)"].includes(c.qui)) vides.push("répartition");
     if (vides.length) a.push(`Crédit n° ${i + 1} (${(c.banque || "").trim() || "banque non renseignée"}) : ${vides.join(", ")} à compléter dans l'acte.`);
   });
+  if (!avocatRetenu(d)) a.unshift("Avocat du conjoint extérieur, nom pas encore connu : mention « [AVOCAT DU CONJOINT À COMPLÉTER] » à remplacer dans l'acte.");
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
     a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
   return a;
