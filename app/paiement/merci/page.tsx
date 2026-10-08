@@ -4,20 +4,30 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { PagePaiement } from "@/components/paiement/PagePaiement";
+import { RetourEspace } from "@/components/paiement/RetourEspace";
+import { retourEspaceDemande } from "@/lib/paiement";
 
 /* Retour après paiement : Alma (?alma=1&pid=…), Stripe mensualités
-   (?mensualites=cs_…) ou SumUp après une authentification bancaire
-   (?sumup=…). Vérifie auprès du prestataire que le paiement est passé. */
+   (?mensualites=cs_…), Stripe honoraires (?stripe=cs_…) ou SumUp après une
+   authentification bancaire (?sumup=…). Vérifie auprès du prestataire que
+   le paiement est passé. */
 
 function Contenu() {
   const q = useSearchParams();
   const [etat, setEtat] = useState<"verif" | "ok" | "echec">("verif");
   const [detail, setDetail] = useState("");
+  const [retour, setRetour] = useState(false);
 
   useEffect(() => {
+    setRetour(retourEspaceDemande(q));
     const pid = q.get("pid");
     const session = q.get("mensualites");
+    const honoraires = q.get("stripe");
     const verif = async () => {
+      if (honoraires) {
+        const j = await fetch(`/api/honoraires?session_id=${encodeURIComponent(honoraires)}`).then((r) => r.json());
+        return setEtat(j.statut === "complete" || j.statut === "inconnu" ? "ok" : "echec");
+      }
       if (session) {
         const j = await fetch(`/api/mensualites?session_id=${encodeURIComponent(session)}`).then((r) => r.json());
         if (j.statut !== "complete") return setEtat("echec");
@@ -45,6 +55,7 @@ function Contenu() {
             <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
             <h2 className="mt-4 font-serif text-2xl text-[#1A1A1A]">Merci, votre paiement est bien enregistré</h2>
             <p className="mt-3 text-[15px] text-gray-600">Un reçu vous est adressé par courriel. {detail}</p>
+            <RetourEspace actif={retour} auto />
           </>
         )}
         {etat === "echec" && (

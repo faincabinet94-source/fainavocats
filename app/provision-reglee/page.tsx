@@ -5,7 +5,8 @@ import { CheckCircle2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
-import { lireDemande, type DemandeConjoint } from "@/lib/paiement";
+import { lireDemande, retourEspaceDemande, type DemandeConjoint } from "@/lib/paiement";
+import { RetourEspace } from "@/components/paiement/RetourEspace";
 import { EcrireConjoint } from "@/components/paiement/EcrireConjoint";
 
 /* Page de retour après paiement de la provision (redirection réglée dans Stripe,
@@ -18,9 +19,12 @@ export default function ProvisionReglee() {
      session est bien payée. Retour d'un lien de paiement : pas de session_id,
      Stripe n'y renvoie qu'après un paiement réussi. */
   const [echec, setEchec] = useState(false);
+  const [retour, setRetour] = useState(false);
   useEffect(() => {
     setDemande(lireDemande());
-    const id = new URLSearchParams(window.location.search).get("session_id");
+    const q = new URLSearchParams(window.location.search);
+    setRetour(retourEspaceDemande(q));
+    const id = q.get("session_id");
     if (!id) return;
     fetch(`/api/provision?session_id=${encodeURIComponent(id)}`)
       .then((r) => r.json())
@@ -76,6 +80,8 @@ export default function ProvisionReglee() {
                 <EcrireConjoint demande={demande} />
               </div>
             )}
+            {/* Retour automatique seulement si rien ne retient le client ici. */}
+            <RetourEspace actif={retour} auto={!demande} />
           </div>
         </Container>
       </main>

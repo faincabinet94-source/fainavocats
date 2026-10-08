@@ -3,7 +3,8 @@ import { stancer, verifierStancer } from "@/lib/stancer";
 
 /* Paiement Stancer (API v1, page de paiement hébergée).
  *
- * POST { amount (centimes), description, customer: { name, email } }
+ * POST { amount (centimes), description, customer: { name, email }, retour? }
+ *      retour « espace » : la page de confirmation ramène le client dans son espace
  *      → { redirect_url, id }  page https://payment.stancer.com/<clé publique>/<paym_…>
  * GET  ?id=paym_…  → { etat: "ok" | "echec" | "attente" }  au retour du client :
  *      relit le paiement chez Stancer, encaisse un paiement resté
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
   const description = String(body.description || "Acompte honoraires - Fain Avocats").slice(0, 64);
   const nom = String(body.customer?.name || "").trim();
   const email = String(body.customer?.email || "").trim();
-  const retour = `${origin}/paiement/stancer?status=done`;
+  const retour = `${origin}/paiement/stancer?status=done${body.retour === "espace" ? "&retour=espace" : ""}`;
 
   const r = await stancer("checkout/", {
     amount,

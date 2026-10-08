@@ -12,7 +12,7 @@ import { PROVISIONS, lienProvision, type Provision } from "@/lib/paiement";
    monter le nouveau. Une session par montant, créée à la demande. */
 let stripePromesse: Promise<Stripe | null> | null = null;
 
-export function CheckoutIntegre({ part, email }: { part: Provision; email?: string }) {
+export function CheckoutIntegre({ part, email, retour }: { part: Provision; email?: string; retour?: string | null }) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export function CheckoutIntegre({ part, email }: { part: Provision; email?: stri
     fetch("/api/provision", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ part, email }),
+      body: JSON.stringify({ part, email, retour }),
     })
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
       .then(({ ok, j }) => {
@@ -35,7 +35,7 @@ export function CheckoutIntegre({ part, email }: { part: Provision; email?: stri
     return () => {
       actif = false;
     };
-  }, [part, email]);
+  }, [part, email, retour]);
 
   if (!clientSecret || !stripePromesse) {
     return <p className="py-10 text-center text-sm text-gray-500">Ouverture du paiement sécurisé…</p>;

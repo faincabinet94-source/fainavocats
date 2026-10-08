@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     currency: "EUR",
     merchant_code: process.env.SUMUP_MERCHANT_CODE,
     description: `Versement ${nom}${objet ? ` - ${objet}` : ""} (${email})`.slice(0, 255),
-    redirect_url: `${origine}/paiement/merci?sumup=${reference}`,
+    redirect_url: `${origine}/paiement/merci?sumup=${reference}${b.retour === "espace" ? "&retour=espace" : ""}`,
     return_url: `${adresseSite(request)}/api/sumup/notification`,
   });
   const id = r.j?.id || r.j?.checkout_id;

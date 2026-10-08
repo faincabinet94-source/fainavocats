@@ -1,18 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PagePaiement, boutonCls, champCls, euros, lireMontant } from "@/components/paiement/PagePaiement";
+import { memoriserRetour } from "@/lib/paiement";
 
 /* Paiement en 3 ou 4 fois par carte, via Alma : le client est dirigé vers la
-   page de paiement Alma, qui vérifie son éligibilité. */
-export default function PlusieursFois() {
-  const [montant, setMontant] = useState("");
+   page de paiement Alma, qui vérifie son éligibilité.
+   Paramètres facultatifs (liens de l'espace client) :
+     montant  montant total en euros, prérempli
+     email    courriel, prérempli
+     retour   « espace » : la page de confirmation ramène le client dans son espace */
+function PlusieursFoisContent() {
+  const params = useSearchParams();
+  const retour = params.get("retour");
+  const [montant, setMontant] = useState(() => {
+    const m = lireMontant(params.get("montant") || "");
+    return m ? String(m).replace(".", ",") : "";
+  });
   const [fois, setFois] = useState<3 | 4>(3);
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(params.get("email") || "");
+  useEffect(() => memoriserRetour(retour), [retour]);
   const [telephone, setTelephone] = useState("");
   const [objet, setObjet] = useState("");
   const [attente, setAttente] = useState(false);
@@ -28,7 +40,7 @@ export default function PlusieursFois() {
       const r = await fetch("/api/alma", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ montant: m, fois, prenom, nom, email, telephone, objet }),
+        body: JSON.stringify({ montant: m, fois, prenom, nom, email, telephone, objet, retour }),
       });
       const j = await r.json();
       if (!r.ok || !j.url) throw new Error(j.message || "Paiement indisponible.");
@@ -102,5 +114,13 @@ export default function PlusieursFois() {
         </button>
       </form>
     </PagePaiement>
+  );
+}
+
+export default function PlusieursFois() {
+  return (
+    <Suspense>
+      <PlusieursFoisContent />
+    </Suspense>
   );
 }

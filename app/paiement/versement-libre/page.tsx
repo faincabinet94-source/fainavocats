@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle2, CreditCard } from "lucide-react";
 import { PagePaiement, boutonCls, champCls, euros, lireMontant } from "@/components/paiement/PagePaiement";
+import { RetourEspace } from "@/components/paiement/RetourEspace";
+import { memoriserRetour } from "@/lib/paiement";
 
 /* Versement libre par carte, via SumUp : le client saisit le montant convenu,
-   le formulaire de carte SumUp s'affiche dans la page. */
+   le formulaire de carte SumUp s'affiche dans la page.
+   Paramètres facultatifs (liens de l'espace client) :
+     montant  montant en euros, prérempli
+     email    courriel, prérempli
+     objet    libellé, prérempli
+     retour   « espace » : après paiement, retour dans l'espace client */
 
 declare global {
   interface Window {
@@ -24,11 +32,17 @@ function chargerSumUp(): Promise<void> {
   });
 }
 
-export default function VersementLibre() {
-  const [montant, setMontant] = useState("");
+function VersementLibreContent() {
+  const params = useSearchParams();
+  const retour = params.get("retour");
+  const [montant, setMontant] = useState(() => {
+    const m = lireMontant(params.get("montant") || "");
+    return m ? String(m).replace(".", ",") : "";
+  });
   const [nom, setNom] = useState("");
-  const [email, setEmail] = useState("");
-  const [objet, setObjet] = useState("");
+  const [email, setEmail] = useState(params.get("email") || "");
+  const [objet, setObjet] = useState(params.get("objet") || "");
+  useEffect(() => memoriserRetour(retour), [retour]);
   const [etat, setEtat] = useState<"saisie" | "attente" | "carte" | "ok">("saisie");
   const [erreur, setErreur] = useState("");
   const checkout = useRef("");
@@ -44,7 +58,7 @@ export default function VersementLibre() {
       const r = await fetch("/api/sumup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ montant: m, nom, email, objet }),
+        body: JSON.stringify({ montant: m, nom, email, objet, retour }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Paiement indisponible.");
@@ -83,6 +97,7 @@ export default function VersementLibre() {
           <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
           <h2 className="mt-4 font-serif text-2xl text-[#1A1A1A]">Merci, votre versement de {m ? euros(m) : ""} est bien reçu</h2>
           <p className="mt-3 text-[15px] text-gray-600">Un reçu vous est adressé par courriel.</p>
+          <RetourEspace actif={retour === "espace"} auto />
         </div>
       ) : etat === "carte" ? (
         <div className="rounded-lg bg-white p-6">
@@ -119,5 +134,13 @@ export default function VersementLibre() {
         </form>
       )}
     </PagePaiement>
+  );
+}
+
+export default function VersementLibre() {
+  return (
+    <Suspense>
+      <VersementLibreContent />
+    </Suspense>
   );
 }

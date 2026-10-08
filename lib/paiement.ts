@@ -98,3 +98,39 @@ export function lireDemande(): DemandeConjoint | null {
     return null;
   }
 }
+
+/* Retour vers l'espace client après un paiement lancé depuis celui-ci.
+   Les pages de paiement reçoivent « ?retour=espace » ; elles le transmettent
+   à la page de confirmation (par l'adresse de retour du prestataire quand
+   c'est possible, par le navigateur sinon), qui propose « Retour à mon
+   espace » et y renvoie d'elle-même. */
+export const RETOUR_ESPACE = "espace";
+export const ESPACE_CLIENT_URL =
+  process.env.NEXT_PUBLIC_ESPACE_CLIENT_URL || "https://espace.fain-avocats.fr/espace/honoraires";
+const CLE_RETOUR = "fain-paiement-retour";
+
+/* À l'arrivée sur une page de paiement : garde la demande de retour le temps
+   du passage chez le prestataire (même onglet). */
+export function memoriserRetour(retour: string | null | undefined) {
+  try {
+    if (retour === RETOUR_ESPACE) sessionStorage.setItem(CLE_RETOUR, RETOUR_ESPACE);
+  } catch {
+    /* navigation privée : l'adresse de retour du prestataire suffit en général */
+  }
+}
+
+/* Sur une page de confirmation : l'adresse d'abord, le navigateur ensuite. */
+export function retourEspaceDemande(q?: { get(nom: string): string | null } | null): boolean {
+  if (q?.get("retour") === RETOUR_ESPACE) return true;
+  try {
+    return sessionStorage.getItem(CLE_RETOUR) === RETOUR_ESPACE;
+  } catch {
+    return false;
+  }
+}
+
+export function oublierRetour() {
+  try {
+    sessionStorage.removeItem(CLE_RETOUR);
+  } catch {}
+}
