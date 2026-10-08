@@ -384,6 +384,14 @@ function manquantsBruts(d: Donnees, interne: boolean): Manque[] {
     m.push({ etape: 1, champ: "client.email", libelle: "un courriel valide" });
   if (d.conjoint.email && !COURRIEL_VALIDE.test(d.conjoint.email.trim()))
     m.push({ etape: 2, champ: "conjoint.email", libelle: "un courriel valide pour votre conjoint" });
+  /* Deux adresses distinctes : la même pour les deux époux empêchait de savoir
+     qui est qui (espace client, courriels à chacun). Version cabinet comprise. */
+  if (
+    d.client.email &&
+    d.conjoint.email &&
+    d.client.email.trim().toLowerCase() === d.conjoint.email.trim().toLowerCase()
+  )
+    m.push({ etape: 2, champ: "conjoint.email", libelle: "un courriel propre à votre conjoint, différent du vôtre" });
 
   exiger(3, "mariage.regime", d.mariage.regime, "le régime matrimonial");
   if (d.enfants.length) exiger(5, "nomFamilleEnfants", d.nomFamilleEnfants, "le nom de famille des enfants");
