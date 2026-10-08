@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ID_VALIDE, saisies, signer } from "@/lib/renseignements/stockage";
-import { adresseSite, versN8n } from "@/lib/renseignements/n8n";
+import { adresseSite, creerAvocat, versN8n } from "@/lib/renseignements/n8n";
 import {
   champsComplementaires,
   chargeCognito,
@@ -55,6 +55,15 @@ export async function POST(request: Request) {
     };
   });
 
+  /* Avocat saisi à la main en version cabinet : créé d'abord dans « 👔Pro »,
+     pour que son identifiant parte avec la fiche (« Avocat conjoint (Pro) »)
+     et arrive sur la fiche PARTIES du conjoint. Un échec n'empêche pas l'envoi. */
+  const av = d.avocatConjoint;
+  if (interne && av && !av.id && av.nom.trim()) {
+    const idAvocat = await creerAvocat({ avocat: av, dossier: dossier(d) });
+    if (idAvocat) d.avocatConjoint = { ...av, id: idAvocat };
+  }
+
   const ok = await versN8n({
     action: "envoi",
     numero,
@@ -62,16 +71,11 @@ export async function POST(request: Request) {
     dossier: dossier(d),
     procedure: d.procedure,
     cognito: chargeCognito(d, { interne, numero, date: maintenant }),
-    complements: champsComplementaires(d, lienReprise),
+    complements: champsComplementaires(d, lienReprise, interne),
     pieces,
     recapitulatif: recapitulatifHtml(d),
   });
   if (!ok) return NextResponse.json({ message: "Votre formulaire n'a pas pu être transmis" }, { status: 502 });
-
-  /* Avocat saisi à la main en version cabinet : n8n le crée dans la table
-     « 👔Pro ». Un échec n'empêche pas l'envoi : la fiche porte déjà l'avocat. */
-  const av = d.avocatConjoint;
-  if (interne && av && !av.id && av.nom.trim()) await versN8n({ avocat: av, dossier: dossier(d) }, "avocats-nouveau");
 
   await saisies().setJSON(id, { donnees: d, interne, envoye: true, envoyeLe: maintenant, numero });
   return NextResponse.json({ ok: true });
