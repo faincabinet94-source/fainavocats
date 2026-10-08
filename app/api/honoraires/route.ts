@@ -38,7 +38,7 @@ async function stripe(chemin: string, corps?: URLSearchParams) {
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_SECRET_KEY;
   const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
-  if (!secret || !publishableKey) return NextResponse.json({ message: "Paiement non configuré" }, { status: 503 });
+  if (!secret || !publishableKey) return NextResponse.json({ message: "Le paiement en ligne n'est pas disponible pour le moment. Appelez-nous au 01 40 68 02 37." }, { status: 503 });
 
   const b = await request.json().catch(() => ({}));
   const montant = Number(b.montant);
