@@ -83,9 +83,14 @@ export async function GET(request: Request) {
 
 /* Éligibilité d'un montant au paiement en 3 ou 4 fois (API v2 d'Alma,
    POST /v2/payments/eligibility). Sans clé, ou si Alma ne répond pas :
-   eligible = null, le demandeur décide. Montants en euros. */
-async function eligibiliteAlma(montant: number) {
-  if (!process.env.ALMA_API_KEY || !(montant > 0)) return { eligible: null, minimum: null, maximum: null };
+   eligible = null, le demandeur décide ; « motif » dit pourquoi, pour la
+   recette. Montants en euros. */
+type Eligibilite = { eligible: boolean | null; minimum: number | null; maximum: number | null; motif: string };
+const indetermine = (motif: string): Eligibilite => ({ eligible: null, minimum: null, maximum: null, motif });
+
+async function eligibiliteAlma(montant: number): Promise<Eligibilite> {
+  if (!process.env.ALMA_API_KEY) return indetermine("clé Alma absente");
+  if (!(montant > 0)) return indetermine("montant invalide");
   try {
     const r = await fetch(`${baseAlma()}/v2/payments/eligibility`, {
       method: "POST",
@@ -97,7 +102,11 @@ async function eligibiliteAlma(montant: number) {
       }),
     });
     const j = (await r.json().catch(() => null)) as unknown;
-    if (!r.ok || !Array.isArray(j)) return { eligible: null, minimum: null, maximum: null };
+    if (!r.ok) {
+      const detail = j && typeof j === "object" && "message" in j ? ` : ${String((j as { message: unknown }).message)}` : "";
+      return indetermine(`Alma a répondu ${r.status}${detail}`);
+    }
+    if (!Array.isArray(j)) return indetermine("réponse d'Alma inattendue (pas une liste)");
     const plans = j as { eligible?: boolean; constraints?: { purchase_amount?: { minimum?: number; maximum?: number } } }[];
     const bornes = plans.map((p) => p.constraints?.purchase_amount).filter(Boolean) as { minimum?: number; maximum?: number }[];
     const minimum = bornes.length ? Math.min(...bornes.map((b) => b.minimum ?? Infinity)) : Infinity;
@@ -106,8 +115,9 @@ async function eligibiliteAlma(montant: number) {
       eligible: plans.some((p) => p.eligible === true),
       minimum: Number.isFinite(minimum) ? minimum / 100 : null,
       maximum: Number.isFinite(maximum) ? maximum / 100 : null,
+      motif: "réponse d'Alma",
     };
-  } catch {
-    return { eligible: null, minimum: null, maximum: null };
+  } catch (e) {
+    return indetermine(`Alma injoignable : ${e instanceof Error ? e.message : "erreur"}`);
   }
 }
