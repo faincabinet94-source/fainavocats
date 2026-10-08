@@ -9,7 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { LogoFain } from "@/components/ui/LogoFain";
 
 /* Espace client du cabinet (portail, dépôt faincabinet94-source/client). */
-const ESPACE_CLIENT = "https://client.voxagentis.com/connexion";
+const ESPACE_CLIENT = "https://espace.fain-avocats.fr/connexion";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
