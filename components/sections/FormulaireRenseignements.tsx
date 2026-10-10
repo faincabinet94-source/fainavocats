@@ -21,6 +21,7 @@ import {
   PLAFONDS,
   PROCEDURES,
   PROVISIONS_PARTAGE,
+  QUI_ACTIF,
   QUI_CREDIT,
   QUI_IMMO,
   QUI_VEHICULE,
@@ -31,6 +32,11 @@ import {
   bienVide,
   completer,
   creditVide,
+  actifVide,
+  actifsDe,
+  CATEGORIES_ACTIFS,
+  ORIGINES_ACTIF,
+  TITULAIRES_ACTIF,
   donneesVides,
   COURRIEL_VALIDE,
   donneesDeTest,
@@ -1021,6 +1027,44 @@ export default function FormulaireRenseignements() {
           </Bloc>
         ))}
         <Ajouter libelle="Ajouter un crédit" onClick={() => maj("credits", [...d.credits, creditVide()])} desactive={d.credits.length >= PLAFONDS.credits} />
+      </section>
+      <section className="space-y-4">
+        <h3 className="text-[17px] font-medium text-[#1A1A1A]">Comptes, épargne et placements</h3>
+        <p className="text-sm text-gray-500">
+          {cab(
+            "Comptes bancaires et livrets, placements, assurances-vie, épargne salariale ou retraite, autres biens de valeur : joints ou au nom de l'un de vous deux. Une valeur approximative suffit.",
+            "Comptes et livrets, placements, assurances-vie, épargne salariale ou retraite, autres actifs : joints ou au nom d'un seul époux.",
+          )}
+        </p>
+        {actifsDe(d).map((x, i) => (
+          <Bloc key={i} titre={`Compte ou placement n° ${i + 1}`} onRetirer={() => maj("actifs", actifsDe(d).filter((_, j) => j !== i))}>
+            <Champ label="Nature" {...suivi(`actifs.${i}.categorie`)}>
+              <Liste options={CATEGORIES_ACTIFS} value={x.categorie} onChange={(v) => maj(`actifs.${i}.categorie`, v)} />
+            </Champ>
+            <Champ label="Au nom de" {...suivi(`actifs.${i}.titulaire`)}>
+              <Choix options={TITULAIRES_ACTIF} value={x.titulaire} onChange={(v) => maj(`actifs.${i}.titulaire`, v)} />
+            </Champ>
+            <Grille>
+              <Champ label="Établissement" aide={interne ? undefined : "Banque, assureur, plateforme…"}>
+                <input className={inputCls} value={x.etablissement} onChange={(e) => maj(`actifs.${i}.etablissement`, e.target.value)} />
+              </Champ>
+              <Champ label="Valeur approximative (€)">
+                <input className={inputCls} value={x.valeur} onChange={(e) => maj(`actifs.${i}.valeur`, e.target.value)} inputMode="decimal" />
+              </Champ>
+            </Grille>
+            <Champ label="Ouvert ou acquis">
+              <Choix options={ORIGINES_ACTIF} value={x.origine} onChange={(v) => maj(`actifs.${i}.origine`, v)} />
+            </Champ>
+            <Champ label="Qui le conservera ?" {...suivi(`actifs.${i}.qui`)}>
+              <Choix options={QUI_ACTIF} value={x.qui} onChange={(v) => maj(`actifs.${i}.qui`, v)} />
+            </Champ>
+          </Bloc>
+        ))}
+        <Ajouter
+          libelle="Ajouter un compte ou un placement"
+          onClick={() => maj("actifs", [...actifsDe(d), actifVide()])}
+          desactive={actifsDe(d).length >= PLAFONDS.actifs}
+        />
       </section>
       <section className="space-y-5">
         <h3 className="text-[17px] font-medium text-[#1A1A1A]">Dettes et impôts</h3>
