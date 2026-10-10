@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, age, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, debutCEERetenu, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -128,6 +128,15 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      et annuels se déduisent l'un de l'autre si un seul est connu (saisies
      antérieures au double champ). */
   v.AnneeRevenus = le.getFullYear() - 1;
+
+  /* Clause fiscale (art. 2.8) : chaque époux est imposé séparément pour toute
+     l'année du divorce (CGI, art. 6, 6), déclarée l'année suivante. L'année du
+     divorce est celle du dépôt chez le notaire, inconnue à la génération :
+     estimée à la date de génération plus 45 jours (envoi du projet, délai de
+     réflexion de quinze jours, signature, dépôt). Alerte en fin d'année. */
+  const anneeDivorce = anneeDivorceEstimee(le);
+  v.AnneeDivorce = anneeDivorce;
+  v.AnneeDeclarationSeparee = anneeDivorce + 1;
   (["client", "conjoint"] as const).forEach((qui, i) => {
     const s = i === 0 ? "" : "2";
     const p = d[qui];
@@ -157,6 +166,19 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
 
   /* Alternance : jour du changement de résidence, le dimanche à défaut. */
   v.JourAlternance = d.jourAlternance || "dimanche";
+
+  /* Allocations familiales en résidence alternée (DCM1AE 15.6, art. 3.6) :
+     « Moi » ou « Mon époux(se) » désigne l'allocataire ; sinon le modèle
+     imprime la demande conjointe de partage par moitié. */
+  v.AllocationsFamiliales = d.allocationsFamiliales || null;
+
+  /* Date des effets entre les époux (DCM1AE 15.6, art. 2.7) : "Dépôt" à
+     défaut de choix ; DateSeparation en toutes lettres pour la variante
+     « Séparation » ; DebutCEE, point de départ de la contribution. */
+  v.DateEffets = dateEffetsRetenue(d, le);
+  const separation = d.logement.dateSeparation;
+  v.DateSeparation = /^\d{4}-\d{2}-\d{2}$/.test(separation || "") ? { valeur: separation, texte: dateLongue(separation) } : null;
+  v.DebutCEE = debutCEERetenu(d, le);
 
   /* Nationalité étrangère hors Union européenne : conditionne la clause sur la
      reconnaissance du divorce à l'étranger (modèles jusqu'à DCM1AE 15.1). */
@@ -219,6 +241,8 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   });
   for (let n = d.credits.length + 1; n <= 6; n++) v[`CreditSupporte${n === 1 ? "" : n}`] = null;
 
+  Object.assign(v, valeursActifs(d));
+
   /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
      la valeur reste le nombre pour les conditions. */
   if (typeof v.CréditsCommuns === "number") v.CréditsCommuns = { valeur: v.CréditsCommuns, texte: enLettres(v.CréditsCommuns) };
@@ -265,6 +289,10 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   return v;
 }
 
+function anneeDivorceEstimee(le: Date): number {
+  return new Date(le.getTime() + 45 * 86_400_000).getFullYear();
+}
+
 /* Points à vérifier, repris dans le rapport de génération. */
 export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
   const a = [...analyserExtraneite(d).alertes, ...informationEnfants(d, le).alertes, ...sansContribution(d).alertes];
@@ -275,10 +303,124 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
     if (!["50/50", "Moi", "Conjoint(e)"].includes(c.qui)) vides.push("répartition");
     if (vides.length) a.push(`Crédit n° ${i + 1} (${(c.banque || "").trim() || "banque non renseignée"}) : ${vides.join(", ")} à compléter dans l'acte.`);
   });
+  if (d.impotsSepares !== "Oui" && le.getMonth() >= 10)
+    a.push(
+      `Clause fiscale : divorce supposé déposé en ${anneeDivorceEstimee(le)}, déclarations séparées en ${anneeDivorceEstimee(le) + 1}. À corriger si le dépôt chez le notaire intervient l'autre année.`,
+    );
+  const effets = dateEffetsRetenue(d, le);
+  if (d.procedure === "Divorce" && d.dateEffets === "Séparation" && effets === "Dépôt")
+    a.push("Date des effets « Séparation » choisie, mais date de séparation absente ou à venir : règle légale (dépôt chez le notaire) appliquée.");
+  if (effets !== "Dépôt") {
+    a.push(
+      "Date des effets avancée : vérifier l'indemnité d'occupation (art. 815-9) et l'absence d'acte commun postérieur à la date retenue ; l'état liquidatif doit être arrêté à cette date.",
+    );
+    if (d.mariage.regime === "séparation des biens")
+      a.push("Régime de séparation de biens : la phrase sur les biens et revenus devenus personnels n'a d'objet qu'en régime communautaire, à retirer de la clause.");
+  }
   if (!avocatRetenu(d)) a.unshift("Avocat du conjoint extérieur, nom pas encore connu : mention « [AVOCAT DU CONJOINT À COMPLÉTER] » à remplacer dans l'acte.");
+  actifsDe(d).slice(0, PLAFONDS.actifs).forEach((x, i) => {
+    if (!["Moi", "Mon époux(se)", "Partage par moitié"].includes(x.qui))
+      a.push(`Compte ou placement n° ${i + 1} (${x.categorie || "nature non renseignée"}) : attribution à compléter dans l'acte.`);
+  });
+  if (!d.immobilier.length && !actifsDe(d).length)
+    a.push("Aucun bien immobilier ni compte ou placement déclaré : inventaire à vérifier avec les époux (articles 2.5 et 2.9 du modèle).");
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
     a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
   return a;
+}
+
+/* ---------- Comptes, épargne et placements ---------- */
+
+/* Inventaire saisi au formulaire, pour les articles 2.5 et 2.9 du modèle
+ * DCM1AE (la clause elle-même reste à rédiger dans le modèle Word). Chaque
+ * champ porte un code court pour les conditions ({if (ActifTitulaire1 =
+ * "Joint")}) et un texte prêt pour l'acte :
+ *
+ *   NbActifs                   nombre (texte en lettres)
+ *   ActifsDeclares             "Oui" / "Non"
+ *   ActifsJoints               nombre d'actifs joints (texte en lettres)
+ *   ActifCategorie{n}          Compte, Titres, AssuranceVie, EpargneSalariale, Autre
+ *   ActifTitulaire{n}          Client, Conjoint, Joint ; « Madame X », « les deux époux »
+ *   ActifEtablissement{n}      texte saisi
+ *   ActifValeur{n}             montant à la française
+ *   ActifOrigine{n}            Avant, Pendant ; « avant le mariage »…
+ *   ActifConservePar{n}        Client, Conjoint, Moitie, vide ; « par Madame X »…
+ *   ListeActifs                énumération de tous les actifs, séparés par « ; »
+ *
+ * n va de 1 à PLAFONDS.actifs ; les rangs absents valent null. */
+const CODES_ACTIFS = ["Compte", "Titres", "AssuranceVie", "EpargneSalariale", "Autre"];
+const TEXTES_ACTIFS = [
+  "un compte bancaire ou livret",
+  "un compte-titres, PEA ou des parts sociales",
+  "un contrat d’assurance-vie",
+  "une épargne salariale ou retraite",
+  "un autre actif",
+];
+
+export function valeursActifs(d: Donnees): Valeurs {
+  const v: Valeurs = {};
+  const actifs = actifsDe(d).slice(0, PLAFONDS.actifs);
+  const nom = (p: typeof d.client) => `${p.civilite} ${(p.nom || "").trim().toUpperCase()}`.trim();
+  type Code = { valeur: string; texte: string };
+  const qui = (x: string, client: string, conjoint: string, autres: Record<string, Code>): Code =>
+    x === "Moi"
+      ? { valeur: "Client", texte: client }
+      : x === "Mon époux(se)"
+        ? { valeur: "Conjoint", texte: conjoint }
+        : autres[x] || { valeur: "", texte: "[À COMPLÉTER]" };
+  const morceaux: string[] = [];
+  actifs.forEach((a, i) => {
+    const n = i + 1;
+    const k = (CATEGORIES_ACTIFS as readonly string[]).indexOf(a.categorie);
+    const categorie = k < 0 ? null : { valeur: CODES_ACTIFS[k], texte: TEXTES_ACTIFS[k] };
+    const titulaire = a.titulaire
+      ? qui(a.titulaire, nom(d.client), nom(d.conjoint), { Joint: { valeur: "Joint", texte: "les deux époux" } })
+      : null;
+    const somme = nombre(a.valeur);
+    const valeur = somme === null ? null : { valeur: somme, texte: montant(somme) };
+    const origine =
+      a.origine === "Avant le mariage" ? { valeur: "Avant", texte: "avant le mariage" }
+      : a.origine === "Pendant le mariage" ? { valeur: "Pendant", texte: "pendant le mariage" }
+      : null;
+    const conserve = qui(a.qui, `par ${nom(d.client)}`, `par ${nom(d.conjoint)}`, {
+      "Partage par moitié": { valeur: "Moitie", texte: "partagé par moitié entre les époux" },
+    });
+    const etablissement = (a.etablissement || "").trim();
+    v[`ActifCategorie${n}`] = categorie;
+    v[`ActifTitulaire${n}`] = titulaire;
+    v[`ActifEtablissement${n}`] = etablissement || null;
+    v[`ActifValeur${n}`] = valeur;
+    v[`ActifOrigine${n}`] = origine;
+    v[`ActifConservePar${n}`] = conserve;
+    /* « une épargne salariale … ouverte, conservée » ; « auprès d’AXA ». */
+    const e = categorie && categorie.texte.startsWith("une ") ? "e" : "";
+    const de = (x: string) => (/^[aeiouyhàâéèêëîïôöûü]/i.test(x) ? `d’${x}` : `de ${x}`);
+    morceaux.push(
+      [
+        categorie ? categorie.texte : "un actif de nature non renseignée",
+        etablissement && `auprès ${de(etablissement)}`,
+        titulaire && (titulaire.valeur === "Joint" ? "au nom des deux époux" : `au nom ${de(titulaire.texte)}`),
+        valeur && `d’une valeur approximative de ${valeur.texte} Euros`,
+        origine && `ouvert${e} ou acquis${e} ${origine.texte}`,
+        conserve.valeur === "Moitie"
+          ? `partagé${e} par moitié entre les époux`
+          : conserve.valeur
+            ? `conservé${e} ${conserve.texte}`
+            : "attribution [À COMPLÉTER]",
+      ]
+        .filter(Boolean)
+        .join(", "),
+    );
+  });
+  for (let n = actifs.length + 1; n <= PLAFONDS.actifs; n++) {
+    for (const c of ["ActifCategorie", "ActifTitulaire", "ActifEtablissement", "ActifValeur", "ActifOrigine", "ActifConservePar"]) v[`${c}${n}`] = null;
+  }
+  const joints = actifs.filter((a) => a.titulaire === "Joint").length;
+  v.NbActifs = { valeur: actifs.length, texte: enLettres(actifs.length) };
+  v.ActifsDeclares = actifs.length ? "Oui" : "Non";
+  v.ActifsJoints = { valeur: joints, texte: enLettres(joints) };
+  v.ListeActifs = morceaux.length ? morceaux.join(" ; ") : null;
+  return v;
 }
 
 /* ---------- Nombres en toutes lettres ---------- */
