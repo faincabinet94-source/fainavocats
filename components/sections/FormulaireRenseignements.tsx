@@ -6,6 +6,7 @@ import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Sear
 import { cn } from "@/lib/utils";
 import {
   BENEFICIAIRES,
+  ALLOCATIONS_FAMILIALES,
   CATEGORIES_PIECES,
   CIVILITES,
   DELAIS,
@@ -931,6 +932,14 @@ export default function FormulaireRenseignements() {
       {d.enfants.some((x) => x.garde === "Alternée") && (
         <Champ label="Jour du changement de résidence en alternance" aide="Le jour, à 19 heures, où les enfants passent d'un parent à l'autre.">
           <Choix options={JOURS} value={d.jourAlternance} onChange={(v) => maj("jourAlternance", v)} />
+        </Champ>
+      )}
+      {d.enfants.some((x) => x.garde === "Alternée") && (
+        <Champ
+          label="Allocations familiales"
+          aide="En résidence alternée, vous pouvez demander ensemble à la CAF de les partager par moitié, ou désigner l'un de vous comme allocataire."
+        >
+          <Choix options={ALLOCATIONS_FAMILIALES} value={d.allocationsFamiliales ?? ""} onChange={(v) => maj("allocationsFamiliales", v)} />
         </Champ>
       )}
       {d.enfants.length >= PLAFONDS.enfants && (

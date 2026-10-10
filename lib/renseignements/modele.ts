@@ -57,6 +57,7 @@ export const QUI_IMMO = ["Moi", "Mon époux (se)", "en vente", "maintien en indi
 export const QUI_VEHICULE = ["Moi", "Mon époux (se)", "en vente"] as const;
 export const QUI_CREDIT = ["50/50", "Moi", "Conjoint(e)", "Autre"] as const;
 export const BENEFICIAIRES = ["Moi", "Mon époux(se)"] as const;
+export const ALLOCATIONS_FAMILIALES = ["Partage par moitié", "Moi", "Mon époux(se)"] as const;
 export const FORMES_PC = ["Capital", "Abandon de soulte", "Rente mensuelle", "Rente viagère"] as const;
 export const REPARTITIONS = [
   "Partage par moitié",
@@ -200,6 +201,8 @@ export type Donnees = {
   logement: { separes: string; dateSeparation: string; domicile: string; delai: string };
   nomFamilleEnfants: string;
   jourAlternance: string;
+  /* Résidence alternée : allocations familiales partagées ou allocataire désigné (L. 521-2 CSS). */
+  allocationsFamiliales?: string;
   conseilConjoint?: string;
   avocatConjoint: Avocat;
   enfants: Enfant[];
@@ -271,6 +274,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   logement: { separes: "", dateSeparation: "", domicile: "", delai: "" },
   nomFamilleEnfants: "",
   jourAlternance: "",
+  allocationsFamiliales: "",
   conseilConjoint: "",
   avocatConjoint: { ...AVOCAT_PARTENAIRE },
   enfants: [],
@@ -870,6 +874,7 @@ export function recapitulatif(d: Donnees): Section[] {
       lignes: [
         ["Nom de famille", d.nomFamilleEnfants],
         ["Jour de l'alternance", d.jourAlternance],
+        ["Allocations familiales", d.allocationsFamiliales || ""],
         ...d.enfants.map((e, i): [string, string] => [
           `Enfant n° ${i + 1}`,
           [
