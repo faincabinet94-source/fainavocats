@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, debutCEERetenu, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -172,6 +172,14 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      imprime la demande conjointe de partage par moitié. */
   v.AllocationsFamiliales = d.allocationsFamiliales || null;
 
+  /* Date des effets entre les époux (DCM1AE 15.6, art. 2.7) : "Dépôt" à
+     défaut de choix ; DateSeparation en toutes lettres pour la variante
+     « Séparation » ; DebutCEE, point de départ de la contribution. */
+  v.DateEffets = dateEffetsRetenue(d, le);
+  const separation = d.logement.dateSeparation;
+  v.DateSeparation = /^\d{4}-\d{2}-\d{2}$/.test(separation || "") ? { valeur: separation, texte: dateLongue(separation) } : null;
+  v.DebutCEE = debutCEERetenu(d, le);
+
   /* Nationalité étrangère hors Union européenne : conditionne la clause sur la
      reconnaissance du divorce à l'étranger (modèles jusqu'à DCM1AE 15.1). */
   const etrangers = etrangersHorsUE(d);
@@ -299,6 +307,16 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
     a.push(
       `Clause fiscale : divorce supposé déposé en ${anneeDivorceEstimee(le)}, déclarations séparées en ${anneeDivorceEstimee(le) + 1}. À corriger si le dépôt chez le notaire intervient l'autre année.`,
     );
+  const effets = dateEffetsRetenue(d, le);
+  if (d.procedure === "Divorce" && d.dateEffets === "Séparation" && effets === "Dépôt")
+    a.push("Date des effets « Séparation » choisie, mais date de séparation absente ou à venir : règle légale (dépôt chez le notaire) appliquée.");
+  if (effets !== "Dépôt") {
+    a.push(
+      "Date des effets avancée : vérifier l'indemnité d'occupation (art. 815-9) et l'absence d'acte commun postérieur à la date retenue ; l'état liquidatif doit être arrêté à cette date.",
+    );
+    if (d.mariage.regime === "séparation des biens")
+      a.push("Régime de séparation de biens : la phrase sur les biens et revenus devenus personnels n'a d'objet qu'en régime communautaire, à retirer de la clause.");
+  }
   if (!avocatRetenu(d)) a.unshift("Avocat du conjoint extérieur, nom pas encore connu : mention « [AVOCAT DU CONJOINT À COMPLÉTER] » à remplacer dans l'acte.");
   actifsDe(d).slice(0, PLAFONDS.actifs).forEach((x, i) => {
     if (!["Moi", "Mon époux(se)", "Partage par moitié"].includes(x.qui))

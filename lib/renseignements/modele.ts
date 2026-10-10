@@ -71,6 +71,17 @@ export const TITULAIRES_ACTIF = ["Moi", "Mon époux(se)", "Joint"] as const;
 export const ORIGINES_ACTIF = ["Avant le mariage", "Pendant le mariage"] as const;
 export const QUI_ACTIF = ["Moi", "Mon époux(se)", "Partage par moitié", "Je ne sais pas encore"] as const;
 export const ALLOCATIONS_FAMILIALES = ["Partage par moitié", "Moi", "Mon époux(se)"] as const;
+/* Date des effets du divorce entre les époux (art. 262-1 C. civ., DCM1AE 15.6
+   art. 2.7) : le dépôt chez le notaire par défaut. Valeurs lues telles quelles
+   par le modèle Word (DateEffets, DebutCEE) : ne pas les reformuler. Jamais de
+   date postérieure au dépôt. */
+export const DATES_EFFETS = ["Dépôt", "Séparation", "Signature"] as const;
+export const DEBUTS_CEE = ["Dépôt", "Date des effets"] as const;
+/* Lien de l'info-bulle, affiché seulement une fois l'article publié. */
+export const ARTICLE_DATE_EFFETS = {
+  url: "https://fain-avocats.fr/actualites/date-effets-divorce-entre-epoux",
+  publie: false,
+};
 export const FORMES_PC = ["Capital", "Abandon de soulte", "Rente mensuelle", "Rente viagère"] as const;
 export const REPARTITIONS = [
   "Partage par moitié",
@@ -224,6 +235,10 @@ export type Donnees = {
   jourAlternance: string;
   /* Résidence alternée : allocations familiales partagées ou allocataire désigné (L. 521-2 CSS). */
   allocationsFamiliales?: string;
+  /* Version cabinet, divorce seulement : "Dépôt" (défaut), "Séparation",
+     "Signature" ; point de départ de la CEE : "Dépôt" (défaut) ou "Date des effets". */
+  dateEffets?: string;
+  debutCEE?: string;
   conseilConjoint?: string;
   avocatConjoint: Avocat;
   enfants: Enfant[];
@@ -301,6 +316,8 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   nomFamilleEnfants: "",
   jourAlternance: "",
   allocationsFamiliales: "",
+  dateEffets: "",
+  debutCEE: "",
   conseilConjoint: "",
   avocatConjoint: { ...AVOCAT_PARTENAIRE },
   enfants: [],
@@ -340,6 +357,39 @@ export function completer(x: Partial<Donnees>): Donnees {
     enfants: (x.enfants || []).map((e) => ({ ...enfantVide(), ...e })),
     actifs: (x.actifs || []).map((a) => ({ ...actifVide(), ...a })),
   } as Donnees;
+}
+
+/* La date de séparation ne peut servir de date des effets que si les époux
+   vivent séparément, qu'elle est renseignée et qu'elle n'est pas à venir. */
+export function separationRetenable(d: Donnees, le: Date = new Date()): boolean {
+  const a = age(d.logement.dateSeparation, le);
+  return d.logement.separes === "Oui" && a !== null && a >= 0;
+}
+
+/* Au moins un enfant hors résidence alternée avec une pension chiffrée. */
+export const avecContribution = (d: Donnees) =>
+  d.enfants.some((e) => e.garde !== "Alternée" && (nombre(e.pension) ?? 0) > 0);
+
+/* Valeur transmise au modèle : la règle légale hors divorce, à défaut de
+   choix, ou si la date de séparation n'est pas utilisable. */
+export function dateEffetsRetenue(d: Donnees, le: Date = new Date()): (typeof DATES_EFFETS)[number] {
+  if (d.procedure !== "Divorce") return "Dépôt";
+  if (d.dateEffets === "Signature") return "Signature";
+  if (d.dateEffets === "Séparation" && separationRetenable(d, le)) return "Séparation";
+  return "Dépôt";
+}
+
+export function debutCEERetenu(d: Donnees, le: Date = new Date()): (typeof DEBUTS_CEE)[number] {
+  return dateEffetsRetenue(d, le) !== "Dépôt" && avecContribution(d) && d.debutCEE === "Date des effets"
+    ? "Date des effets"
+    : "Dépôt";
+}
+
+export function texteDateEffets(d: Donnees): string {
+  const x = dateEffetsRetenue(d);
+  if (x === "Séparation") return `Date de séparation (${dateFr(d.logement.dateSeparation)})`;
+  if (x === "Signature") return "Signature de la convention";
+  return "Dépôt chez le notaire (règle légale)";
 }
 
 /* Au-delà, les modèles de convention actuels ne suivent plus (voir la fiche
@@ -919,6 +969,7 @@ export function recapitulatif(d: Donnees): Section[] {
         ["Depuis le", dateFr(d.logement.dateSeparation)],
         ["Domicile conjugal", d.logement.domicile],
         ["Délai de relogement", d.logement.delai],
+        ...(d.procedure === "Divorce" ? ([["Date des effets", texteDateEffets(d)]] as [string, string][]) : []),
       ],
     },
     {
@@ -927,6 +978,14 @@ export function recapitulatif(d: Donnees): Section[] {
         ["Nom de famille", d.nomFamilleEnfants],
         ["Jour de l'alternance", d.jourAlternance],
         ["Allocations familiales", d.allocationsFamiliales || ""],
+        ...(dateEffetsRetenue(d) !== "Dépôt" && avecContribution(d)
+          ? ([
+              [
+                "Point de départ de la CEE",
+                debutCEERetenu(d) === "Date des effets" ? "Date des effets" : "Dépôt chez le notaire",
+              ],
+            ] as [string, string][])
+          : []),
         ...d.enfants.map((e, i): [string, string] => [
           `Enfant n° ${i + 1}`,
           [
