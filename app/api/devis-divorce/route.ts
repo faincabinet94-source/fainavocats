@@ -26,8 +26,12 @@ export const dynamic = "force-dynamic";
    pouvant pas figurer dans une page publique. Seules ces origines sont admises en
    CORS, et c'est l'origine, jamais le corps de la requête, qui fixe la source
    enregistrée dans Airtable. divorce-facil.squarespace.com sert à l'aperçu dans
-   l'éditeur Squarespace. */
+   l'éditeur Squarespace. Depuis que divorcefacil.co redirige vers divorcefacil.com
+   (constaté le 2026-10-10), le formulaire s'affiche sous le .com : sans ces deux
+   origines, le navigateur bloquait l'envoi. */
 const ORIGINES_DIVORCEFACIL = [
+  "https://divorcefacil.com",
+  "https://www.divorcefacil.com",
   "https://divorcefacil.co",
   "https://www.divorcefacil.co",
   "https://divorce-facil.squarespace.com",
