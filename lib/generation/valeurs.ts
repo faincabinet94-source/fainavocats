@@ -167,6 +167,11 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   /* Alternance : jour du changement de résidence, le dimanche à défaut. */
   v.JourAlternance = d.jourAlternance || "dimanche";
 
+  /* Allocations familiales en résidence alternée (DCM1AE 15.6, art. 3.6) :
+     « Moi » ou « Mon époux(se) » désigne l'allocataire ; sinon le modèle
+     imprime la demande conjointe de partage par moitié. */
+  v.AllocationsFamiliales = d.allocationsFamiliales || null;
+
   /* Nationalité étrangère hors Union européenne : conditionne la clause sur la
      reconnaissance du divorce à l'étranger (modèles jusqu'à DCM1AE 15.1). */
   const etrangers = etrangersHorsUE(d);
