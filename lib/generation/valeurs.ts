@@ -128,6 +128,15 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      et annuels se déduisent l'un de l'autre si un seul est connu (saisies
      antérieures au double champ). */
   v.AnneeRevenus = le.getFullYear() - 1;
+
+  /* Clause fiscale (art. 2.8) : chaque époux est imposé séparément pour toute
+     l'année du divorce (CGI, art. 6, 6), déclarée l'année suivante. L'année du
+     divorce est celle du dépôt chez le notaire, inconnue à la génération :
+     estimée à la date de génération plus 45 jours (envoi du projet, délai de
+     réflexion de quinze jours, signature, dépôt). Alerte en fin d'année. */
+  const anneeDivorce = anneeDivorceEstimee(le);
+  v.AnneeDivorce = anneeDivorce;
+  v.AnneeDeclarationSeparee = anneeDivorce + 1;
   (["client", "conjoint"] as const).forEach((qui, i) => {
     const s = i === 0 ? "" : "2";
     const p = d[qui];
@@ -265,6 +274,10 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   return v;
 }
 
+function anneeDivorceEstimee(le: Date): number {
+  return new Date(le.getTime() + 45 * 86_400_000).getFullYear();
+}
+
 /* Points à vérifier, repris dans le rapport de génération. */
 export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
   const a = [...analyserExtraneite(d).alertes, ...informationEnfants(d, le).alertes, ...sansContribution(d).alertes];
@@ -275,6 +288,10 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
     if (!["50/50", "Moi", "Conjoint(e)"].includes(c.qui)) vides.push("répartition");
     if (vides.length) a.push(`Crédit n° ${i + 1} (${(c.banque || "").trim() || "banque non renseignée"}) : ${vides.join(", ")} à compléter dans l'acte.`);
   });
+  if (d.impotsSepares !== "Oui" && le.getMonth() >= 10)
+    a.push(
+      `Clause fiscale : divorce supposé déposé en ${anneeDivorceEstimee(le)}, déclarations séparées en ${anneeDivorceEstimee(le) + 1}. À corriger si le dépôt chez le notaire intervient l'autre année.`,
+    );
   if (!avocatRetenu(d)) a.unshift("Avocat du conjoint extérieur, nom pas encore connu : mention « [AVOCAT DU CONJOINT À COMPLÉTER] » à remplacer dans l'acte.");
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
     a.unshift("Prestation compensatoire non renseignée dans le formulaire : clause « pas de prestation compensatoire » insérée par défaut, à vérifier.");
