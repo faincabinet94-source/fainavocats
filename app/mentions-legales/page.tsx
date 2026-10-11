@@ -57,28 +57,41 @@ export default function MentionsLegales() {
             </section>
 
             <section>
-              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">4. Propriété intellectuelle</h2>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">4. Médiation de la consommation</h2>
+              <p>
+                Conformément aux articles L. 612-1 et suivants du code de la consommation, le client consommateur peut recourir gratuitement au médiateur de la consommation de la profession d&apos;avocat en vue de la résolution amiable d&apos;un litige l&apos;opposant au cabinet, notamment en matière d&apos;honoraires, après avoir tenté de le résoudre directement auprès du cabinet.
+              </p>
+              <p>
+                <strong>Médiateur national de la profession d&apos;avocat</strong><br/>
+                180 boulevard Haussmann, 75008 Paris<br/>
+                Email : <a href="mailto:mediateur-conso@mediateur-consommation-avocat.fr" className="text-[#362A24] underline">mediateur-conso@mediateur-consommation-avocat.fr</a><br/>
+                Site web : <a href="https://mediateur-consommation-avocat.fr" target="_blank" rel="noopener noreferrer" className="text-[#362A24] underline">mediateur-consommation-avocat.fr</a>
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">5. Propriété intellectuelle</h2>
               <p>
                 L&apos;ensemble des contenus du site (textes, images, graphismes, logo, icônes) est la propriété exclusive de Fain Avocats ou de ses partenaires. Toute reproduction, représentation, modification ou exploitation, totale ou partielle, est interdite sans autorisation écrite préalable.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">5. Responsabilité</h2>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">6. Responsabilité</h2>
               <p>
                 Les informations fournies sur ce site sont présentées à titre indicatif et général. Elles ne sauraient constituer un avis juridique ni engager la responsabilité du cabinet. Pour toute question juridique spécifique, nous vous invitons à prendre contact directement avec le cabinet.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">6. Liens hypertextes</h2>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">7. Liens hypertextes</h2>
               <p>
                 Le site peut contenir des liens vers des sites tiers. Fain Avocats n&apos;exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">7. Conception & développement</h2>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">8. Conception & développement</h2>
               <p>
                 Site conçu et développé par :<br/>
                 <strong>NL Project</strong><br/>
@@ -87,7 +100,7 @@ export default function MentionsLegales() {
             </section>
 
             <section>
-              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">8. Droit applicable</h2>
+              <h2 className="font-serif text-2xl text-[#1A1A1A] mb-4">9. Droit applicable</h2>
               <p>
                 Les présentes mentions légales sont soumises au droit français. En cas de litige, les tribunaux de Paris seront seuls compétents.
               </p>
