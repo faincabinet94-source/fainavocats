@@ -4,12 +4,15 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AUCUN_GUIDE, type Guides, type Lien, type Quand } from "@/lib/renseignements/guides";
 import {
   BENEFICIAIRES,
   ALLOCATIONS_FAMILIALES,
-  ARTICLE_DATE_EFFETS,
   DATES_EFFETS,
   DEBUTS_CEE,
+  PARTAGES_COMPTES,
+  dateLibreRetenable,
+  estFormalise,
   avecContribution,
   dateEffetsRetenue,
   separationRetenable,
@@ -24,6 +27,13 @@ import {
   conseilDuConjoint,
   GARDES,
   JOURS,
+  HEURES_ALTERNANCE,
+  MISES_EN_PLACE_INTERMEDIATION,
+  avecPension,
+  QUI_CHARGES_INDIVISION,
+  QUI_JOUISSANCE,
+  age,
+  questionDiscernement,
   OUI_NON,
   PLAFONDS,
   PROCEDURES,
@@ -100,7 +110,8 @@ const ETAPES = [
   "Le mariage",
   "Le logement",
   "Les enfants",
-  "Le patrimoine",
+  "L'actif",
+  "Le passif",
   "Prestation compensatoire",
   "Le nom d'usage",
   "Les honoraires",
@@ -124,6 +135,43 @@ function avec<T>(obj: T, chemin: string, valeur: unknown): T {
   const copie: any = Array.isArray(obj) ? [...obj] : { ...(obj as object) };
   copie[cle] = reste.length ? avec(copie[cle], reste.join("."), valeur) : valeur;
   return copie;
+}
+
+/* Libellé du montant selon la nature du compte ou placement. */
+const libelleValeur = (c: string) =>
+  c === "Assurance-vie" ? "Valeur de rachat (€)" : c.startsWith("Compte-titres") || c.startsWith("Autre") ? "Valeur (€)" : "Solde du compte (€)";
+
+/* Guides réservés à certaines situations (voir lib/renseignements/guides.ts). */
+function situation(d: Donnees, q: Quand): boolean {
+  if (q === "etranger") return [d.client, d.conjoint].some((p) => p.nationalite.trim() && !/fran[cç]/i.test(p.nationalite));
+  if (q === "enfants") return d.enfants.length > 0;
+  if (q === "alternee") return d.enfants.some((e) => e.garde === "Alternée");
+  return d.enfants.some((e) => {
+    const a = age(e.dateNaissance);
+    return a !== null && a >= 10 && a < 18;
+  });
+}
+
+/* Lectures proposées sous une étape (version client) : guides publiés
+   seulement, ouverts dans un nouvel onglet pour ne pas quitter le formulaire. */
+function PourVousAider({ liens }: { liens: Lien[] }) {
+  if (!liens.length) return null;
+  return (
+    <aside className="mt-10 rounded-xl border border-[#E5E2DA] bg-[#FAF9F6] p-5">
+      <p className="text-[15px] font-medium text-[#1A1A1A]">Pour vous aider</p>
+      <ul className="mt-3 space-y-2">
+        {liens.map((l) => (
+          <li key={l.href} className="flex items-start gap-2 text-sm">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+            <a href={l.href} target="_blank" rel="noopener" className="text-[#362A24] underline underline-offset-2 hover:text-[#1A1A1A]">
+              {l.titre}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[13px] text-gray-500">Les guides s&apos;ouvrent dans un nouvel onglet : votre saisie reste ici.</p>
+    </aside>
+  );
 }
 
 /* Lieux de naissance et de mariage : forme attendue, reprise dans les actes. */
@@ -301,7 +349,7 @@ const LIBELLES_CABINET: Record<string, string> = {
   "Je l'avance en entier (250 €)": "Avancée par le client (250 €)",
   Dépôt: "Dépôt chez le notaire",
   Séparation: "Date de séparation",
-  Signature: "Signature de la convention",
+  Libre: "Autre date",
 };
 function useAffichage() {
   const cabinet = useContext(Cabinet);
@@ -406,7 +454,7 @@ async function reduire(f: File): Promise<File> {
   }
 }
 
-export default function FormulaireRenseignements() {
+export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { guides?: Guides }) {
   const params = useSearchParams();
   const [pret, setPret] = useState(false);
   const [id, setId] = useState("");
@@ -919,34 +967,6 @@ export default function FormulaireRenseignements() {
           <Choix options={DELAIS} value={d.logement.delai} onChange={(v) => maj("logement.delai", v)} />
         </Champ>
       )}
-      {/* Date des effets entre les époux : conseil de l'avocat, version
-          cabinet seulement ; côté client, la règle légale (dépôt). */}
-      {interne && divorce && (
-        <Champ
-          champ="dateEffets"
-          label="Date des effets du divorce entre les époux"
-          aide="Avancer la date des effets à la séparation permet à chacun de garder ce qu'il a gagné et acquis depuis ; c'est moins favorable à l'époux qui gagnait moins."
-          aideLien={ARTICLE_DATE_EFFETS.publie ? { href: ARTICLE_DATE_EFFETS.url, texte: "Voir l'article du cabinet." } : undefined}
-        >
-          <Choix
-            options={DATES_EFFETS}
-            value={d.dateEffets || "Dépôt"}
-            onChange={(v) => maj("dateEffets", v === "Dépôt" ? "" : v)}
-            desactivees={separationRetenable(d) ? [] : ["Séparation"]}
-          />
-          <p className="mt-2 text-[13px] text-gray-500">
-            Par défaut, le jour du dépôt chez le notaire (art. 262-1 C. civ.). Une autre date ne vaut qu&apos;entre les époux.
-          </p>
-          {!separationRetenable(d) && (
-            <p className={cn("mt-1 text-[13px]", d.dateEffets === "Séparation" ? "text-[#B42318]" : "text-gray-500")}>
-              {d.dateEffets === "Séparation"
-                ? "La date de séparation n'est plus utilisable : la règle légale (dépôt) s'appliquera. "
-                : ""}
-              Date de séparation : possible seulement si les époux vivent déjà séparément et que la date de séparation, passée, est renseignée ci-dessus.
-            </p>
-          )}
-        </Champ>
-      )}
     </div>,
     /* 6. Les enfants */
     <div key="e" className="space-y-5">
@@ -976,6 +996,14 @@ export default function FormulaireRenseignements() {
             <Champ label="Pension envisagée (€ par mois)" {...suivi(`enfants.${i}.pension`)}>
               <input className={inputCls} value={x.pension} onChange={(e) => maj(`enfants.${i}.pension`, e.target.value)} inputMode="decimal" />
             </Champ>
+            {questionDiscernement(x) && (
+              <Champ
+                label={cab("Votre enfant est-il capable de discernement ?", "Capable de discernement ?")}
+                aide="Entre 10 et 12 ans, c'est aux parents de l'apprécier. S'il l'est, il est informé de son droit à être entendu par un juge et signe un formulaire joint à la convention. À partir de 12 ans, il est considéré comme capable de discernement."
+              >
+                <Choix options={OUI_NON} value={x.discernement ?? ""} onChange={(v) => maj(`enfants.${i}.discernement`, v)} />
+              </Champ>
+            )}
             {(estMajeur(x) || x.garde === "Majeur plus à charge") && (
               <>
                 <Champ label="Profession" {...suivi(`enfants.${i}.profession`)}>
@@ -990,8 +1018,11 @@ export default function FormulaireRenseignements() {
         </Bloc>
       ))}
       {d.enfants.some((x) => x.garde === "Alternée") && (
-        <Champ label="Jour du changement de résidence en alternance" aide="Le jour, à 19 heures, où les enfants passent d'un parent à l'autre.">
-          <Choix options={JOURS} value={d.jourAlternance} onChange={(v) => maj("jourAlternance", v)} />
+        <Champ label="Jour du changement de résidence en alternance" aide="Le jour et l'heure où les enfants passent d'un parent à l'autre.">
+          <Choix options={JOURS} value={d.jourAlternance || "vendredi"} onChange={(v) => maj("jourAlternance", v)} />
+          <div className="mt-3 sm:max-w-xs">
+            <Liste options={HEURES_ALTERNANCE} value={d.heureAlternance || "sortie des classes"} onChange={(v) => maj("heureAlternance", v)} />
+          </div>
         </Champ>
       )}
       {d.enfants.some((x) => x.garde === "Alternée") && (
@@ -1002,13 +1033,21 @@ export default function FormulaireRenseignements() {
           <Choix options={ALLOCATIONS_FAMILIALES} value={d.allocationsFamiliales ?? ""} onChange={(v) => maj("allocationsFamiliales", v)} />
         </Champ>
       )}
-      {interne && divorce && dateEffetsRetenue(d) !== "Dépôt" && avecContribution(d) && (
+      {avecPension(d) && (
         <Champ
-          champ="debutCEE"
-          label="Point de départ de la contribution à l'entretien des enfants"
-          aide="Par défaut, la CEE est due à compter du dépôt chez le notaire, au prorata pour le mois du dépôt. Avec une date des effets avancée, elle peut démarrer à cette date."
+          label={cab("Souhaitez-vous que la pension soit versée par l'intermédiaire de la CAF ?", "Intermédiation financière de la pension (CAF) ?")}
+          aide="L'intermédiation financière : la CAF (service ARIPA) collecte la pension auprès du parent qui la doit et la reverse à l'autre. Elle protège contre les impayés. Sans demande de votre part, la convention l'écarte."
         >
-          <Choix options={DEBUTS_CEE} value={d.debutCEE || "Dépôt"} onChange={(v) => maj("debutCEE", v === "Dépôt" ? "" : v)} />
+          <Choix options={OUI_NON} value={d.intermediation ?? ""} onChange={(v) => maj("intermediation", v)} />
+          {d.intermediation === "Oui" && (
+            <div className="mt-4 space-y-2">
+              <p className="text-[15px] text-[#1A1A1A]">{cab("Qui s'occupe de la mettre en place ?", "Mise en place")}</p>
+              <Choix options={MISES_EN_PLACE_INTERMEDIATION} value={d.intermediationMiseEnPlace ?? ""} onChange={(v) => maj("intermediationMiseEnPlace", v)} />
+            </div>
+          )}
+          <p className="mt-2 text-[13px] text-gray-500">
+            Dans tous les cas, chacun de vous pourra la demander lui-même à tout moment, même après le divorce, sur pension-alimentaire.caf.fr.
+          </p>
         </Champ>
       )}
       {d.enfants.length >= PLAFONDS.enfants && (
@@ -1023,8 +1062,8 @@ export default function FormulaireRenseignements() {
       />
       {d.enfants.length === 0 && <p className="text-sm text-gray-500">Pas d&apos;enfant : passez à l&apos;étape suivante.</p>}
     </div>,
-    /* 7. Le patrimoine */
-    <div key="pa" className="space-y-8">
+    /* 7. L'actif */
+    <div key="ac" className="space-y-8">
       <section className="space-y-4">
         <h3 className="text-[17px] font-medium text-[#1A1A1A]">Biens immobiliers en commun</h3>
         {d.immobilier.map((x, i) => (
@@ -1043,12 +1082,30 @@ export default function FormulaireRenseignements() {
             <Champ label="Qui le conservera ?">
               <Choix options={QUI_IMMO} value={x.qui} onChange={(v) => maj(`immobilier.${i}.qui`, v)} />
             </Champ>
+            {x.qui === "maintien en indivision" && (
+              <>
+                <Champ label="Qui en aura la jouissance ?">
+                  <Choix options={QUI_JOUISSANCE} value={x.jouissance ?? ""} onChange={(v) => maj(`immobilier.${i}.jouissance`, v)} />
+                </Champ>
+                <Champ label="Indemnité d'occupation (€ par mois)" aide="Somme versée par celui qui occupe le bien à l'autre. Laissez vide ou indiquez 0 s'il n'y en a pas.">
+                  <input className={cn(inputCls, "sm:max-w-xs")} value={x.indemniteOccupation ?? ""} onChange={(e) => maj(`immobilier.${i}.indemniteOccupation`, e.target.value)} inputMode="decimal" />
+                </Champ>
+                <Champ label="Qui prendra en charge le crédit immobilier ?">
+                  <Choix options={QUI_CHARGES_INDIVISION} value={x.creditQui ?? ""} onChange={(v) => maj(`immobilier.${i}.creditQui`, v)} />
+                </Champ>
+                <Champ label="Qui prendra en charge les charges et la taxe foncière ?">
+                  <Choix options={QUI_CHARGES_INDIVISION} value={x.chargesQui ?? ""} onChange={(v) => maj(`immobilier.${i}.chargesQui`, v)} />
+                </Champ>
+              </>
+            )}
           </Bloc>
         ))}
         <Ajouter libelle="Ajouter un bien" onClick={() => maj("immobilier", [...d.immobilier, bienVide()])} desactive={d.immobilier.length >= PLAFONDS.immobilier} />
       </section>
+      <section className="space-y-6">
+        <h3 className="text-[17px] font-medium text-[#1A1A1A]">Biens mobiliers</h3>
       <section className="space-y-4">
-        <h3 className="text-[17px] font-medium text-[#1A1A1A]">Véhicules en commun</h3>
+        <h4 className="text-[15px] font-medium text-[#1A1A1A]">Véhicules en commun</h4>
         {d.vehicules.map((x, i) => (
           <Bloc key={i} titre={`Véhicule n° ${i + 1}`} onRetirer={() => maj("vehicules", d.vehicules.filter((_, j) => j !== i))}>
             <Grille>
@@ -1072,6 +1129,76 @@ export default function FormulaireRenseignements() {
         ))}
         <Ajouter libelle="Ajouter un véhicule" onClick={() => maj("vehicules", [...d.vehicules, vehiculeVide()])} desactive={d.vehicules.length >= PLAFONDS.vehicules} />
       </section>
+      <section className="space-y-4">
+        <h4 className="flex items-center gap-1.5 text-[15px] font-medium text-[#1A1A1A]">
+          Comptes, épargne et placements
+          <InfoBulle
+            texte={
+              d.mariage.regime === "séparation des biens"
+                ? cab("En séparation de biens, n'indiquez que vos comptes joints : vos comptes personnels restent à chacun.", "Séparation de biens : seulement les comptes joints, les comptes personnels restent à chacun.")
+                : cab("Indiquez tous vos comptes : ceux à votre nom, ceux au nom de votre conjoint et les comptes joints.", "Tous les comptes : ceux du client, ceux du conjoint et les comptes joints.")
+            }
+          />
+        </h4>
+        <p className="text-sm text-gray-500">
+          {cab(
+            "Comptes bancaires et livrets, placements, assurances-vie, épargne salariale ou retraite, autres biens de valeur.",
+            "Comptes et livrets, placements, assurances-vie, épargne salariale ou retraite, autres actifs.",
+          )}
+        </p>
+        {actifsDe(d).length > 0 && (
+          <Champ label={cab("Comment souhaitez-vous répartir vos comptes ?", "Répartition des comptes")} {...suivi("partageComptes")}>
+            <Choix options={PARTAGES_COMPTES} value={d.partageComptes ?? ""} onChange={(v) => maj("partageComptes", v)} />
+            {estFormalise(d) && (
+              <p className="mt-2 text-[13px] text-gray-500">
+                La convention reprend alors chaque compte, calcule les droits de chacun et la soulte éventuelle. Honoraires supplémentaires à partir de 500 € TTC, à fixer avec le cabinet selon la complexité de la liquidation.
+              </p>
+            )}
+          </Champ>
+        )}
+        {actifsDe(d).map((x, i) => (
+          <Bloc key={i} titre={`Compte ou placement n° ${i + 1}`} onRetirer={() => maj("actifs", actifsDe(d).filter((_, j) => j !== i))}>
+            <Champ label="Nature" {...suivi(`actifs.${i}.categorie`)}>
+              <Liste options={CATEGORIES_ACTIFS} value={x.categorie} onChange={(v) => maj(`actifs.${i}.categorie`, v)} />
+            </Champ>
+            <Champ label="Au nom de" {...suivi(`actifs.${i}.titulaire`)}>
+              <Choix options={TITULAIRES_ACTIF} value={x.titulaire} onChange={(v) => maj(`actifs.${i}.titulaire`, v)} />
+            </Champ>
+            <Grille>
+              <Champ label="Établissement bancaire" aide={interne ? undefined : "Banque, assureur, plateforme…"}>
+                <input className={inputCls} value={x.etablissement} onChange={(e) => maj(`actifs.${i}.etablissement`, e.target.value)} />
+              </Champ>
+              <Champ label={libelleValeur(x.categorie)} aide={cab("Le montant le plus récent, d'après votre dernier relevé.", "Montant le plus récent (dernier relevé).")} {...suivi(`actifs.${i}.valeur`)}>
+                <input className={inputCls} value={x.valeur} onChange={(e) => maj(`actifs.${i}.valeur`, e.target.value)} inputMode="decimal" />
+              </Champ>
+            </Grille>
+            <Champ label="Ouvert ou acquis">
+              <Choix options={ORIGINES_ACTIF} value={x.origine} onChange={(v) => maj(`actifs.${i}.origine`, v)} />
+            </Champ>
+            {x.origine === "Avant le mariage" && d.mariage.regime !== "séparation des biens" && (
+              <Champ
+                label="Solde au jour du mariage (€)"
+                aide="Cette somme est restée propre à son titulaire : elle n'entre pas dans le partage."
+                {...suivi(`actifs.${i}.soldeMariage`)}
+              >
+                <input className={cn(inputCls, "sm:max-w-xs")} value={x.soldeMariage ?? ""} onChange={(e) => maj(`actifs.${i}.soldeMariage`, e.target.value)} inputMode="decimal" />
+              </Champ>
+            )}
+            <Champ label="Qui le conservera ?" {...suivi(`actifs.${i}.qui`)}>
+              <Choix options={QUI_ACTIF} value={x.qui} onChange={(v) => maj(`actifs.${i}.qui`, v)} />
+            </Champ>
+          </Bloc>
+        ))}
+        <Ajouter
+          libelle="Ajouter un compte ou un placement"
+          onClick={() => maj("actifs", [...actifsDe(d), actifVide()])}
+          desactive={actifsDe(d).length >= PLAFONDS.actifs}
+        />
+      </section>
+      </section>
+    </div>,
+    /* 8. Le passif */
+    <div key="pp" className="space-y-8">
       <section className="space-y-4">
         <h3 className="text-[17px] font-medium text-[#1A1A1A]">Crédits communs</h3>
         {d.credits.map((x, i) => (
@@ -1100,44 +1227,6 @@ export default function FormulaireRenseignements() {
         ))}
         <Ajouter libelle="Ajouter un crédit" onClick={() => maj("credits", [...d.credits, creditVide()])} desactive={d.credits.length >= PLAFONDS.credits} />
       </section>
-      <section className="space-y-4">
-        <h3 className="text-[17px] font-medium text-[#1A1A1A]">Comptes, épargne et placements</h3>
-        <p className="text-sm text-gray-500">
-          {cab(
-            "Comptes bancaires et livrets, placements, assurances-vie, épargne salariale ou retraite, autres biens de valeur : joints ou au nom de l'un de vous deux. Une valeur approximative suffit.",
-            "Comptes et livrets, placements, assurances-vie, épargne salariale ou retraite, autres actifs : joints ou au nom d'un seul époux.",
-          )}
-        </p>
-        {actifsDe(d).map((x, i) => (
-          <Bloc key={i} titre={`Compte ou placement n° ${i + 1}`} onRetirer={() => maj("actifs", actifsDe(d).filter((_, j) => j !== i))}>
-            <Champ label="Nature" {...suivi(`actifs.${i}.categorie`)}>
-              <Liste options={CATEGORIES_ACTIFS} value={x.categorie} onChange={(v) => maj(`actifs.${i}.categorie`, v)} />
-            </Champ>
-            <Champ label="Au nom de" {...suivi(`actifs.${i}.titulaire`)}>
-              <Choix options={TITULAIRES_ACTIF} value={x.titulaire} onChange={(v) => maj(`actifs.${i}.titulaire`, v)} />
-            </Champ>
-            <Grille>
-              <Champ label="Établissement" aide={interne ? undefined : "Banque, assureur, plateforme…"}>
-                <input className={inputCls} value={x.etablissement} onChange={(e) => maj(`actifs.${i}.etablissement`, e.target.value)} />
-              </Champ>
-              <Champ label="Valeur approximative (€)">
-                <input className={inputCls} value={x.valeur} onChange={(e) => maj(`actifs.${i}.valeur`, e.target.value)} inputMode="decimal" />
-              </Champ>
-            </Grille>
-            <Champ label="Ouvert ou acquis">
-              <Choix options={ORIGINES_ACTIF} value={x.origine} onChange={(v) => maj(`actifs.${i}.origine`, v)} />
-            </Champ>
-            <Champ label="Qui le conservera ?" {...suivi(`actifs.${i}.qui`)}>
-              <Choix options={QUI_ACTIF} value={x.qui} onChange={(v) => maj(`actifs.${i}.qui`, v)} />
-            </Champ>
-          </Bloc>
-        ))}
-        <Ajouter
-          libelle="Ajouter un compte ou un placement"
-          onClick={() => maj("actifs", [...actifsDe(d), actifVide()])}
-          desactive={actifsDe(d).length >= PLAFONDS.actifs}
-        />
-      </section>
       <section className="space-y-5">
         <h3 className="text-[17px] font-medium text-[#1A1A1A]">Dettes et impôts</h3>
         <Champ label={cab("Avez-vous des arriérés de loyers ?", "Arriérés de loyers")}>
@@ -1160,8 +1249,66 @@ export default function FormulaireRenseignements() {
           <Choix options={OUI_NON} value={d.impotsSepares} onChange={(v) => maj("impotsSepares", v)} />
         </Champ>
       </section>
+      {/* Date des effets : conseil de l'avocat, version cabinet seulement ;
+          côté client, la règle légale (dépôt). Placée après l'actif et les
+          enfants, qu'elle concerne. Rien pour la prestation compensatoire,
+          appréciée au jour du divorce (art. 271 C. civ.). */}
+      {interne && divorce && (
+        <section className="space-y-5">
+          <h3 className="text-[17px] font-medium text-[#1A1A1A]">Date des effets du divorce</h3>
+          <Champ
+            champ="dateEffets"
+            label="Date des effets du divorce entre les époux, pour leurs biens"
+            aide="Avancer la date des effets à la séparation permet à chacun de garder ce qu'il a gagné et acquis depuis ; c'est moins favorable à l'époux qui gagnait moins."
+            aideLien={guides.dateEffets ? { href: guides.dateEffets.href, texte: "Voir l'article du cabinet." } : undefined}
+          >
+            <Choix
+              options={DATES_EFFETS}
+              value={d.dateEffets || "Dépôt"}
+              onChange={(v) => maj("dateEffets", v === "Dépôt" ? "" : v)}
+              desactivees={separationRetenable(d) ? [] : ["Séparation"]}
+            />
+            <p className="mt-2 text-[13px] text-gray-500">
+              Par défaut, le jour du dépôt chez le notaire (art. 262-1 C. civ.). Une autre date ne vaut qu&apos;entre les époux et ne peut être postérieure au dépôt.
+            </p>
+            {!separationRetenable(d) && (
+              <p className={cn("mt-1 text-[13px]", d.dateEffets === "Séparation" ? "text-[#B42318]" : "text-gray-500")}>
+                {d.dateEffets === "Séparation" ? "La date de séparation n'est plus utilisable : la règle légale (dépôt) s'appliquera. " : ""}
+                Date de séparation : possible seulement si les époux vivent déjà séparément et que la date de séparation, passée, est renseignée à l&apos;étape 5.
+              </p>
+            )}
+            {d.dateEffets === "Libre" && (
+              <div className="mt-3 sm:max-w-xs">
+                <SaisieDate className={inputCls} value={d.dateEffetsLibre ?? ""} onChange={(v) => maj("dateEffetsLibre", v)} />
+                {d.dateEffetsLibre && !dateLibreRetenable(d.dateEffetsLibre) && (
+                  <p className="mt-1 text-[13px] text-[#B42318]">Date à venir : la date des effets ne peut être postérieure au dépôt. Choisissez une date passée.</p>
+                )}
+              </div>
+            )}
+          </Champ>
+          {avecContribution(d) && (
+            <Champ
+              champ="debutCEE"
+              label="Point de départ de la contribution à l'entretien des enfants"
+              aide="Par défaut, la CEE est due à compter du dépôt chez le notaire, au prorata pour le mois du dépôt. Avec une date des effets avancée, elle peut démarrer à cette date, ou à une autre date convenue."
+            >
+              <Choix
+                options={DEBUTS_CEE}
+                value={d.debutCEE || "Dépôt"}
+                onChange={(v) => maj("debutCEE", v === "Dépôt" ? "" : v)}
+                desactivees={dateEffetsRetenue(d) === "Dépôt" ? ["Date des effets"] : []}
+              />
+              {d.debutCEE === "Libre" && (
+                <div className="mt-3 sm:max-w-xs">
+                  <SaisieDate className={inputCls} value={d.debutCEELibre ?? ""} onChange={(v) => maj("debutCEELibre", v)} />
+                </div>
+              )}
+            </Champ>
+          )}
+        </section>
+      )}
     </div>,
-    /* 8. Prestation compensatoire ou devoir de secours */
+    /* 9. Prestation compensatoire ou devoir de secours */
     divorce ? (
       <div key="pc" className="space-y-6">
         <Champ
@@ -1210,7 +1357,7 @@ export default function FormulaireRenseignements() {
         )}
       </div>
     ),
-    /* 9. Le nom d'usage */
+    /* 10. Le nom d'usage */
     <div key="n" className="space-y-6">
       <Champ champ="nomUsage.utilise" label="L'un des époux utilise-t-il le nom de famille de l'autre ?">
         <Choix options={OUI_NON} value={d.nomUsage.utilise} onChange={(v) => maj("nomUsage.utilise", v)} />
@@ -1221,7 +1368,7 @@ export default function FormulaireRenseignements() {
         </Champ>
       )}
     </div>,
-    /* 10. Les honoraires */
+    /* 11. Les honoraires */
     <div key="h" className="space-y-6">
       <Champ label={cab("Qui prendra en charge les honoraires ?", "Prise en charge des honoraires")} {...suivi("repartition")}>
         <Choix options={REPARTITIONS} value={d.repartition} onChange={(v) => maj("repartition", v)} />
@@ -1242,7 +1389,7 @@ export default function FormulaireRenseignements() {
         <textarea rows={5} className={inputCls} value={d.commentaires} onChange={(e) => maj("commentaires", e.target.value)} />
       </Champ>
     </div>,
-    /* 11. Vos pièces */
+    /* 12. Vos pièces */
     <div key="pi" className="space-y-5">
       <p className="text-[15px] leading-relaxed text-gray-600">
         Livret de famille, actes d&apos;état civil récents, pièces d&apos;identité des deux époux. PDF ou photo,
@@ -1294,7 +1441,7 @@ export default function FormulaireRenseignements() {
         </ul>
       )}
     </div>,
-    /* 12. Récapitulatif */
+    /* 13. Récapitulatif */
     <div key="r" className="space-y-6">
       {recapitulatif(d)
         .filter((s) => s.lignes.length)
@@ -1329,7 +1476,7 @@ export default function FormulaireRenseignements() {
     </div>,
   ];
 
-  const nomEtape = (i: number) => (i === 7 && !divorce ? "Devoir de secours" : (interne && ETAPES_CABINET[ETAPES[i]]) || ETAPES[i]);
+  const nomEtape = (i: number) => (i === 8 && !divorce ? "Devoir de secours" : (interne && ETAPES_CABINET[ETAPES[i]]) || ETAPES[i]);
   const titreEtape = nomEtape(etape);
 
   return (
@@ -1418,6 +1565,11 @@ export default function FormulaireRenseignements() {
 
       <h2 className="mb-6 font-serif text-3xl text-[#1A1A1A]">{titreEtape}</h2>
       {contenu[etape]}
+      {!interne && (
+        <PourVousAider
+          liens={(guides.etapes[etape] || []).filter((l) => (!l.procedure || l.procedure === d.procedure) && (!l.quand || situation(d, l.quand)))}
+        />
+      )}
 
       {rappel && complet && aFaire.length > 0 && (
         <div ref={rappelRef} className="mt-8 text-left rounded-xl border border-[#E6D9BF] bg-[#FBF7EE] px-5 py-4 text-sm text-[#4A3B24]">

@@ -117,7 +117,7 @@ const LINKS = [
   {
     kind: "Article",
     href: "/actualites/divorce-sans-juge-le-nouveau-divorce-par-consentement-mutuel",
-    title: "Divorce sans juge : comment ça marche, neuf ans après",
+    title: "Divorce sans juge : comment ça fonctionne, neuf ans après",
     desc: "Le détail de la procédure, des délais et des deux cas où le juge reste compétent.",
   },
   {

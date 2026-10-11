@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, debutCEERetenu, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, HONORAIRES_INTERMEDIATION, HONORAIRES_PARTAGE_FORMALISE, aDiscernement, avecPension, intermediationCabinet, questionDiscernement, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -165,7 +165,26 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   v.AccordEConjoint = d.conjoint.civilite === "Madame" ? "e" : "";
 
   /* Alternance : jour du changement de résidence, le dimanche à défaut. */
-  v.JourAlternance = d.jourAlternance || "dimanche";
+  /* Par défaut, le vendredi à la sortie des classes (décision du 2026-10-11).
+     HeureAlternance porte sa préposition : « à la sortie des classes », « à 19 heures ». */
+  v.JourAlternance = d.jourAlternance || "vendredi";
+  const heure = d.heureAlternance || "sortie des classes";
+  v.HeureAlternance = { valeur: heure, texte: heure === "sortie des classes" ? "à la sortie des classes" : `à ${heure}` };
+
+  /* Maintien du premier bien en indivision (DCM1AE 15.7, art. 2.5) : qui en a
+     la jouissance, indemnité d'occupation, crédit, charges et taxe foncière. */
+  const b1 = d.immobilier[0];
+  const indiv = b1 && b1.qui === "maintien en indivision";
+  const epoux = (x: string | undefined) =>
+    x === "Moi" ? `${d.client.civilite} ${(d.client.nom || "").trim().toUpperCase()}`
+    : x === "Mon époux(se)" ? `${d.conjoint.civilite} ${(d.conjoint.nom || "").trim().toUpperCase()}`
+    : x === "Par moitié" ? "les deux époux, par moitié"
+    : "[À COMPLÉTER]";
+  const indemnite = indiv ? nombre(b1.indemniteOccupation || "") : null;
+  v.ImmoJouissance1 = indiv ? epoux(b1.jouissance) : null;
+  v.ImmoIndemnite1 = indemnite ? { valeur: indemnite, texte: montant(indemnite) } : null;
+  v.ImmoCreditQui1 = indiv ? epoux(b1.creditQui) : null;
+  v.ImmoChargesQui1 = indiv ? epoux(b1.chargesQui) : null;
 
   /* Allocations familiales en résidence alternée (DCM1AE 15.6, art. 3.6) :
      « Moi » ou « Mon époux(se) » désigne l'allocataire ; sinon le modèle
@@ -176,9 +195,19 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      défaut de choix ; DateSeparation en toutes lettres pour la variante
      « Séparation » ; DebutCEE, point de départ de la contribution. */
   v.DateEffets = dateEffetsRetenue(d, le);
-  const separation = d.logement.dateSeparation;
-  v.DateSeparation = /^\d{4}-\d{2}-\d{2}$/.test(separation || "") ? { valeur: separation, texte: dateLongue(separation) } : null;
+  const enDate = (iso: string | undefined) => (/^\d{4}-\d{2}-\d{2}$/.test(iso || "") ? { valeur: iso as string, texte: dateLongue(iso as string) } : null);
+  v.DateSeparation = enDate(d.logement.dateSeparation);
+  v.DateEffetsLibre = v.DateEffets === "Libre" ? enDate(d.dateEffetsLibre) : null;
   v.DebutCEE = debutCEERetenu(d, le);
+  v.DebutCEELibre = v.DebutCEE === "Libre" ? enDate(d.debutCEELibre) : null;
+
+  /* Régime inconnu des époux : le régime légal, sous réserve de vérification
+     (contrat de mariage, loi applicable) signalée au rapport. */
+  v.RégimeMatrimonial = regimeConvention(d) || null;
+
+  /* Comptes : partage déclaré déjà fait (« Verbal ») ou formalisé dans la
+     convention (« Formalise »), avec état liquidatif chiffré. */
+  v.PartageComptes = estFormalise(d) ? "Formalise" : d.partageComptes ? "Verbal" : null;
 
   /* Nationalité étrangère hors Union européenne : conditionne la clause sur la
      reconnaissance du divorce à l'étranger (modèles jusqu'à DCM1AE 15.1). */
@@ -213,10 +242,12 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   /* Bordereau des pièces : formulaires d'information annexés, un par enfant
      mineur de 12 à 17 ans parmi les quatre que le modèle sait décrire
      (DCM1AE 15.3, mêmes bornes que les formulaires). */
-  const informes = d.enfants.slice(0, 4).filter((e) => {
-    const ans = age(e.dateNaissance, le);
-    return ans !== null && ans >= AGE_DISCERNEMENT && ans < 18;
-  });
+  const informes = d.enfants.slice(0, 4).filter((e) => aDiscernement(e, le));
+  /* FormulaireE{n} : formulaire d'information de l'enfant n annexé (DCM1AE 15.7). */
+  for (let n = 1; n <= 4; n++) {
+    const e = d.enfants[n - 1];
+    v[`FormulaireE${n}`] = e && aDiscernement(e, le) ? "Oui" : "Non";
+  }
   const prenoms = enumerer(informes.map((e) => (e.prenoms || "").trim().replace(/\s+/g, " ")));
   v.AnnexeFormulaires = !informes.length
     ? null
@@ -242,6 +273,31 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   for (let n = d.credits.length + 1; n <= 6; n++) v[`CreditSupporte${n === 1 ? "" : n}`] = null;
 
   Object.assign(v, valeursActifs(d));
+  Object.assign(v, liquidation(d).valeurs);
+
+  /* Mention finale « Fait en … exemplaires » (règle de Me FAIN du 2026-10-11) :
+     trois (un par époux, un pour le notaire ; les avocats gardent un scan),
+     plus un pour la CAF si l'intermédiation financière est mise en place,
+     plus un pour l'administration fiscale (droit de partage) quand la
+     convention partage elle-même des biens communs ou indivis : tout régime
+     connu (communauté, séparation de biens, participation aux acquêts),
+     partage des comptes et valeurs mobilières formalisé, sans bien
+     immobilier, masse à partager non nulle (hors communauté : comptes joints
+     ou véhicules indivis). */
+  v.Intermediation = d.intermediation === "Oui" && avecPension(d) ? "Oui" : "Non";
+  v.IntermediationCabinet = intermediationCabinet(d) ? "Oui" : "Non";
+  const regimes = ["communauté de biens réduite aux acquêts", "communauté universelle", "séparation des biens", "participation aux acquêts"];
+  const masse = (v.LiqMasseActive as { valeur: number } | null)?.valeur ?? 0;
+  v.LiquidationNonNotariee =
+    regimes.includes(regimeConvention(d)) && estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 && masse > 0 ? "Oui" : "Non";
+  const exemplaires = 3 + (v.Intermediation === "Oui" ? 1 : 0) + (v.LiquidationNonNotariee === "Oui" ? 1 : 0);
+  v.NbExemplaires = { valeur: exemplaires, texte: enLettres(exemplaires) };
+
+  /* Honoraires complémentaires TTC, cumulables : 250 € si le cabinet met en
+     place l'intermédiation, 500 € (minimum, selon la complexité) pour un
+     partage des comptes formalisé dans la convention. */
+  const complementaires = (intermediationCabinet(d) ? HONORAIRES_INTERMEDIATION : 0) + (estFormalise(d) ? HONORAIRES_PARTAGE_FORMALISE : 0);
+  v.HonorairesComplementaires = { valeur: complementaires, texte: montant(complementaires) };
 
   /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
      la valeur reste le nombre pour les conditions. */
@@ -307,21 +363,33 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
     a.push(
       `Clause fiscale : divorce supposé déposé en ${anneeDivorceEstimee(le)}, déclarations séparées en ${anneeDivorceEstimee(le) + 1}. À corriger si le dépôt chez le notaire intervient l'autre année.`,
     );
+  if (d.mariage.regime === "ne sait pas")
+    a.unshift(
+      "Régime matrimonial inconnu des époux : la convention retient la communauté de biens réduite aux acquêts (régime légal, art. 1400 C. civ.). Vérifier l'absence de contrat de mariage et, en cas de mariage célébré ou de première résidence à l'étranger, la loi applicable au régime.",
+    );
   const effets = dateEffetsRetenue(d, le);
   if (d.procedure === "Divorce" && d.dateEffets === "Séparation" && effets === "Dépôt")
     a.push("Date des effets « Séparation » choisie, mais date de séparation absente ou à venir : règle légale (dépôt chez le notaire) appliquée.");
+  if (d.procedure === "Divorce" && d.dateEffets === "Libre" && effets === "Dépôt")
+    a.push("Date des effets « Autre date » choisie, mais date absente ou à venir : règle légale (dépôt chez le notaire) appliquée.");
+  if (d.procedure === "Divorce" && d.dateEffets === "Signature")
+    a.push("Date des effets « Signature » (option retirée) : règle légale (dépôt chez le notaire) appliquée, à revoir avec les époux.");
   if (effets !== "Dépôt") {
     a.push(
       "Date des effets avancée : vérifier l'indemnité d'occupation (art. 815-9) et l'absence d'acte commun postérieur à la date retenue ; l'état liquidatif doit être arrêté à cette date.",
     );
-    if (d.mariage.regime === "séparation des biens")
+    if (regimeConvention(d) === "séparation des biens")
       a.push("Régime de séparation de biens : la phrase sur les biens et revenus devenus personnels n'a d'objet qu'en régime communautaire, à retirer de la clause.");
   }
+  if (d.enfants.some((e) => e.garde === "Alternée") && (d.heureAlternance || "sortie des classes") === "sortie des classes" && ["samedi", "dimanche"].includes(d.jourAlternance))
+    a.push(`Alternance le ${d.jourAlternance} « à la sortie des classes » : jour sans classe, heure à préciser.`);
   if (!avocatRetenu(d)) a.unshift("Avocat du conjoint extérieur, nom pas encore connu : mention « [AVOCAT DU CONJOINT À COMPLÉTER] » à remplacer dans l'acte.");
-  actifsDe(d).slice(0, PLAFONDS.actifs).forEach((x, i) => {
+  /* Partage formalisé : les attributions manquantes sont signalées par la liquidation. */
+  if (!estFormalise(d)) actifsDe(d).slice(0, PLAFONDS.actifs).forEach((x, i) => {
     if (!["Moi", "Mon époux(se)", "Partage par moitié"].includes(x.qui))
       a.push(`Compte ou placement n° ${i + 1} (${x.categorie || "nature non renseignée"}) : attribution à compléter dans l'acte.`);
   });
+  a.push(...liquidation(d).alertes);
   if (!d.immobilier.length && !actifsDe(d).length)
     a.push("Aucun bien immobilier ni compte ou placement déclaré : inventaire à vérifier avec les époux (articles 2.5 et 2.9 du modèle).");
   if (d.procedure !== "Séparation de corps" && !(d.pc.convenue || "").trim())
@@ -340,6 +408,7 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
  *   ActifsDeclares             "Oui" / "Non"
  *   ActifsJoints               nombre d'actifs joints (texte en lettres)
  *   ActifCategorie{n}          Compte, Titres, AssuranceVie, EpargneSalariale, Autre
+ *   ActifAccord{n}             "e" pour une catégorie au féminin (« une épargne… ouverte »)
  *   ActifTitulaire{n}          Client, Conjoint, Joint ; « Madame X », « les deux époux »
  *   ActifEtablissement{n}      texte saisi
  *   ActifValeur{n}             montant à la française
@@ -387,6 +456,7 @@ export function valeursActifs(d: Donnees): Valeurs {
     });
     const etablissement = (a.etablissement || "").trim();
     v[`ActifCategorie${n}`] = categorie;
+    v[`ActifAccord${n}`] = categorie && categorie.texte.startsWith("une ") ? "e" : "";
     v[`ActifTitulaire${n}`] = titulaire;
     v[`ActifEtablissement${n}`] = etablissement || null;
     v[`ActifValeur${n}`] = valeur;
@@ -413,7 +483,7 @@ export function valeursActifs(d: Donnees): Valeurs {
     );
   });
   for (let n = actifs.length + 1; n <= PLAFONDS.actifs; n++) {
-    for (const c of ["ActifCategorie", "ActifTitulaire", "ActifEtablissement", "ActifValeur", "ActifOrigine", "ActifConservePar"]) v[`${c}${n}`] = null;
+    for (const c of ["ActifCategorie", "ActifAccord", "ActifTitulaire", "ActifEtablissement", "ActifValeur", "ActifOrigine", "ActifConservePar"]) v[`${c}${n}`] = null;
   }
   const joints = actifs.filter((a) => a.titulaire === "Joint").length;
   v.NbActifs = { valeur: actifs.length, texte: enLettres(actifs.length) };
@@ -421,6 +491,182 @@ export function valeursActifs(d: Donnees): Valeurs {
   v.ActifsJoints = { valeur: joints, texte: enLettres(joints) };
   v.ListeActifs = morceaux.length ? morceaux.join(" ; ") : null;
   return v;
+}
+
+/* ---------- Liquidation : état liquidatif chiffré ---------- */
+
+/* Régime retenu par la convention : le régime légal si les époux ne savent pas. */
+export const regimeConvention = (d: Donnees) => (d.mariage.regime === "ne sait pas" ? "communauté de biens réduite aux acquêts" : d.mariage.regime);
+
+const arrondi = (x: number) => Math.round(x * 100) / 100;
+
+/* État liquidatif des comptes, placements, véhicules et crédits, sans bien
+ * immobilier (sinon l'acte notarié). Communauté : masse commune (comptes
+ * ouverts pendant le mariage ; avant le mariage, solde du jour moins solde au
+ * mariage, présomption de communauté de l'art. 1402 à défaut). Séparation de
+ * biens et participation aux acquêts : masse indivise (comptes joints,
+ * véhicules et crédits communs), par moitié. Droits = moitié de l'actif net ;
+ * soulte = droits − attributions nettes.
+ *
+ *   LiqCalcul          "Oui" si partage formalisé, sans immobilier, données complètes
+ *   LiqMasseNature     "commune" / "indivise"
+ *   LiqMasseActive, LiqMassePassive, LiqActifNet (valeur absolue), LiqNetPositif "Oui"/"Non"
+ *   LiqDroits          droits de chacun (moitié de l'actif net, valeur absolue)
+ *   LiqAttribClient, LiqAttribConjoint   attributions nettes (actif − passif pris en charge),
+ *                      en valeur absolue ; LiqAttribClientPositif / LiqAttribConjointPositif "Oui"/"Non"
+ *   LiqSoulte, LiqSoulteSens ("Aucune", "Client", "Conjoint" : celui qui la paie),
+ *   LiqSoulteDebiteur, LiqSoulteCreancier   « Madame X »
+ *   ActifCommun{n}     part du compte n entrant dans la masse ; ActifSoldeMariage{n}
+ *
+ * Participation aux acquêts (ébauche, comptes, véhicules et crédits seulement) :
+ *   PartCalcul, PartOriginaireClient/Conjoint, PartFinalClient/Conjoint,
+ *   PartAcquetsClient/Conjoint, PartCreance, PartCreanceSens (débiteur),
+ *   PartCreanceDebiteur, PartCreanceCreancier. */
+export function liquidation(d: Donnees) {
+  const v: Valeurs = {};
+  const alertes: string[] = [];
+  const regime = regimeConvention(d);
+  const communaute = regime === "communauté de biens réduite aux acquêts" || regime === "communauté universelle";
+  const participation = regime === "participation aux acquêts";
+  const formalise = estFormalise(d);
+  const actifs = actifsDe(d).slice(0, PLAFONDS.actifs);
+  const m = (x: number) => ({ valeur: arrondi(x), texte: montant(arrondi(x)) });
+  const nom = (p: typeof d.client) => `${p.civilite} ${(p.nom || "").trim().toUpperCase()}`.trim();
+  const signaler = formalise || participation;
+  let complet = true;
+  const manque = (t: string) => {
+    complet = false;
+    if (signaler) alertes.push(t);
+  };
+  const avecConjoint = (qui: string) => qui === "Mon époux(se)" || qui === "Mon époux (se)";
+
+  let active = 0;
+  let passive = 0;
+  const attrib = { client: 0, conjoint: 0 };
+  const attribuer = (qui: string, x: number, libelle: string) => {
+    if (qui === "Moi") attrib.client += x;
+    else if (avecConjoint(qui)) attrib.conjoint += x;
+    else if (qui === "Partage par moitié") {
+      attrib.client += x / 2;
+      attrib.conjoint += x / 2;
+    } else manque(`${libelle} : attribution à préciser pour l'état liquidatif.`);
+  };
+
+  /* Participation : patrimoines originaire et final de chacun. */
+  const orig = { client: 0, conjoint: 0 };
+  const fin = { client: 0, conjoint: 0 };
+  const repartir = (cible: { client: number; conjoint: number }, titulaire: string, x: number) => {
+    if (titulaire === "Moi") cible.client += x;
+    else if (avecConjoint(titulaire)) cible.conjoint += x;
+    else {
+      cible.client += x / 2;
+      cible.conjoint += x / 2;
+    }
+  };
+
+  actifs.forEach((a, i) => {
+    const n = i + 1;
+    const val = nombre(a.valeur);
+    const avant = a.origine === "Avant le mariage";
+    const sm = nombre(a.soldeMariage || "");
+    v[`ActifSoldeMariage${n}`] = avant && regime !== "séparation des biens" && sm !== null ? m(sm) : null;
+    let part: number | null = null;
+    if (val === null) manque(`Compte ou placement n° ${n} : solde non renseigné, état liquidatif incomplet.`);
+    else if (communaute) {
+      if (regime === "communauté universelle" || !avant) part = val;
+      else if (sm === null) {
+        part = val;
+        if (signaler) alertes.push(`Compte ou placement n° ${n} ouvert avant le mariage, solde au mariage inconnu : totalité présumée commune (art. 1402 C. civ.), à vérifier.`);
+      } else part = Math.max(val - sm, 0);
+    } else part = a.titulaire === "Joint" ? val : 0;
+    v[`ActifCommun${n}`] = part === null ? null : m(part);
+    if (part) {
+      active += part;
+      attribuer(a.qui, part, `Compte ou placement n° ${n}`);
+    }
+    if (participation && val !== null) {
+      repartir(fin, a.titulaire, val);
+      if (avant) {
+        if (sm === null) manque(`Compte ou placement n° ${n} : solde au mariage manquant pour le patrimoine originaire.`);
+        else repartir(orig, a.titulaire, sm);
+      }
+    }
+  });
+  for (let n = actifs.length + 1; n <= PLAFONDS.actifs; n++) {
+    v[`ActifSoldeMariage${n}`] = null;
+    v[`ActifCommun${n}`] = null;
+  }
+
+  d.vehicules.slice(0, 3).forEach((x, i) => {
+    const val = nombre(x.valeur);
+    if (val === null) return manque(`Véhicule n° ${i + 1} : valeur non renseignée, état liquidatif incomplet.`);
+    if (participation) repartir(fin, "Joint", val);
+    if (x.qui === "en vente") return manque(`Véhicule n° ${i + 1} en vente : prix à partager, hors état liquidatif.`);
+    active += val;
+    attribuer(x.qui, val, `Véhicule n° ${i + 1}`);
+  });
+
+  d.credits.slice(0, 6).forEach((c, i) => {
+    const r = nombre(c.restantDu);
+    if (r === null) return manque(`Crédit n° ${i + 1} : restant dû non renseigné, état liquidatif incomplet.`);
+    passive += r;
+    if (participation) repartir(fin, "Joint", -r);
+    if (c.qui === "50/50") {
+      attrib.client -= r / 2;
+      attrib.conjoint -= r / 2;
+    } else if (c.qui === "Moi") attrib.client -= r;
+    else if (c.qui === "Conjoint(e)") attrib.conjoint -= r;
+    else manque(`Crédit n° ${i + 1} : répartition à préciser pour l'état liquidatif.`);
+  });
+
+  const net = active - passive;
+  const droits = net / 2;
+  const soulte = arrondi(droits - attrib.client);
+  const sens = Math.abs(soulte) < 0.01 ? "Aucune" : soulte > 0 ? "Conjoint" : "Client";
+  const calcul = formalise && complet && !d.immobilier.length && actifs.length > 0;
+  v.LiqCalcul = calcul ? "Oui" : "Non";
+  v.LiqMasseNature = communaute ? "commune" : "indivise";
+  v.LiqMasseActive = m(active);
+  v.LiqMassePassive = m(passive);
+  v.LiqActifNet = m(Math.abs(net));
+  v.LiqNetPositif = net >= 0 ? "Oui" : "Non";
+  v.LiqDroits = m(Math.abs(droits));
+  v.LiqAttribClient = m(Math.abs(attrib.client));
+  v.LiqAttribConjoint = m(Math.abs(attrib.conjoint));
+  v.LiqAttribClientPositif = attrib.client >= 0 ? "Oui" : "Non";
+  v.LiqAttribConjointPositif = attrib.conjoint >= 0 ? "Oui" : "Non";
+  v.LiqSoulte = m(Math.abs(soulte));
+  v.LiqSoulteSens = sens;
+  v.LiqSoulteDebiteur = sens === "Conjoint" ? nom(d.conjoint) : sens === "Client" ? nom(d.client) : null;
+  v.LiqSoulteCreancier = sens === "Conjoint" ? nom(d.client) : sens === "Client" ? nom(d.conjoint) : null;
+  if (formalise && d.immobilier.length)
+    alertes.push("Partage formalisé avec bien immobilier : l'état liquidatif relève de l'acte notarié, aucun calcul dans la convention.");
+  if (calcul)
+    alertes.push(
+      "État liquidatif calculé : vérifier les soldes à la date retenue, l'absence de récompense et de créance entre époux, et les modalités de paiement de la soulte.",
+    );
+
+  const acq = { client: Math.max(fin.client - orig.client, 0), conjoint: Math.max(fin.conjoint - orig.conjoint, 0) };
+  const creance = arrondi(Math.abs(acq.client - acq.conjoint) / 2);
+  const debiteur = creance < 0.01 ? "Aucune" : acq.client > acq.conjoint ? "Client" : "Conjoint";
+  const part = participation && complet && !d.immobilier.length && actifs.length > 0;
+  v.PartCalcul = part ? "Oui" : "Non";
+  v.PartOriginaireClient = m(orig.client);
+  v.PartOriginaireConjoint = m(orig.conjoint);
+  v.PartFinalClient = m(fin.client);
+  v.PartFinalConjoint = m(fin.conjoint);
+  v.PartAcquetsClient = m(acq.client);
+  v.PartAcquetsConjoint = m(acq.conjoint);
+  v.PartCreance = m(creance);
+  v.PartCreanceSens = debiteur;
+  v.PartCreanceDebiteur = debiteur === "Client" ? nom(d.client) : debiteur === "Conjoint" ? nom(d.conjoint) : null;
+  v.PartCreanceCreancier = debiteur === "Client" ? nom(d.conjoint) : debiteur === "Conjoint" ? nom(d.client) : null;
+  if (participation)
+    alertes.push(
+      "Participation aux acquêts : ébauche de créance de participation établie sur les seuls comptes, placements, véhicules et crédits déclarés. Restent à intégrer : biens personnels hors comptes (immobilier, parts sociales, fonds de commerce), biens reçus par donation ou succession (patrimoine originaire, art. 1570 et suivants C. civ.), dettes personnelles, et vérification des estimations.",
+    );
+
+  return { valeurs: v, alertes };
 }
 
 /* ---------- Nombres en toutes lettres ---------- */
@@ -502,8 +748,8 @@ export function sansContribution(d: Donnees) {
 
 /* ---------- Information des enfants mineurs ---------- */
 
-/* Seuil retenu par le cabinet : discernement présumé à partir de 12 ans. */
-const AGE_DISCERNEMENT = 12;
+/* Discernement : présumé de 12 à 17 ans ; de 10 à 11 ans, selon la réponse
+   des parents au formulaire ; jamais avant 10 ans (aDiscernement, modele.ts). */
 
 type Mineur = { prenom: string; feminin: boolean; age: string };
 
@@ -533,7 +779,9 @@ export function informationEnfants(d: Donnees, le: Date = new Date()) {
     if (ans >= 18) return;
     const mois = moisRevolus(e.dateNaissance, le);
     const texte = ans < 1 && mois !== null ? `${mois} mois` : `${ans} an${ans > 1 ? "s" : ""}`;
-    (ans < AGE_DISCERNEMENT ? sans : avec).push({ prenom, feminin: e.sexe === "Féminin", age: texte });
+    if (questionDiscernement(e, le) && e.discernement !== "Oui" && e.discernement !== "Non")
+      alertes.push(`Enfant ${prenom} (${ans} ans) : discernement non renseigné, traité comme non capable de discernement. À vérifier avec les parents.`);
+    (aDiscernement(e, le) ? avec : sans).push({ prenom, feminin: e.sexe === "Féminin", age: texte });
   });
 
   const phrase = (es: Mineur[], discernement: boolean): string | null => {
