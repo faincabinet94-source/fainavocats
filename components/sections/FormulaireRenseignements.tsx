@@ -1153,7 +1153,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             <Choix options={PARTAGES_COMPTES} value={d.partageComptes ?? ""} onChange={(v) => maj("partageComptes", v)} />
             {estFormalise(d) && (
               <p className="mt-2 text-[13px] text-gray-500">
-                La convention reprend alors chaque compte, calcule les droits de chacun et la soulte éventuelle. Honoraires complémentaires : forfait de 500 € TTC dans la limite de 2 heures de travail, puis 220 € HT de l&apos;heure. Vous pourrez retirer cette option au récapitulatif.
+                La convention reprend alors chaque compte, calcule les droits de chacun et la soulte éventuelle. Honoraires complémentaires : forfait de 500 € TTC dans la limite de 2 heures de travail, puis 225 € HT de l&apos;heure. Vous pourrez retirer cette option au récapitulatif.
               </p>
             )}
           </Champ>

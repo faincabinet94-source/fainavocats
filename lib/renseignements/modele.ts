@@ -55,12 +55,12 @@ export const HONORAIRES_PARTAGE_FORMALISE = 500;
 /* Liquidation dans la convention : forfait dans la limite de 2 heures de
    diligences, puis taux horaire (décision de Me FAIN du 2026-10-12). */
 export const LIQUIDATION_HEURES_INCLUSES = 2;
-export const TAUX_HORAIRE_HT = 220;
+export const TAUX_HORAIRE_HT = 225;
 export const avecPension = (d: Pick<Donnees, "enfants">) => d.enfants.some((e) => (nombre(e.pension) ?? 0) > 0);
 export const intermediationCabinet = (d: Donnees) =>
   d.intermediation === "Oui" && avecPension(d) && d.intermediationMiseEnPlace === MISES_EN_PLACE_INTERMEDIATION[0];
 /* Honoraires complémentaires TTC, cumulables : 250 € si le cabinet met en
-   place l'intermédiation, 500 € (forfait jusqu'à 2 heures, puis 220 € HT de l'heure) pour un partage
+   place l'intermédiation, 500 € (forfait jusqu'à 2 heures, puis 225 € HT de l'heure) pour un partage
    des comptes formalisé. Écrits dans « Formulaires reçus », qui les ajoute au
    Hono total du dossier à sa création (formules « Hono total nombre » et
    « Hono dû époux 1 / 2 »). */
@@ -101,7 +101,7 @@ export const ORIGINES_ACTIF = ["Avant le mariage", "Pendant le mariage"] as cons
 export const QUI_ACTIF = ["Moi", "Mon époux(se)", "Partage par moitié", "Je ne sais pas encore"] as const;
 /* Partage des comptes : déclaré déjà fait (la convention le constate), ou
    formalisé dans la convention, avec état liquidatif chiffré et soulte
-   (forfait de 500 € TTC jusqu'à 2 heures de travail, puis 220 € HT de l'heure). */
+   (forfait de 500 € TTC jusqu'à 2 heures de travail, puis 225 € HT de l'heure). */
 export const PARTAGES_COMPTES = [
   "Chacun garde ses comptes personnels et nous nous sommes déjà partagé les comptes joints",
   "Nous souhaitons formaliser la répartition de nos comptes dans la convention",
@@ -968,6 +968,9 @@ export function champsComplementaires(d: Donnees, lienReprise: string, interne =
     /* Colonnes créées le 2026-10-11 (validation de Me FAIN). */
     "Comptes et placements": texteActifs(d) || null,
     "Honoraires complémentaires": honorairesComplementaires(d) || null,
+    /* Clause insérée à l'article 2 des conventions d'honoraires (variable
+       !!OPTIONS HONORAIRES!! des modèles CH DCM1A), vide sans option. */
+    "Options d'honoraires": clausesHonoraires(d) || null,
     "Lien de reprise": lienReprise,
     "Avocat conjoint (Pro)": av && /^rec[A-Za-z0-9]{14}$/.test(av.id) ? [av.id] : null,
     Type: typeDossier(d),
@@ -1039,6 +1042,22 @@ export function optionsHonoraires(d: Donnees): OptionHonoraires[] {
       detail: "Vous pouvez aussi la demander vous-mêmes à la CAF, à tout moment, même après le divorce.",
     });
   return o;
+}
+
+/* Texte des options pour la convention d'honoraires (champ Airtable
+   « Options d'honoraires », recopié dans le dossier à sa création). */
+export function clausesHonoraires(d: Donnees): string {
+  return optionsHonoraires(d)
+    .map((o) =>
+      o.cle === "partage"
+        ? "**Option : liquidation du régime matrimonial.** À la demande des époux, la répartition de leurs comptes, épargne et placements est formalisée dans la convention de divorce, avec un état liquidatif établi par Maître Joackim FAIN. " +
+          `Cette prestation donne lieu à un honoraire forfaitaire complémentaire de ${HONORAIRES_PARTAGE_FORMALISE} euros TTC pour les deux époux, réparti entre eux comme les honoraires prévus ci-dessus, dans la limite de deux heures de diligences. ` +
+          `Au-delà, les diligences sont facturées au taux horaire de ${TAUX_HORAIRE_HT} euros HT (${TAUX_HORAIRE_HT * 1.2} euros TTC).`
+        : "**Option : intermédiation financière des pensions alimentaires.** À la demande des époux, Maître Joackim FAIN se charge de la mise en place de l'intermédiation financière de la pension alimentaire auprès de l'organisme débiteur des prestations familiales. " +
+          `Cette prestation donne lieu à un honoraire forfaitaire complémentaire de ${HONORAIRES_INTERMEDIATION} euros TTC pour les deux époux, réparti entre eux comme les honoraires prévus ci-dessus. ` +
+          "Les époux sont informés qu'ils peuvent en demander eux-mêmes la mise en place, à tout moment, y compris après le divorce.",
+    )
+    .join("\n\n");
 }
 
 /* Part de chacun selon la répartition des honoraires choisie. */
