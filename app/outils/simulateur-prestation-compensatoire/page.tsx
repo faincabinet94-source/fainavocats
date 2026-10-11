@@ -7,7 +7,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 const ARTICLES_PC = [
-  "calcul-prestation-compensatoire-divorce",
   "prestation-compensatoire-nouveaux-criteres-de-fixation-fain-avocats",
   "prestation-compensatoire-pensions-alimentaires-et-allocation-tierce-personne-atp",
   "la-prestation-compensatoire-n-a-pas-pour-objet-de-corriger-les-effets-du-choix-d",
@@ -83,10 +82,10 @@ export default function SimulateurPage() {
               selon les critères de l&apos;article 271 du Code civil. Pour en
               comprendre les principes, consultez notre guide complet{" "}
               <Link
-                href="/actualites/calcul-prestation-compensatoire-divorce"
+                href="/fiches/calcul-prestation-compensatoire"
                 className="text-[#362A24] underline underline-offset-2 hover:no-underline"
               >
-                Calcul de la prestation compensatoire : le guide complet
+                Calcul de la prestation compensatoire dans un divorce
               </Link>
               .
             </p>

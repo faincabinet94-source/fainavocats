@@ -33,7 +33,7 @@ export const LECTURES_ETAPES: Record<number, Lecture[]> = {
   4: [
     f("domicile-conjugal-solidarite-epoux-divorce"),
     a("domicile-conjugal-divorce-droits-obligations"),
-    a("solidarite-loyer-epoux-depart-domicile-conjugal"),
+    f("divorce-loyers-impayes"),
   ],
   /* 6. Les enfants */
   5: [
