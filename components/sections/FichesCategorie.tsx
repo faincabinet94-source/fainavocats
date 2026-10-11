@@ -5,11 +5,16 @@ import { getFichesByCategory } from "@/lib/fiches";
 export function FichesCategorie({
   category,
   titre,
+  exclure = [],
 }: {
   category: string;
   titre: string;
+  /** Slugs déjà présentés ailleurs sur la page. */
+  exclure?: string[];
 }) {
-  const fiches = getFichesByCategory(category);
+  const fiches = getFichesByCategory(category).filter(
+    (f) => !exclure.includes(f.slug)
+  );
   if (fiches.length === 0) return null;
 
   return (

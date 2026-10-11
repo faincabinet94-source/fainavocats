@@ -52,7 +52,7 @@ export default function AnnulationMariagePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
-        <FichesCategorie category="annulation-mariage" titre="Fiches pratiques sur l'annulation de mariage" />
+        <FichesCategorie category="annulation-mariage" titre="Guides sur l'annulation de mariage" />
       </main>
       <Footer />
       <FloatingCTA />

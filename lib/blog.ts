@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { getAllFiches } from "./fiches";
+import { normaliserCategorie } from "./rubriques";
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
 
@@ -30,7 +31,7 @@ export function getAllPosts(): BlogPost[] {
       slug: data.slug || filename.replace(/\.mdx$/, ""),
       title: data.title || "",
       date: data.date || "",
-      category: data.category || "",
+      category: normaliserCategorie(data.category || ""),
       author: data.author || "",
       description: data.description || "",
       image: data.image || "",

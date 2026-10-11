@@ -64,6 +64,7 @@ export function Navbar() {
     { name: "Consultations", href: "/consultations" },
     { name: "Divorce sans juge", href: "/divorce-sans-juge" },
     { name: "Honoraires", href: "/honoraires" },
+    { name: "Guides pratiques", href: "/fiches" },
     { name: "Actualités", href: "/actualites" },
     { name: t.nav.contact, href: "#contact" },
   ];
@@ -86,13 +87,16 @@ export function Navbar() {
             </a>
 
             {/* Desktop Navigation */}
-            <div className="hidden xl:flex items-center gap-4 2xl:gap-8">
+            {/* Huit entrées depuis la réorganisation du 11 octobre 2026 (Guides pratiques) :
+                espacement et approche resserrés en dessous de 2xl, sinon le bouton
+                d'appel sortait de l'écran entre 1280 et 1600 px. */}
+            <div className="hidden xl:flex items-center gap-3 2xl:gap-4">
               {navigation.map((item) => (
                 <a
                   key={item.name}
                   href={item.href.startsWith("#") ? `/#${item.href.slice(1)}` : item.href}
                   onClick={(e) => handleAnchorClick(e, item.href)}
-                  className="relative whitespace-nowrap text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors py-2 group"
+                  className="relative whitespace-nowrap text-xs font-bold uppercase tracking-wide text-gray-500 hover:text-[#1A1A1A] transition-colors py-2 group"
                 >
                   {item.name}
                   <span className="absolute bottom-0 left-0 w-0 h-px bg-[#1A1A1A] transition-all duration-300 group-hover:w-full"></span>
@@ -112,15 +116,15 @@ export function Navbar() {
                 href={ESPACE_CLIENT}
                 aria-label="Espace client"
                 title="Espace client"
-                className="flex items-center gap-2 whitespace-nowrap text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#1A1A1A] transition-colors py-2"
+                className="flex items-center gap-2 whitespace-nowrap text-xs font-bold uppercase tracking-wide text-gray-500 hover:text-[#1A1A1A] transition-colors py-2"
               >
                 <UserRound className="w-[18px] h-[18px]" strokeWidth={1.75} />
-                <span className="hidden xl:inline">Espace client</span>
+                <span className="sr-only">Espace client</span>
               </a>
 
               <a
                 href="tel:+33140680237"
-                className="shrink-0 whitespace-nowrap bg-[#362A24] text-white px-5 xl:px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#2C221D] transition-colors"
+                className="shrink-0 whitespace-nowrap bg-[#362A24] text-white px-5 py-3 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-[#2C221D] transition-colors"
               >
                 {t.nav.cta}
               </a>

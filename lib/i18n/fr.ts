@@ -12,7 +12,7 @@ export const fr = {
     title2: "Avocats",
     // Ligne integree au <h1> : sans elle le H1 ne portait que la marque.
     titleTagline: "Avocat en droit de la famille à Paris 16",
-    subtitle: "Cabinet d'avocats en droit de la famille à Paris 16ème. Divorce, garde d'enfants, patrimoine. Une défense d'excellence pour protéger vos intérêts.",
+    subtitle: "Cabinet d'avocats en droit de la famille à Paris 16ème. Divorce, autorité parentale, patrimoine. Une défense d'excellence pour protéger vos intérêts.",
     cta1: "Prendre rendez-vous",
     cta2: "Découvrir le cabinet",
     availability: "Joignable 24h/24 • 7j/7",
@@ -31,7 +31,7 @@ export const fr = {
     cta: "Tous nos services",
     items: [
       { title: "Divorce & Séparation", desc: "Consentement mutuel, procédure contentieuse, rupture de PACS." },
-      { title: "Garde d'Enfants", desc: "Résidence alternée, droit de visite, autorité parentale." },
+      { title: "Autorité parentale et Résidence", desc: "Résidence de l'enfant, résidence alternée, droit de visite." },
       { title: "Liquidation du régime matrimonial", desc: "Partage des biens, récompenses, indemnité d'occupation, indivision." },
       { title: "Filiation & Adoption", desc: "Recherche de paternité, adoption simple et plénière." },
       { title: "Droit Pénal de la Famille", desc: "Violences conjugales, non-présentation d'enfant, abandon." },
@@ -81,7 +81,7 @@ export const fr = {
     label: "Le fondateur",
     role: "Avocat au Barreau de Paris",
     p1: "Avocat au Barreau de Paris depuis 2004, Maître Joackim Fain a fondé le cabinet avec une conviction : offrir à chaque client un accompagnement d'excellence, alliant rigueur juridique et profonde humanité.",
-    p2: "Dédié au droit de la famille et du patrimoine, il intervient dans les dossiers les plus sensibles (divorces complexes, conflits de garde, liquidations patrimoniales) avec une approche stratégique et une écoute attentive.",
+    p2: "Dédié au droit de la famille et du patrimoine, il intervient dans les dossiers les plus sensibles (divorces complexes, conflits sur la résidence des enfants, liquidations patrimoniales) avec une approche stratégique et une écoute attentive.",
     p3: "Son engagement : défendre vos intérêts avec détermination tout en préservant ce qui compte le plus pour vous.",
     cta: "Prendre rendez-vous",
     linkedin: "Profil LinkedIn"

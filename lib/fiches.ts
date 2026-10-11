@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { normaliserCategorie } from "./rubriques";
 
 const FICHES_DIR = path.join(process.cwd(), "content/fiches");
 
@@ -33,7 +34,7 @@ export function getAllFiches(): Fiche[] {
       slug: data.slug || filename.replace(/\.mdx$/, ""),
       title: data.title || "",
       metaTitle: data.metaTitle || "",
-      category: data.category || "",
+      category: normaliserCategorie(data.category || ""),
       description: data.description || "",
       image: data.image || "",
       date: data.date || "",
@@ -48,5 +49,6 @@ export function getFicheBySlug(slug: string): Fiche | undefined {
 }
 
 export function getFichesByCategory(category: string): Fiche[] {
-  return getAllFiches().filter((f) => f.category === category);
+  const key = normaliserCategorie(category);
+  return getAllFiches().filter((f) => f.category === key);
 }

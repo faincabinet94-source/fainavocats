@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
-import { BlogArticle } from "@/components/sections/BlogArticle";
+import { ArticleGabarit, fildArianeJsonLd } from "@/components/sections/ArticleGabarit";
+import { MarkdownContent } from "@/components/sections/MarkdownContent";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 
@@ -61,9 +62,25 @@ export default function ArticlePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(fildArianeJsonLd("actualite", post.category, post.title)),
+        }}
+      />
       <Navbar />
-      <main className="relative pt-32 pb-20 bg-[#F4F2EC] min-h-screen">
-        <BlogArticle post={post} />
+      <main className="bg-[#F4F2EC] min-h-screen pt-32 pb-24">
+        <ArticleGabarit
+          type="actualite"
+          slug={post.slug}
+          title={post.title}
+          category={post.category}
+          image={post.image}
+          date={post.date}
+          content={post.content}
+        >
+          <MarkdownContent content={post.content} />
+        </ArticleGabarit>
       </main>
       <Footer />
     </>

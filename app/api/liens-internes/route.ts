@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAllFiches } from "@/lib/fiches";
 import { getAllPosts } from "@/lib/blog";
 import { expertises } from "@/lib/expertises";
+import { RUBRIQUES } from "@/lib/rubriques";
 
 // Liste des cibles de maillage interne, consommée par le pipeline n8n de
 // publication SEO (workflow « SEO Auto-Publication via Airtable »).
@@ -22,14 +23,16 @@ type Cible = {
   type: "rubrique" | "fiche" | "actualite";
 };
 
-// Les sept rubriques de compétence sont décrites dans lib/expertises.ts : on
+// Les rubriques de compétence sont décrites dans lib/expertises.ts : on
 // les lit là-bas plutôt que de recopier leur description ici, sinon les deux
 // finissent par diverger et le modèle travaille sur un texte périmé.
 const RUBRIQUES_EXPERTISES: Cible[] = Object.values(expertises).map((e) => ({
   chemin: `/${e.slug}`,
   titre: e.title,
   description: e.heroSubtitle,
-  categorie: e.slug,
+  // La catégorie des contenus n'est pas toujours le slug de la page
+  // (liquidation-regime-matrimonial → liquidation) : on la lit dans le référentiel.
+  categorie: RUBRIQUES.find((r) => r.href === `/${e.slug}`)?.key ?? e.slug,
   type: "rubrique",
 }));
 
@@ -54,11 +57,11 @@ const RUBRIQUES_HORS_EXPERTISES: Cible[] = [
     type: "rubrique",
   },
   {
-    chemin: "/les-enfants",
-    titre: "Les enfants",
+    chemin: "/divorce-sans-juge",
+    titre: "Divorce sans juge",
     description:
-      "Autorité parentale, résidence, entretien et éducation de l'enfant, audition du mineur.",
-    categorie: "enfants",
+      "Divorce par consentement mutuel par acte d'avocat : convention, délai de réflexion, dépôt chez le notaire, honoraires.",
+    categorie: "divorce-sans-juge",
     type: "rubrique",
   },
   {
@@ -74,7 +77,7 @@ const RUBRIQUES_HORS_EXPERTISES: Cible[] = [
     titre: "Simulateur de prestation compensatoire",
     description:
       "Outil de calcul indicatif du montant d'une prestation compensatoire selon plusieurs méthodes usuelles.",
-    categorie: "pension-alimentaire",
+    categorie: "prestation-compensatoire",
     type: "rubrique",
   },
   {
