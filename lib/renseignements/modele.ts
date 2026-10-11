@@ -43,6 +43,19 @@ export const STATUTS_LOGEMENT = [
 export const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
 /* Heure du changement de résidence en alternance (sortie des classes par défaut). */
 export const HEURES_ALTERNANCE = ["sortie des classes", "8 heures", "9 heures", "10 heures", "12 heures", "16 heures 30", "17 heures", "18 heures", "19 heures", "20 heures"] as const;
+/* Intermédiation financière des pensions (CAF, ARIPA) : refusée par défaut
+   dans la convention ; mise en place par le cabinet (250 € TTC) ou par les
+   parents eux-mêmes, qui peuvent aussi la demander à tout moment après le divorce. */
+export const MISES_EN_PLACE_INTERMEDIATION = [
+  "Le cabinet s'en charge (honoraires complémentaires de 250 € TTC)",
+  "Nous la demanderons nous-mêmes à la CAF",
+] as const;
+export const HONORAIRES_INTERMEDIATION = 250;
+export const HONORAIRES_PARTAGE_FORMALISE = 500;
+export const avecPension = (d: Pick<Donnees, "enfants">) => d.enfants.some((e) => (nombre(e.pension) ?? 0) > 0);
+export const intermediationCabinet = (d: Donnees) =>
+  d.intermediation === "Oui" && avecPension(d) && d.intermediationMiseEnPlace === MISES_EN_PLACE_INTERMEDIATION[0];
+
 /* Maintien d'un bien en indivision : qui en a la jouissance, qui paie quoi. */
 export const QUI_JOUISSANCE = ["Moi", "Mon époux(se)"] as const;
 export const QUI_CHARGES_INDIVISION = ["Moi", "Mon époux(se)", "Par moitié"] as const;
@@ -258,6 +271,8 @@ export type Donnees = {
   nomFamilleEnfants: string;
   jourAlternance: string;
   heureAlternance?: string;
+  intermediation?: string;
+  intermediationMiseEnPlace?: string;
   /* Résidence alternée : allocations familiales partagées ou allocataire désigné (L. 521-2 CSS). */
   allocationsFamiliales?: string;
   /* Version cabinet, divorce seulement : "Dépôt" (défaut), "Séparation" ou
@@ -345,6 +360,8 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   nomFamilleEnfants: "",
   jourAlternance: "",
   heureAlternance: "",
+  intermediation: "",
+  intermediationMiseEnPlace: "",
   allocationsFamiliales: "",
   dateEffets: "",
   dateEffetsLibre: "",
@@ -1053,6 +1070,12 @@ export function recapitulatif(d: Donnees): Section[] {
         ["Jour de l'alternance", d.jourAlternance],
         ["Heure de l'alternance", d.enfants.some((e) => e.garde === "Alternée") ? d.heureAlternance || "sortie des classes" : ""],
         ["Allocations familiales", d.allocationsFamiliales || ""],
+        [
+          "Intermédiation financière",
+          avecPension(d) && d.intermediation
+            ? [d.intermediation, d.intermediation === "Oui" && d.intermediationMiseEnPlace].filter(Boolean).join(", ")
+            : "",
+        ],
         ...(d.procedure === "Divorce" && avecContribution(d)
           ? ([["Point de départ de la CEE", texteDebutCEE(d)]] as [string, string][])
           : []),

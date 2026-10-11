@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, aDiscernement, questionDiscernement, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, HONORAIRES_INTERMEDIATION, HONORAIRES_PARTAGE_FORMALISE, aDiscernement, avecPension, intermediationCabinet, questionDiscernement, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -276,14 +276,20 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   Object.assign(v, liquidation(d).valeurs);
 
   /* Mention finale « Fait en … exemplaires » : trois, plus un pour la CAF si
-     l'intermédiation financière est mise en place (le modèle la refuse
-     aujourd'hui : « Non »), plus un pour l'administration fiscale quand la
+     l'intermédiation financière est mise en place, plus un pour l'administration fiscale quand la
      convention liquide elle-même le régime (partage formalisé, sans bien
      immobilier, donc droit de partage). */
-  v.Intermediation = "Non";
+  v.Intermediation = d.intermediation === "Oui" && avecPension(d) ? "Oui" : "Non";
+  v.IntermediationCabinet = intermediationCabinet(d) ? "Oui" : "Non";
   v.LiquidationNonNotariee = estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 ? "Oui" : "Non";
   const exemplaires = 3 + (v.Intermediation === "Oui" ? 1 : 0) + (v.LiquidationNonNotariee === "Oui" ? 1 : 0);
   v.NbExemplaires = { valeur: exemplaires, texte: enLettres(exemplaires) };
+
+  /* Honoraires complémentaires TTC, cumulables : 250 € si le cabinet met en
+     place l'intermédiation, 500 € (minimum, selon la complexité) pour un
+     partage des comptes formalisé dans la convention. */
+  const complementaires = (intermediationCabinet(d) ? HONORAIRES_INTERMEDIATION : 0) + (estFormalise(d) ? HONORAIRES_PARTAGE_FORMALISE : 0);
+  v.HonorairesComplementaires = { valeur: complementaires, texte: montant(complementaires) };
 
   /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
      la valeur reste le nombre pour les conditions. */

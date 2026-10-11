@@ -28,6 +28,8 @@ import {
   GARDES,
   JOURS,
   HEURES_ALTERNANCE,
+  MISES_EN_PLACE_INTERMEDIATION,
+  avecPension,
   QUI_CHARGES_INDIVISION,
   QUI_JOUISSANCE,
   age,
@@ -1029,6 +1031,23 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           aide="En résidence alternée, vous pouvez demander ensemble à la CAF de les partager par moitié, ou désigner l'un de vous comme allocataire."
         >
           <Choix options={ALLOCATIONS_FAMILIALES} value={d.allocationsFamiliales ?? ""} onChange={(v) => maj("allocationsFamiliales", v)} />
+        </Champ>
+      )}
+      {avecPension(d) && (
+        <Champ
+          label={cab("Souhaitez-vous que la pension soit versée par l'intermédiaire de la CAF ?", "Intermédiation financière de la pension (CAF) ?")}
+          aide="L'intermédiation financière : la CAF (service ARIPA) collecte la pension auprès du parent qui la doit et la reverse à l'autre. Elle protège contre les impayés. Sans demande de votre part, la convention l'écarte."
+        >
+          <Choix options={OUI_NON} value={d.intermediation ?? ""} onChange={(v) => maj("intermediation", v)} />
+          {d.intermediation === "Oui" && (
+            <div className="mt-4 space-y-2">
+              <p className="text-[15px] text-[#1A1A1A]">{cab("Qui s'occupe de la mettre en place ?", "Mise en place")}</p>
+              <Choix options={MISES_EN_PLACE_INTERMEDIATION} value={d.intermediationMiseEnPlace ?? ""} onChange={(v) => maj("intermediationMiseEnPlace", v)} />
+            </div>
+          )}
+          <p className="mt-2 text-[13px] text-gray-500">
+            Dans tous les cas, chacun de vous pourra la demander lui-même à tout moment, même après le divorce, sur pension-alimentaire.caf.fr.
+          </p>
         </Champ>
       )}
       {d.enfants.length >= PLAFONDS.enfants && (
