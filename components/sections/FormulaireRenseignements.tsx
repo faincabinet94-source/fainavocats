@@ -4,10 +4,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AUCUN_GUIDE, type Guides, type Lien } from "@/lib/renseignements/guides";
 import {
   BENEFICIAIRES,
   ALLOCATIONS_FAMILIALES,
-  ARTICLE_DATE_EFFETS,
   DATES_EFFETS,
   DEBUTS_CEE,
   PARTAGES_COMPTES,
@@ -133,6 +133,28 @@ function avec<T>(obj: T, chemin: string, valeur: unknown): T {
 /* Libellé du montant selon la nature du compte ou placement. */
 const libelleValeur = (c: string) =>
   c === "Assurance-vie" ? "Valeur de rachat (€)" : c.startsWith("Compte-titres") || c.startsWith("Autre") ? "Valeur (€)" : "Solde du compte (€)";
+
+/* Lectures proposées sous une étape (version client) : guides publiés
+   seulement, ouverts dans un nouvel onglet pour ne pas quitter le formulaire. */
+function PourVousAider({ liens }: { liens: Lien[] }) {
+  if (!liens.length) return null;
+  return (
+    <aside className="mt-10 rounded-xl border border-[#E5E2DA] bg-[#FAF9F6] p-5">
+      <p className="text-[15px] font-medium text-[#1A1A1A]">Pour vous aider</p>
+      <ul className="mt-3 space-y-2">
+        {liens.map((l) => (
+          <li key={l.href} className="flex items-start gap-2 text-sm">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+            <a href={l.href} target="_blank" rel="noopener" className="text-[#362A24] underline underline-offset-2 hover:text-[#1A1A1A]">
+              {l.titre}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[13px] text-gray-500">Les guides s&apos;ouvrent dans un nouvel onglet : votre saisie reste ici.</p>
+    </aside>
+  );
+}
 
 /* Lieux de naissance et de mariage : forme attendue, reprise dans les actes. */
 const AIDE_LIEU = "Ville (Département), ou Ville (Pays) hors de France. Par exemple : Enghien-les-Bains (Val-d'Oise) ou Bruxelles (Belgique).";
@@ -414,7 +436,7 @@ async function reduire(f: File): Promise<File> {
   }
 }
 
-export default function FormulaireRenseignements() {
+export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { guides?: Guides }) {
   const params = useSearchParams();
   const [pret, setPret] = useState(false);
   const [id, setId] = useState("");
@@ -1176,7 +1198,7 @@ export default function FormulaireRenseignements() {
             champ="dateEffets"
             label="Date des effets du divorce entre les époux, pour leurs biens"
             aide="Avancer la date des effets à la séparation permet à chacun de garder ce qu'il a gagné et acquis depuis ; c'est moins favorable à l'époux qui gagnait moins."
-            aideLien={ARTICLE_DATE_EFFETS.publie ? { href: ARTICLE_DATE_EFFETS.url, texte: "Voir l'article du cabinet." } : undefined}
+            aideLien={guides.dateEffets ? { href: guides.dateEffets.href, texte: "Voir l'article du cabinet." } : undefined}
           >
             <Choix
               options={DATES_EFFETS}
@@ -1481,6 +1503,7 @@ export default function FormulaireRenseignements() {
 
       <h2 className="mb-6 font-serif text-3xl text-[#1A1A1A]">{titreEtape}</h2>
       {contenu[etape]}
+      {!interne && <PourVousAider liens={(guides.etapes[etape] || []).filter((l) => !l.procedure || l.procedure === d.procedure)} />}
 
       {rappel && complet && aFaire.length > 0 && (
         <div ref={rappelRef} className="mt-8 text-left rounded-xl border border-[#E6D9BF] bg-[#FBF7EE] px-5 py-4 text-sm text-[#4A3B24]">

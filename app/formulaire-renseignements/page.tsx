@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import FormulaireRenseignements from "@/components/sections/FormulaireRenseignements";
+import { guidesDisponibles } from "@/lib/renseignements/guides-serveur";
 
 export default function FormulaireRenseignementsPage({ searchParams }: { searchParams: { interne?: string; correction?: string } }) {
   const correction = Boolean(searchParams?.correction);
@@ -23,7 +24,7 @@ export default function FormulaireRenseignementsPage({ searchParams }: { searchP
       )}
       <div className="mt-10">
         <Suspense fallback={<div className="py-16 text-center text-gray-500">Chargement du formulaire…</div>}>
-          <FormulaireRenseignements />
+          <FormulaireRenseignements guides={guidesDisponibles()} />
         </Suspense>
       </div>
     </main>

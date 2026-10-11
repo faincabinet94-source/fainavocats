@@ -85,11 +85,6 @@ export const ALLOCATIONS_FAMILIALES = ["Partage par moitié", "Moi", "Mon époux
    date postérieure au dépôt. */
 export const DATES_EFFETS = ["Dépôt", "Séparation", "Libre"] as const;
 export const DEBUTS_CEE = ["Dépôt", "Date des effets", "Libre"] as const;
-/* Lien de l'info-bulle, affiché seulement une fois l'article publié. */
-export const ARTICLE_DATE_EFFETS = {
-  url: "https://fain-avocats.fr/actualites/date-effets-divorce-entre-epoux",
-  publie: false,
-};
 export const FORMES_PC = ["Capital", "Abandon de soulte", "Rente mensuelle", "Rente viagère"] as const;
 export const REPARTITIONS = [
   "Partage par moitié",
