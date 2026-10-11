@@ -279,12 +279,16 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
      trois (un par époux, un pour le notaire ; les avocats gardent un scan),
      plus un pour la CAF si l'intermédiation financière est mise en place,
      plus un pour l'administration fiscale (droit de partage) quand la
-     convention liquide elle-même une communauté : partage des comptes et
-     valeurs mobilières formalisé, sans bien immobilier. */
+     convention partage elle-même des biens communs ou indivis : communauté
+     ou séparation de biens, partage des comptes et valeurs mobilières
+     formalisé, sans bien immobilier, masse à partager non nulle (en
+     séparation de biens : comptes joints ou véhicules indivis). */
   v.Intermediation = d.intermediation === "Oui" && avecPension(d) ? "Oui" : "Non";
   v.IntermediationCabinet = intermediationCabinet(d) ? "Oui" : "Non";
-  const communaute = ["communauté de biens réduite aux acquêts", "communauté universelle"].includes(regimeConvention(d));
-  v.LiquidationNonNotariee = communaute && estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 ? "Oui" : "Non";
+  const regimes = ["communauté de biens réduite aux acquêts", "communauté universelle", "séparation des biens"];
+  const masse = (v.LiqMasseActive as { valeur: number } | null)?.valeur ?? 0;
+  v.LiquidationNonNotariee =
+    regimes.includes(regimeConvention(d)) && estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 && masse > 0 ? "Oui" : "Non";
   const exemplaires = 3 + (v.Intermediation === "Oui" ? 1 : 0) + (v.LiquidationNonNotariee === "Oui" ? 1 : 0);
   v.NbExemplaires = { valeur: exemplaires, texte: enLettres(exemplaires) };
 
