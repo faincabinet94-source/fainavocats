@@ -41,8 +41,8 @@ export const STATUTS_LOGEMENT = [
   "Propriétaire à titre personnel",
 ] as const;
 export const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
-/* Heure du changement de résidence en alternance (19 heures par défaut). */
-export const HEURES_ALTERNANCE = ["8 heures", "9 heures", "10 heures", "12 heures", "16 heures 30", "17 heures", "18 heures", "19 heures", "20 heures"] as const;
+/* Heure du changement de résidence en alternance (sortie des classes par défaut). */
+export const HEURES_ALTERNANCE = ["sortie des classes", "8 heures", "9 heures", "10 heures", "12 heures", "16 heures 30", "17 heures", "18 heures", "19 heures", "20 heures"] as const;
 /* Maintien d'un bien en indivision : qui en a la jouissance, qui paie quoi. */
 export const QUI_JOUISSANCE = ["Moi", "Mon époux(se)"] as const;
 export const QUI_CHARGES_INDIVISION = ["Moi", "Mon époux(se)", "Par moitié"] as const;
@@ -1051,7 +1051,7 @@ export function recapitulatif(d: Donnees): Section[] {
       lignes: [
         ["Nom de famille", d.nomFamilleEnfants],
         ["Jour de l'alternance", d.jourAlternance],
-        ["Heure de l'alternance", d.enfants.some((e) => e.garde === "Alternée") ? d.heureAlternance || "19 heures" : ""],
+        ["Heure de l'alternance", d.enfants.some((e) => e.garde === "Alternée") ? d.heureAlternance || "sortie des classes" : ""],
         ["Allocations familiales", d.allocationsFamiliales || ""],
         ...(d.procedure === "Divorce" && avecContribution(d)
           ? ([["Point de départ de la CEE", texteDebutCEE(d)]] as [string, string][])

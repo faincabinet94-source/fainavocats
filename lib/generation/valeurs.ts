@@ -165,8 +165,11 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   v.AccordEConjoint = d.conjoint.civilite === "Madame" ? "e" : "";
 
   /* Alternance : jour du changement de résidence, le dimanche à défaut. */
-  v.JourAlternance = d.jourAlternance || "dimanche";
-  v.HeureAlternance = d.heureAlternance || "19 heures";
+  /* Par défaut, le vendredi à la sortie des classes (décision du 2026-10-11).
+     HeureAlternance porte sa préposition : « à la sortie des classes », « à 19 heures ». */
+  v.JourAlternance = d.jourAlternance || "vendredi";
+  const heure = d.heureAlternance || "sortie des classes";
+  v.HeureAlternance = { valeur: heure, texte: heure === "sortie des classes" ? "à la sortie des classes" : `à ${heure}` };
 
   /* Maintien du premier bien en indivision (DCM1AE 15.7, art. 2.5) : qui en a
      la jouissance, indemnité d'occupation, crédit, charges et taxe foncière. */
@@ -272,6 +275,16 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   Object.assign(v, valeursActifs(d));
   Object.assign(v, liquidation(d).valeurs);
 
+  /* Mention finale « Fait en … exemplaires » : trois, plus un pour la CAF si
+     l'intermédiation financière est mise en place (le modèle la refuse
+     aujourd'hui : « Non »), plus un pour l'administration fiscale quand la
+     convention liquide elle-même le régime (partage formalisé, sans bien
+     immobilier, donc droit de partage). */
+  v.Intermediation = "Non";
+  v.LiquidationNonNotariee = estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 ? "Oui" : "Non";
+  const exemplaires = 3 + (v.Intermediation === "Oui" ? 1 : 0) + (v.LiquidationNonNotariee === "Oui" ? 1 : 0);
+  v.NbExemplaires = { valeur: exemplaires, texte: enLettres(exemplaires) };
+
   /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;
      la valeur reste le nombre pour les conditions. */
   if (typeof v.CréditsCommuns === "number") v.CréditsCommuns = { valeur: v.CréditsCommuns, texte: enLettres(v.CréditsCommuns) };
@@ -354,6 +367,8 @@ export function alertesConvention(d: Donnees, le: Date = new Date()): string[] {
     if (regimeConvention(d) === "séparation des biens")
       a.push("Régime de séparation de biens : la phrase sur les biens et revenus devenus personnels n'a d'objet qu'en régime communautaire, à retirer de la clause.");
   }
+  if (d.enfants.some((e) => e.garde === "Alternée") && (d.heureAlternance || "sortie des classes") === "sortie des classes" && ["samedi", "dimanche"].includes(d.jourAlternance))
+    a.push(`Alternance le ${d.jourAlternance} « à la sortie des classes » : jour sans classe, heure à préciser.`);
   if (!avocatRetenu(d)) a.unshift("Avocat du conjoint extérieur, nom pas encore connu : mention « [AVOCAT DU CONJOINT À COMPLÉTER] » à remplacer dans l'acte.");
   /* Partage formalisé : les attributions manquantes sont signalées par la liquidation. */
   if (!estFormalise(d)) actifsDe(d).slice(0, PLAFONDS.actifs).forEach((x, i) => {

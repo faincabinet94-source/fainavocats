@@ -1017,9 +1017,9 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
       ))}
       {d.enfants.some((x) => x.garde === "Alternée") && (
         <Champ label="Jour du changement de résidence en alternance" aide="Le jour et l'heure où les enfants passent d'un parent à l'autre.">
-          <Choix options={JOURS} value={d.jourAlternance} onChange={(v) => maj("jourAlternance", v)} />
+          <Choix options={JOURS} value={d.jourAlternance || "vendredi"} onChange={(v) => maj("jourAlternance", v)} />
           <div className="mt-3 sm:max-w-xs">
-            <Liste options={HEURES_ALTERNANCE} value={d.heureAlternance || "19 heures"} onChange={(v) => maj("heureAlternance", v)} />
+            <Liste options={HEURES_ALTERNANCE} value={d.heureAlternance || "sortie des classes"} onChange={(v) => maj("heureAlternance", v)} />
           </div>
         </Champ>
       )}
