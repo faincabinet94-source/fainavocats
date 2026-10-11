@@ -275,13 +275,16 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   Object.assign(v, valeursActifs(d));
   Object.assign(v, liquidation(d).valeurs);
 
-  /* Mention finale « Fait en … exemplaires » : trois, plus un pour la CAF si
-     l'intermédiation financière est mise en place, plus un pour l'administration fiscale quand la
-     convention liquide elle-même le régime (partage formalisé, sans bien
-     immobilier, donc droit de partage). */
+  /* Mention finale « Fait en … exemplaires » (règle de Me FAIN du 2026-10-11) :
+     trois (un par époux, un pour le notaire ; les avocats gardent un scan),
+     plus un pour la CAF si l'intermédiation financière est mise en place,
+     plus un pour l'administration fiscale (droit de partage) quand la
+     convention liquide elle-même une communauté : partage des comptes et
+     valeurs mobilières formalisé, sans bien immobilier. */
   v.Intermediation = d.intermediation === "Oui" && avecPension(d) ? "Oui" : "Non";
   v.IntermediationCabinet = intermediationCabinet(d) ? "Oui" : "Non";
-  v.LiquidationNonNotariee = estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 ? "Oui" : "Non";
+  const communaute = ["communauté de biens réduite aux acquêts", "communauté universelle"].includes(regimeConvention(d));
+  v.LiquidationNonNotariee = communaute && estFormalise(d) && !d.immobilier.length && actifsDe(d).length > 0 ? "Oui" : "Non";
   const exemplaires = 3 + (v.Intermediation === "Oui" ? 1 : 0) + (v.LiquidationNonNotariee === "Oui" ? 1 : 0);
   v.NbExemplaires = { valeur: exemplaires, texte: enLettres(exemplaires) };
 
