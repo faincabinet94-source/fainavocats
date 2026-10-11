@@ -70,13 +70,21 @@ export const CATEGORIES_ACTIFS = [
 export const TITULAIRES_ACTIF = ["Moi", "Mon époux(se)", "Joint"] as const;
 export const ORIGINES_ACTIF = ["Avant le mariage", "Pendant le mariage"] as const;
 export const QUI_ACTIF = ["Moi", "Mon époux(se)", "Partage par moitié", "Je ne sais pas encore"] as const;
+/* Partage des comptes : déclaré déjà fait (la convention le constate), ou
+   formalisé dans la convention, avec état liquidatif chiffré et soulte
+   (honoraires supplémentaires, à partir de 500 € TTC selon la complexité). */
+export const PARTAGES_COMPTES = [
+  "Chacun garde ses comptes personnels et nous nous sommes déjà partagé les comptes joints",
+  "Nous souhaitons formaliser la répartition de nos comptes dans la convention",
+] as const;
+export const estFormalise = (d: Pick<Donnees, "partageComptes">) => d.partageComptes === PARTAGES_COMPTES[1];
 export const ALLOCATIONS_FAMILIALES = ["Partage par moitié", "Moi", "Mon époux(se)"] as const;
 /* Date des effets du divorce entre les époux (art. 262-1 C. civ., DCM1AE 15.6
    art. 2.7) : le dépôt chez le notaire par défaut. Valeurs lues telles quelles
    par le modèle Word (DateEffets, DebutCEE) : ne pas les reformuler. Jamais de
    date postérieure au dépôt. */
-export const DATES_EFFETS = ["Dépôt", "Séparation", "Signature"] as const;
-export const DEBUTS_CEE = ["Dépôt", "Date des effets"] as const;
+export const DATES_EFFETS = ["Dépôt", "Séparation", "Libre"] as const;
+export const DEBUTS_CEE = ["Dépôt", "Date des effets", "Libre"] as const;
 /* Lien de l'info-bulle, affiché seulement une fois l'article publié. */
 export const ARTICLE_DATE_EFFETS = {
   url: "https://fain-avocats.fr/actualites/date-effets-divorce-entre-epoux",
@@ -141,6 +149,8 @@ export type Actif = {
   etablissement: string;
   valeur: string;
   origine: string;
+  /* Compte ouvert avant le mariage, hors séparation de biens : part propre. */
+  soldeMariage?: string;
   qui: string;
 };
 export type Credit = {
@@ -235,10 +245,14 @@ export type Donnees = {
   jourAlternance: string;
   /* Résidence alternée : allocations familiales partagées ou allocataire désigné (L. 521-2 CSS). */
   allocationsFamiliales?: string;
-  /* Version cabinet, divorce seulement : "Dépôt" (défaut), "Séparation",
-     "Signature" ; point de départ de la CEE : "Dépôt" (défaut) ou "Date des effets". */
+  /* Version cabinet, divorce seulement : "Dépôt" (défaut), "Séparation" ou
+     "Libre" (dateEffetsLibre, jamais postérieure au dépôt) ; point de départ
+     de la CEE : "Dépôt" (défaut), "Date des effets" ou "Libre" (debutCEELibre). */
   dateEffets?: string;
+  dateEffetsLibre?: string;
   debutCEE?: string;
+  debutCEELibre?: string;
+  partageComptes?: string;
   conseilConjoint?: string;
   avocatConjoint: Avocat;
   enfants: Enfant[];
@@ -302,7 +316,7 @@ export const creditVide = (): Credit => ({
   qui: "",
 });
 
-export const actifVide = (): Actif => ({ categorie: "", titulaire: "", etablissement: "", valeur: "", origine: "", qui: "" });
+export const actifVide = (): Actif => ({ categorie: "", titulaire: "", etablissement: "", valeur: "", origine: "", soldeMariage: "", qui: "" });
 export const actifsDe = (d: Pick<Donnees, "actifs">): Actif[] => d.actifs || [];
 
 export const donneesVides = (procedure = "Divorce"): Donnees => ({
@@ -317,7 +331,10 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   jourAlternance: "",
   allocationsFamiliales: "",
   dateEffets: "",
+  dateEffetsLibre: "",
   debutCEE: "",
+  debutCEELibre: "",
+  partageComptes: "",
   conseilConjoint: "",
   avocatConjoint: { ...AVOCAT_PARTENAIRE },
   enfants: [],
@@ -372,24 +389,44 @@ export const avecContribution = (d: Donnees) =>
 
 /* Valeur transmise au modèle : la règle légale hors divorce, à défaut de
    choix, ou si la date de séparation n'est pas utilisable. */
+/* Date libre des effets : passée ou du jour, pour ne jamais dépasser le dépôt. */
+export function dateLibreRetenable(iso: string | undefined, le: Date = new Date()): boolean {
+  const a = age(iso || "", le);
+  return a !== null && a >= 0;
+}
+
 export function dateEffetsRetenue(d: Donnees, le: Date = new Date()): (typeof DATES_EFFETS)[number] {
   if (d.procedure !== "Divorce") return "Dépôt";
-  if (d.dateEffets === "Signature") return "Signature";
   if (d.dateEffets === "Séparation" && separationRetenable(d, le)) return "Séparation";
+  if (d.dateEffets === "Libre" && dateLibreRetenable(d.dateEffetsLibre, le)) return "Libre";
   return "Dépôt";
 }
 
+/* Date ISO des effets entre les époux, vide pour le dépôt (date inconnue). */
+export function isoDateEffets(d: Donnees, le: Date = new Date()): string {
+  const x = dateEffetsRetenue(d, le);
+  return x === "Séparation" ? d.logement.dateSeparation : x === "Libre" ? d.dateEffetsLibre || "" : "";
+}
+
 export function debutCEERetenu(d: Donnees, le: Date = new Date()): (typeof DEBUTS_CEE)[number] {
-  return dateEffetsRetenue(d, le) !== "Dépôt" && avecContribution(d) && d.debutCEE === "Date des effets"
-    ? "Date des effets"
-    : "Dépôt";
+  if (d.procedure !== "Divorce" || !avecContribution(d)) return "Dépôt";
+  if (d.debutCEE === "Date des effets" && dateEffetsRetenue(d, le) !== "Dépôt") return "Date des effets";
+  if (d.debutCEE === "Libre" && /^\d{4}-\d{2}-\d{2}$/.test(d.debutCEELibre || "")) return "Libre";
+  return "Dépôt";
 }
 
 export function texteDateEffets(d: Donnees): string {
   const x = dateEffetsRetenue(d);
   if (x === "Séparation") return `Date de séparation (${dateFr(d.logement.dateSeparation)})`;
-  if (x === "Signature") return "Signature de la convention";
+  if (x === "Libre") return `Date convenue (${dateFr(d.dateEffetsLibre || "")})`;
   return "Dépôt chez le notaire (règle légale)";
+}
+
+export function texteDebutCEE(d: Donnees): string {
+  const x = debutCEERetenu(d);
+  if (x === "Date des effets") return "Date des effets";
+  if (x === "Libre") return `Date convenue (${dateFr(d.debutCEELibre || "")})`;
+  return "Dépôt chez le notaire";
 }
 
 /* Au-delà, les modèles de convention actuels ne suivent plus (voir la fiche
@@ -537,34 +574,41 @@ function manquantsBruts(d: Donnees, interne: boolean): Manque[] {
     }
   });
   d.credits.forEach((c, i) => {
-    exiger(6, `credits.${i}.banque`, c.banque, `la banque du crédit n° ${i + 1}`);
+    exiger(7, `credits.${i}.banque`, c.banque, `la banque du crédit n° ${i + 1}`);
     if (divorce) {
-      exiger(6, `credits.${i}.totalEmprunte`, c.totalEmprunte, `le total emprunté du crédit n° ${i + 1}`);
-      exiger(6, `credits.${i}.restantDu`, c.restantDu, `le restant dû du crédit n° ${i + 1}`);
-      exiger(6, `credits.${i}.mensualite`, c.mensualite, `la mensualité du crédit n° ${i + 1}`);
-      exiger(6, `credits.${i}.qui`, c.qui, `qui supportera le crédit n° ${i + 1}`);
+      exiger(7, `credits.${i}.totalEmprunte`, c.totalEmprunte, `le total emprunté du crédit n° ${i + 1}`);
+      exiger(7, `credits.${i}.restantDu`, c.restantDu, `le restant dû du crédit n° ${i + 1}`);
+      exiger(7, `credits.${i}.mensualite`, c.mensualite, `la mensualité du crédit n° ${i + 1}`);
+      exiger(7, `credits.${i}.qui`, c.qui, `qui supportera le crédit n° ${i + 1}`);
     }
   });
   actifsDe(d).forEach((a, i) => {
     exiger(6, `actifs.${i}.categorie`, a.categorie, `la nature du compte ou placement n° ${i + 1}`);
     exiger(6, `actifs.${i}.titulaire`, a.titulaire, `le titulaire du compte ou placement n° ${i + 1}`);
     if (divorce) exiger(6, `actifs.${i}.qui`, a.qui, `qui conservera le compte ou placement n° ${i + 1}`);
+    /* Partage formalisé ou participation aux acquêts : soldes nécessaires au calcul. */
+    if (estFormalise(d) || d.mariage.regime === "participation aux acquêts") {
+      exiger(6, `actifs.${i}.valeur`, a.valeur, `le solde ou la valeur du compte ou placement n° ${i + 1}`);
+      if (a.origine === "Avant le mariage" && d.mariage.regime !== "séparation des biens")
+        exiger(6, `actifs.${i}.soldeMariage`, a.soldeMariage, `le solde au jour du mariage du compte ou placement n° ${i + 1}`);
+    }
   });
-  if (d.arrieresLoyers === "Oui") exiger(6, "montantArrieresLoyers", d.montantArrieresLoyers, "le montant des arriérés de loyers");
-  if (d.arrieresImpots === "Oui") exiger(6, "montantArrieresImpots", d.montantArrieresImpots, "le montant des arriérés d'impôts");
+  if (actifsDe(d).length) exiger(6, "partageComptes", d.partageComptes, "la façon de répartir vos comptes");
+  if (d.arrieresLoyers === "Oui") exiger(7, "montantArrieresLoyers", d.montantArrieresLoyers, "le montant des arriérés de loyers");
+  if (d.arrieresImpots === "Oui") exiger(7, "montantArrieresImpots", d.montantArrieresImpots, "le montant des arriérés d'impôts");
 
   if (divorce) {
-    exiger(7, "pc.convenue", d.pc.convenue, "si une prestation compensatoire est convenue");
+    exiger(8, "pc.convenue", d.pc.convenue, "si une prestation compensatoire est convenue");
     if (d.pc.convenue === "Oui") {
-      exiger(7, "pc.beneficiaire", d.pc.beneficiaire, "qui reçoit la prestation compensatoire");
-      exiger(7, "pc.forme", d.pc.forme, "la forme de la prestation compensatoire");
-      exiger(7, "pc.accordMontant", d.pc.accordMontant, "si vous êtes d'accord sur le montant de la prestation compensatoire");
-      if (d.pc.accordMontant === "Oui") exiger(7, "pc.montant", d.pc.montant, "le montant de la prestation compensatoire");
+      exiger(8, "pc.beneficiaire", d.pc.beneficiaire, "qui reçoit la prestation compensatoire");
+      exiger(8, "pc.forme", d.pc.forme, "la forme de la prestation compensatoire");
+      exiger(8, "pc.accordMontant", d.pc.accordMontant, "si vous êtes d'accord sur le montant de la prestation compensatoire");
+      if (d.pc.accordMontant === "Oui") exiger(8, "pc.montant", d.pc.montant, "le montant de la prestation compensatoire");
     }
   }
 
-  exiger(9, "repartition", d.repartition, "qui prendra en charge les honoraires");
-  if (d.repartition === "Partage par moitié") exiger(9, "provisionPartage", d.provisionPartage, "le règlement de la provision");
+  exiger(10, "repartition", d.repartition, "qui prendra en charge les honoraires");
+  if (d.repartition === "Partage par moitié") exiger(10, "provisionPartage", d.provisionPartage, "le règlement de la provision");
   return m;
 }
 
@@ -581,9 +625,9 @@ export function facultatifs(d: Donnees, interne: boolean): Manque[] {
   };
   const divorce = d.procedure !== "Séparation de corps";
   if (d.logement.separes === "Oui" && vide(d.logement.dateSeparation)) ajouter(4, "logement.dateSeparation", "la date de séparation");
-  if (!divorce && d.ds.convenu === "Oui" && vide(d.ds.montant)) ajouter(7, "ds.montant", "le montant du devoir de secours");
-  if (divorce && vide(d.nomUsage.utilise)) ajouter(8, "nomUsage.utilise", "l'usage du nom de l'autre époux");
-  if (!d.pieces.length) ajouter(10, "pieces", "les pièces justificatives");
+  if (!divorce && d.ds.convenu === "Oui" && vide(d.ds.montant)) ajouter(8, "ds.montant", "le montant du devoir de secours");
+  if (divorce && vide(d.nomUsage.utilise)) ajouter(9, "nomUsage.utilise", "l'usage du nom de l'autre époux");
+  if (!d.pieces.length) ajouter(11, "pieces", "les pièces justificatives");
   return interne ? pourCabinet(m) : m;
 }
 
@@ -893,7 +937,8 @@ export function texteActif(a: Actif): string {
     a.categorie || "(nature non renseignée)",
     a.etablissement,
     a.titulaire && `titulaire : ${a.titulaire}`,
-    a.valeur && `valeur ${a.valeur} €`,
+    a.valeur && `solde ou valeur ${a.valeur} €`,
+    a.soldeMariage && `solde au mariage ${a.soldeMariage} €`,
     a.origine && `ouvert ou acquis ${a.origine.toLocaleLowerCase("fr-FR")}`,
     a.qui && `conservé : ${a.qui}`,
   ]
@@ -978,13 +1023,8 @@ export function recapitulatif(d: Donnees): Section[] {
         ["Nom de famille", d.nomFamilleEnfants],
         ["Jour de l'alternance", d.jourAlternance],
         ["Allocations familiales", d.allocationsFamiliales || ""],
-        ...(dateEffetsRetenue(d) !== "Dépôt" && avecContribution(d)
-          ? ([
-              [
-                "Point de départ de la CEE",
-                debutCEERetenu(d) === "Date des effets" ? "Date des effets" : "Dépôt chez le notaire",
-              ],
-            ] as [string, string][])
+        ...(d.procedure === "Divorce" && avecContribution(d)
+          ? ([["Point de départ de la CEE", texteDebutCEE(d)]] as [string, string][])
           : []),
         ...d.enfants.map((e, i): [string, string] => [
           `Enfant n° ${i + 1}`,
@@ -1031,6 +1071,7 @@ export function recapitulatif(d: Donnees): Section[] {
             .filter(Boolean)
             .join(", "),
         ]),
+        ...(actifsDe(d).length && d.partageComptes ? ([["Répartition des comptes", d.partageComptes]] as [string, string][]) : []),
         ...actifsDe(d).map((a, i): [string, string] => [`Compte ou placement n° ${i + 1}`, texteActif(a)]),
         ["Arriérés de loyers", d.arrieresLoyers === "Oui" ? `Oui, ${d.montantArrieresLoyers || "?"} €` : d.arrieresLoyers],
         ["Arriérés d'impôts", d.arrieresImpots === "Oui" ? `Oui, ${d.montantArrieresImpots || "?"} €` : d.arrieresImpots],

@@ -7,10 +7,11 @@ const ETAPE_DU_POINT: [RegExp, number][] = [
   [/consentement mutuel/, 0],
   [/logement familial|relogement/, 4],
   [/résidence de|pension de/, 5],
-  [/^le (bien|véhicule|crédit)/, 6],
-  [/prestation compensatoire|devoir de secours/, 7],
-  [/nom de famille/, 8],
-  [/honoraires/, 9],
+  [/^le (bien|véhicule)/, 6],
+  [/^le crédit/, 7],
+  [/prestation compensatoire|devoir de secours/, 8],
+  [/nom de famille/, 9],
+  [/honoraires/, 10],
 ];
 
 export function lirePoints(p: string | null): { intitule: string; etape: number | null }[] {
