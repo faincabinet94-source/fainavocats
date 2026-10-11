@@ -122,7 +122,7 @@ const jsonLd = {
         name: "Paris"
       },
       knowsAbout: [
-        "Divorce", "Droit de la famille", "Garde d'enfants",
+        "Divorce", "Droit de la famille", "Autorité parentale", "Garde d'enfants",
         "Pension alimentaire", "Liquidation du régime matrimonial"
       ]
     }

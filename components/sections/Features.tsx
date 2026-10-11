@@ -9,7 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 // Liens par index (indépendant de la langue)
 const expertiseLinks = [
   "/divorce",
-  "/garde-enfants",
+  "/autorite-parentale-residence",
   "/liquidation-regime-matrimonial",
   "/filiation-adoption",
   "/droit-penal-famille",

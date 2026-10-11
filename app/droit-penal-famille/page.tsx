@@ -52,7 +52,7 @@ export default function DroitPenalFamillePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
-        <FichesCategorie category="droit-penal-famille" titre="Fiches pratiques en droit pénal de la famille" />
+        <FichesCategorie category="droit-penal-famille" titre="Guides en droit pénal de la famille" />
       </main>
       <Footer />
       <FloatingCTA />

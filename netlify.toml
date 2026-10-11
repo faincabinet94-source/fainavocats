@@ -69,7 +69,7 @@
 
 [[redirects]]
   from = "/actualites/creance-concubin-refection-toiture-droits-recours-1780773629662"
-  to = "/actualites/creance-concubin-refection-toiture-droits-recours"
+  to = "/fiches/creance-concubin-refection-toiture-droits-recours"
   status = 301
 
 [[redirects]]
@@ -120,7 +120,7 @@
 
 [[redirects]]
   from = "/droit-de-la-famille/garde-enfants"
-  to = "/garde-enfants"
+  to = "/autorite-parentale-residence"
   status = 301
 
 [[redirects]]
@@ -216,7 +216,7 @@
 
 [[redirects]]
   from = "/actualites/droit-de-la-famille/divorce-faute-preuve-sms.html"
-  to = "/actualites/divorce-pour-faute-cas-pertinents"
+  to = "/fiches/divorce-pour-faute-cas-pertinents"
   status = 301
 
 [[redirects]]

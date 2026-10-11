@@ -159,7 +159,7 @@ export default function EtatCivilPage() {
           </div>
         </Container>
       </main>
-      <FichesCategorie category="etat-civil" titre="Fiches pratiques sur l'état civil" />
+      <FichesCategorie category="etat-civil" titre="Guides sur l'état civil" />
       <Footer />
     </>
   );

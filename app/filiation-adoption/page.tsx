@@ -52,7 +52,7 @@ export default function FiliationAdoptionPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
-        <FichesCategorie category="filiation-adoption" titre="Fiches pratiques sur la filiation et l'adoption" />
+        <FichesCategorie category="filiation-adoption" titre="Guides sur la filiation et l'adoption" />
       </main>
       <Footer />
       <FloatingCTA />

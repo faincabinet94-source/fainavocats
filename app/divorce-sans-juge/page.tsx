@@ -5,6 +5,8 @@ import { FloatingCTA } from "@/components/ui/FloatingCTA";
 import { DivorceSansJuge } from "@/components/sections/DivorceSansJuge";
 import { FAQ_ITEMS } from "@/lib/divorce-sans-juge";
 import { lireTarifs } from "@/lib/tarifs-serveur";
+import { FichesCategorie } from "@/components/sections/FichesCategorie";
+import { ConventionPointParPoint, GUIDES_CONVENTION } from "@/components/sections/ConventionPointParPoint";
 
 /* Tarifs relus au plus une fois par heure (table Tarifs d'Airtable, via n8n). */
 export const revalidate = 3600;
@@ -83,6 +85,8 @@ export default async function DivorceSansJugePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <DivorceSansJuge tarifs={tarifs} />
+        <ConventionPointParPoint />
+        <FichesCategorie category="divorce-sans-juge" titre="Guides sur le divorce sans juge" exclure={GUIDES_CONVENTION} />
       </main>
       <Footer />
       <FloatingCTA />

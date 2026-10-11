@@ -12,7 +12,7 @@ export interface ExpertiseData {
   slug: string;
   title: string;
   /** Titre décliné avec son article, pour insertion dans une phrase.
-   *  Ex. « les réponses aux questions concernant LA GARDE D'ENFANTS ». */
+   *  Ex. « les réponses aux questions concernant LA PENSION ALIMENTAIRE ». */
   titreInline?: string;
   heroTitle: string;
   heroSubtitle: string;
@@ -102,7 +102,7 @@ export const expertises: Record<string, ExpertiseData> = {
         question:
           "Puis-je rester dans le logement familial pendant la procédure ?",
         answer:
-          "Oui, le juge peut attribuer la jouissance du domicile conjugal à l'un des époux pendant la procédure, notamment si vous avez la garde des enfants. Nous vous conseillons sur les mesures provisoires à demander.",
+          "Oui, le juge peut attribuer la jouissance du domicile conjugal à l'un des époux pendant la procédure, notamment si les enfants résident principalement chez vous. Nous vous conseillons sur les mesures provisoires à demander.",
       },
       {
         question:
@@ -114,35 +114,38 @@ export const expertises: Record<string, ExpertiseData> = {
     jsonLdType: "LegalService",
   },
 
-  "garde-enfants": {
-    slug: "garde-enfants",
-    title: "Garde d'Enfants",
-    titreInline: "la garde d'enfants",
-    heroTitle: "Avocat Garde d'Enfants Paris",
+  // Rubrique renommée le 11 octobre 2026 : « garde » n'est plus le mot des
+  // textes, qui parlent d'autorité parentale et de résidence de l'enfant.
+  // Ancienne URL /garde-enfants, redirigée en 301 (next.config.js).
+  "autorite-parentale-residence": {
+    slug: "autorite-parentale-residence",
+    title: "Autorité parentale et résidence de l'enfant",
+    titreInline: "l'autorité parentale et la résidence de l'enfant",
+    heroTitle: "Avocat Autorité parentale et Résidence de l'Enfant Paris",
     heroSubtitle:
       "Résidence alternée, droit de visite, autorité parentale. Nous défendons l'intérêt de vos enfants avec détermination.",
     metaTitle:
-      "Avocat Garde d'Enfants Paris 16 | Résidence Alternée & Autorité Parentale",
+      "Avocat Garde des Enfants Paris 16 | Résidence et Autorité parentale",
     metaDescription:
-      "Avocat en droit de la famille pour la garde d'enfants à Paris 16. Résidence alternée, droit de visite, modification de garde. Cabinet Fain Avocats, 20 ans d'expérience. +33 1 40 68 02 37.",
+      "Avocat à Paris 16 pour la garde des enfants, au sens juridique la résidence de l'enfant et l'autorité parentale : résidence alternée, droit de visite et d'hébergement. Cabinet Fain Avocats, 20 ans d'expérience. +33 1 40 68 02 37.",
     keywords: [
       "avocat garde enfants Paris",
       "résidence alternée avocat",
       "droit de visite avocat Paris",
       "autorité parentale avocat",
-      "modification garde enfants",
+      "modification résidence enfant",
       "avocat droit enfants Paris 16",
     ],
     intro:
-      "La question de la garde des enfants est souvent le sujet le plus sensible lors d'une séparation. L'enjeu est considérable : il s'agit de préserver l'équilibre et le bien-être de vos enfants tout en faisant valoir vos droits parentaux. Le cabinet Fain Avocats vous accompagne avec fermeté et sensibilité dans toutes les procédures liées à l'autorité parentale.",
-    problemTitle: "Les enjeux de la garde",
+      "La résidence des enfants, ce que l'on appelle couramment la « garde », est souvent le sujet le plus sensible lors d'une séparation. L'enjeu est considérable : il s'agit de préserver l'équilibre et le bien-être de vos enfants tout en faisant valoir vos droits parentaux. Le cabinet Fain Avocats vous accompagne avec fermeté et sensibilité dans toutes les procédures liées à l'autorité parentale.",
+    problemTitle: "Les enjeux pour l'enfant",
     problemText:
       "Chaque situation familiale est unique. Les décisions prises concernant vos enfants auront un impact durable sur leur vie quotidienne et leur développement :",
     problemPoints: [
       "Choix entre résidence alternée et résidence principale chez un parent",
       "Définition du droit de visite et d'hébergement",
       "Fixation de la contribution à l'entretien et l'éducation des enfants",
-      "Déménagement d'un parent et impact sur la garde",
+      "Déménagement d'un parent et impact sur la résidence de l'enfant",
       "Situations d'urgence : violences, risque d'enlèvement",
     ],
     approachTitle: "Notre accompagnement",
@@ -167,7 +170,7 @@ export const expertises: Record<string, ExpertiseData> = {
       {
         title: "Suivi et adaptation",
         description:
-          "Les besoins évoluent. Nous vous accompagnons pour toute modification de garde liée à un changement de situation.",
+          "Les besoins évoluent. Nous vous accompagnons pour toute modification de la résidence ou du droit de visite liée à un changement de situation.",
       },
     ],
     faq: [
@@ -180,12 +183,12 @@ export const expertises: Record<string, ExpertiseData> = {
         question:
           "Mon ex-conjoint veut déménager avec les enfants, que faire ?",
         answer:
-          "Un parent ne peut pas modifier unilatéralement la résidence des enfants. Si un déménagement menace l'organisation de la garde, vous pouvez saisir le juge en urgence. Nous intervenons rapidement dans ces situations.",
+          "Un parent ne peut pas modifier unilatéralement la résidence des enfants. Si un déménagement remet en cause l'organisation de la résidence, vous pouvez saisir le juge en urgence. Nous intervenons rapidement dans ces situations.",
       },
       {
-        question: "À partir de quel âge l'enfant peut-il choisir ?",
+        question: "L'enfant peut-il choisir chez quel parent il vit ?",
         answer:
-          "L'enfant capable de discernement peut être entendu par le juge, généralement à partir de 10-12 ans. Son avis est pris en compte mais n'est jamais déterminant à lui seul. Le juge décide toujours dans l'intérêt de l'enfant.",
+          "Non. L'enfant capable de discernement peut demander à être entendu par le juge. La loi ne fixe aucun âge minimum : le discernement s'apprécie in concreto, et il est en général retenu vers 10 ou 11 ans. Son avis est pris en compte mais n'est jamais déterminant à lui seul. Le juge décide toujours dans l'intérêt de l'enfant.",
       },
       {
         question:
@@ -199,8 +202,8 @@ export const expertises: Record<string, ExpertiseData> = {
 
   "pension-alimentaire": {
     slug: "pension-alimentaire",
-    title: "Pension alimentaire et Prestation compensatoire",
-    titreInline: "la pension alimentaire et la prestation compensatoire",
+    title: "Pension alimentaire",
+    titreInline: "la pension alimentaire",
     heroTitle: "Avocat Pension Alimentaire Paris",
     heroSubtitle:
       "Fixation, révision, recouvrement. Nous veillons à ce que vos droits financiers soient pleinement respectés.",
@@ -257,7 +260,7 @@ export const expertises: Record<string, ExpertiseData> = {
       {
         question: "Comment est calculée la pension alimentaire ?",
         answer:
-          "Le juge se base sur les revenus du débiteur, les besoins de l'enfant, le mode de garde et le nombre d'enfants. Le barème indicatif du Ministère de la Justice sert de référence, mais le juge peut s'en écarter selon les circonstances.",
+          "Le juge se base sur les revenus du débiteur, les besoins de l'enfant, son mode de résidence et le nombre d'enfants. Le barème indicatif du Ministère de la Justice sert de référence, mais le juge peut s'en écarter selon les circonstances.",
       },
       {
         question: "Mon ex ne paie plus la pension, que faire ?",
@@ -281,6 +284,85 @@ export const expertises: Record<string, ExpertiseData> = {
           "Le devoir de secours entre époux est-il une pension alimentaire ?",
         answer:
           "Oui. Pendant la procédure de divorce, le devoir de secours prend la forme d'une pension alimentaire due entre époux, distincte de celle versée pour les enfants. Au prononcé du divorce, ce devoir cesse et la prestation compensatoire prend le relais pour compenser la disparité de niveau de vie. En quelque sorte, le devoir de secours se transforme en prestation compensatoire une fois le divorce prononcé.",
+      },
+    ],
+    jsonLdType: "LegalService",
+  },
+
+  // Rubrique créée le 11 octobre 2026 (plan de dédoublement pension /
+  // prestation approuvé le 16 août 2026). ⚠️ Textes à relire par Me FAIN avant
+  // fusion : aucune référence de texte ni de jurisprudence n'y figure.
+  "prestation-compensatoire": {
+    slug: "prestation-compensatoire",
+    title: "Prestation compensatoire",
+    titreInline: "la prestation compensatoire",
+    heroTitle: "Avocat Prestation compensatoire Paris",
+    heroSubtitle:
+      "Demande, évaluation, contestation. Nous défendons un montant juste, fondé sur une analyse précise de la situation de chacun des époux.",
+    metaTitle:
+      "Avocat Prestation compensatoire Paris 16 | Calcul, Demande, Contestation",
+    metaDescription:
+      "Avocat en droit de la famille à Paris 16 pour la prestation compensatoire : évaluation, demande, contestation, capital ou rente, fiscalité. Cabinet Fain Avocats. +33 1 40 68 02 37.",
+    keywords: [
+      "avocat prestation compensatoire Paris",
+      "calcul prestation compensatoire",
+      "prestation compensatoire divorce",
+      "contester prestation compensatoire",
+      "prestation compensatoire capital ou rente",
+    ],
+    intro:
+      "La prestation compensatoire est versée par un époux à l'autre au moment du divorce pour compenser, autant que possible, la disparité que la rupture du mariage crée dans leurs conditions de vie respectives. Son montant, sa forme et sa fiscalité se préparent avec soin : une fois fixée, elle est très difficile à remettre en cause. Le cabinet Fain Avocats vous accompagne, que vous la demandiez ou qu'elle vous soit réclamée.",
+    problemTitle: "Les enjeux de la prestation compensatoire",
+    problemText:
+      "La prestation compensatoire est souvent la question financière la plus lourde du divorce. Plusieurs éléments doivent être établis et chiffrés :",
+    problemPoints: [
+      "Revenus, charges et patrimoine réels de chacun des époux",
+      "Durée du mariage, âge et situation professionnelle de chacun",
+      "Choix professionnels faits pendant la vie commune et leurs conséquences",
+      "Forme du versement : capital, capital échelonné ou, exceptionnellement, rente",
+      "Fiscalité du versement et articulation avec la liquidation du régime matrimonial",
+    ],
+    approachTitle: "Notre accompagnement",
+    approachText:
+      "Nous établissons la disparité sur pièces, la chiffrons selon plusieurs méthodes et défendons le montant et la forme les plus adaptés à votre situation.",
+    steps: [
+      {
+        title: "Analyse des situations",
+        description:
+          "Étude des revenus, charges, patrimoine et droits à la retraite de chaque époux, avec les justificatifs nécessaires.",
+      },
+      {
+        title: "Chiffrage",
+        description:
+          "Application de plusieurs méthodes de calcul usuelles pour situer le montant dans une fourchette argumentée.",
+      },
+      {
+        title: "Négociation",
+        description:
+          "Dans un divorce amiable, le montant et la forme sont fixés par la convention : nous les négocions et les rédigeons.",
+      },
+      {
+        title: "Défense devant le juge",
+        description:
+          "En cas de désaccord, nous présentons au juge aux affaires familiales un dossier chiffré et documenté.",
+      },
+    ],
+    faq: [
+      {
+        question: "Comment est fixé le montant de la prestation compensatoire ?",
+        answer:
+          "Il n'existe pas de barème officiel. Le juge apprécie les besoins de l'un et les ressources de l'autre, en tenant compte notamment de la durée du mariage, de l'âge, de la situation professionnelle et du patrimoine de chacun. Plusieurs méthodes de calcul usuelles donnent une première fourchette : notre simulateur en ligne en applique six.",
+      },
+      {
+        question: "La prestation compensatoire est-elle versée en capital ou en rente ?",
+        answer:
+          "En principe en capital, versé en une fois ou échelonné. La rente reste exceptionnelle. Le choix de la forme a des conséquences fiscales qu'il faut mesurer avant de signer ou de plaider.",
+      },
+      {
+        question:
+          "Quelle est la différence entre pension alimentaire et prestation compensatoire ?",
+        answer:
+          "La pension alimentaire est versée pour les enfants, ou entre époux pendant la procédure au titre du devoir de secours. La prestation compensatoire est versée à l'ex-époux au moment du divorce, pour compenser la disparité de conditions de vie que crée la rupture.",
       },
     ],
     jsonLdType: "LegalService",
@@ -419,7 +501,7 @@ export const expertises: Record<string, ExpertiseData> = {
       {
         title: "Coordination avec le dossier familial",
         description:
-          "Nous veillons à la cohérence entre l'instance pénale et la procédure de divorce ou de garde, notamment sur l'exercice de l'autorité parentale.",
+          "Nous veillons à la cohérence entre l'instance pénale et la procédure de divorce ou celle qui concerne les enfants, notamment sur l'exercice de l'autorité parentale.",
       },
     ],
     faq: [

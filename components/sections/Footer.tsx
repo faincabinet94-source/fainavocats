@@ -88,7 +88,7 @@ export function Footer() {
                 Droit de la famille
               </a>
               <a href="/fiches" className="hover:text-[#362A24] transition-colors">
-                Fiches pratiques
+                Guides pratiques
               </a>
               <a href="/consultations" className="hover:text-[#362A24] transition-colors">
                 Consultations
