@@ -6,7 +6,7 @@ import { LECTURES_ETAPES, LECTURE_DATE_EFFETS, type Guides, type Lecture, type L
 function lien(l: Lecture): Lien | null {
   const x = l.type === "fiche" ? getFicheBySlug(l.slug) : getPostBySlug(l.slug);
   if (!x) return null;
-  return { href: `/${l.type === "fiche" ? "fiches" : "actualites"}/${x.slug}`, titre: x.title, procedure: l.procedure };
+  return { href: `/${l.type === "fiche" ? "fiches" : "actualites"}/${x.slug}`, titre: x.title, procedure: l.procedure, quand: l.quand };
 }
 
 export function guidesDisponibles(): Guides {

@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, aDiscernement, questionDiscernement, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -166,6 +166,22 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
 
   /* Alternance : jour du changement de résidence, le dimanche à défaut. */
   v.JourAlternance = d.jourAlternance || "dimanche";
+  v.HeureAlternance = d.heureAlternance || "19 heures";
+
+  /* Maintien du premier bien en indivision (DCM1AE 15.7, art. 2.5) : qui en a
+     la jouissance, indemnité d'occupation, crédit, charges et taxe foncière. */
+  const b1 = d.immobilier[0];
+  const indiv = b1 && b1.qui === "maintien en indivision";
+  const epoux = (x: string | undefined) =>
+    x === "Moi" ? `${d.client.civilite} ${(d.client.nom || "").trim().toUpperCase()}`
+    : x === "Mon époux(se)" ? `${d.conjoint.civilite} ${(d.conjoint.nom || "").trim().toUpperCase()}`
+    : x === "Par moitié" ? "les deux époux, par moitié"
+    : "[À COMPLÉTER]";
+  const indemnite = indiv ? nombre(b1.indemniteOccupation || "") : null;
+  v.ImmoJouissance1 = indiv ? epoux(b1.jouissance) : null;
+  v.ImmoIndemnite1 = indemnite ? { valeur: indemnite, texte: montant(indemnite) } : null;
+  v.ImmoCreditQui1 = indiv ? epoux(b1.creditQui) : null;
+  v.ImmoChargesQui1 = indiv ? epoux(b1.chargesQui) : null;
 
   /* Allocations familiales en résidence alternée (DCM1AE 15.6, art. 3.6) :
      « Moi » ou « Mon époux(se) » désigne l'allocataire ; sinon le modèle
@@ -223,10 +239,12 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   /* Bordereau des pièces : formulaires d'information annexés, un par enfant
      mineur de 12 à 17 ans parmi les quatre que le modèle sait décrire
      (DCM1AE 15.3, mêmes bornes que les formulaires). */
-  const informes = d.enfants.slice(0, 4).filter((e) => {
-    const ans = age(e.dateNaissance, le);
-    return ans !== null && ans >= AGE_DISCERNEMENT && ans < 18;
-  });
+  const informes = d.enfants.slice(0, 4).filter((e) => aDiscernement(e, le));
+  /* FormulaireE{n} : formulaire d'information de l'enfant n annexé (DCM1AE 15.7). */
+  for (let n = 1; n <= 4; n++) {
+    const e = d.enfants[n - 1];
+    v[`FormulaireE${n}`] = e && aDiscernement(e, le) ? "Oui" : "Non";
+  }
   const prenoms = enumerer(informes.map((e) => (e.prenoms || "").trim().replace(/\s+/g, " ")));
   v.AnnexeFormulaires = !informes.length
     ? null
@@ -701,8 +719,8 @@ export function sansContribution(d: Donnees) {
 
 /* ---------- Information des enfants mineurs ---------- */
 
-/* Seuil retenu par le cabinet : discernement présumé à partir de 12 ans. */
-const AGE_DISCERNEMENT = 12;
+/* Discernement : présumé de 12 à 17 ans ; de 10 à 11 ans, selon la réponse
+   des parents au formulaire ; jamais avant 10 ans (aDiscernement, modele.ts). */
 
 type Mineur = { prenom: string; feminin: boolean; age: string };
 
@@ -732,7 +750,9 @@ export function informationEnfants(d: Donnees, le: Date = new Date()) {
     if (ans >= 18) return;
     const mois = moisRevolus(e.dateNaissance, le);
     const texte = ans < 1 && mois !== null ? `${mois} mois` : `${ans} an${ans > 1 ? "s" : ""}`;
-    (ans < AGE_DISCERNEMENT ? sans : avec).push({ prenom, feminin: e.sexe === "Féminin", age: texte });
+    if (questionDiscernement(e, le) && e.discernement !== "Oui" && e.discernement !== "Non")
+      alertes.push(`Enfant ${prenom} (${ans} ans) : discernement non renseigné, traité comme non capable de discernement. À vérifier avec les parents.`);
+    (aDiscernement(e, le) ? avec : sans).push({ prenom, feminin: e.sexe === "Féminin", age: texte });
   });
 
   const phrase = (es: Mineur[], discernement: boolean): string | null => {

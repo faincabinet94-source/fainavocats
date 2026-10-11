@@ -41,6 +41,11 @@ export const STATUTS_LOGEMENT = [
   "Propriétaire à titre personnel",
 ] as const;
 export const JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"] as const;
+/* Heure du changement de résidence en alternance (19 heures par défaut). */
+export const HEURES_ALTERNANCE = ["8 heures", "9 heures", "10 heures", "12 heures", "16 heures 30", "17 heures", "18 heures", "19 heures", "20 heures"] as const;
+/* Maintien d'un bien en indivision : qui en a la jouissance, qui paie quoi. */
+export const QUI_JOUISSANCE = ["Moi", "Mon époux(se)"] as const;
+export const QUI_CHARGES_INDIVISION = ["Moi", "Mon époux(se)", "Par moitié"] as const;
 
 /* Propriété en commun proposée sans contrat de mariage (communauté légale) ou
    en communauté universelle, propriété indivise en séparation de biens ou
@@ -132,11 +137,25 @@ export type Enfant = {
   lieuNaissance: string;
   garde: string;
   pension: string;
+  /* Enfant de 10 ou 11 ans : capable de discernement ? (avant 10 ans, non ;
+     de 12 à 17 ans, oui, sans question). */
+  discernement?: string;
   profession: string;
   adresse: string;
 };
 
-export type Bien = { adresse: string; valeur: string; creditRestant: string; qui: string };
+export type Bien = {
+  adresse: string;
+  valeur: string;
+  creditRestant: string;
+  qui: string;
+  /* Maintien en indivision : jouissance, indemnité d'occupation mensuelle
+     (vide ou 0 : sans indemnité), crédit immobilier, charges et taxe foncière. */
+  jouissance?: string;
+  indemniteOccupation?: string;
+  creditQui?: string;
+  chargesQui?: string;
+};
 export type Vehicule = { marque: string; modele: string; immatriculation: string; valeur: string; qui: string };
 export type Actif = {
   categorie: string;
@@ -238,6 +257,7 @@ export type Donnees = {
   logement: { separes: string; dateSeparation: string; domicile: string; delai: string };
   nomFamilleEnfants: string;
   jourAlternance: string;
+  heureAlternance?: string;
   /* Résidence alternée : allocations familiales partagées ou allocataire désigné (L. 521-2 CSS). */
   allocationsFamiliales?: string;
   /* Version cabinet, divorce seulement : "Dépôt" (défaut), "Séparation" ou
@@ -300,7 +320,7 @@ export const enfantVide = (): Enfant => ({
   profession: "",
   adresse: "",
 });
-export const bienVide = (): Bien => ({ adresse: "", valeur: "", creditRestant: "", qui: "" });
+export const bienVide = (): Bien => ({ adresse: "", valeur: "", creditRestant: "", qui: "", jouissance: "", indemniteOccupation: "", creditQui: "", chargesQui: "" });
 export const vehiculeVide = (): Vehicule => ({ marque: "", modele: "", immatriculation: "", valeur: "", qui: "" });
 export const creditVide = (): Credit => ({
   banque: "",
@@ -324,6 +344,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   logement: { separes: "", dateSeparation: "", domicile: "", delai: "" },
   nomFamilleEnfants: "",
   jourAlternance: "",
+  heureAlternance: "",
   allocationsFamiliales: "",
   dateEffets: "",
   dateEffetsLibre: "",
@@ -440,6 +461,19 @@ export function age(dateIso: string, le: Date = new Date()): number | null {
   if (avant) a -= 1;
   return a;
 }
+
+/* Discernement présumé à 12 ans ; de 10 à 11 ans, selon la réponse des parents. */
+export const AGE_QUESTION_DISCERNEMENT = 10;
+export const AGE_DISCERNEMENT = 12;
+export function aDiscernement(e: Enfant, le: Date = new Date()): boolean {
+  const a = age(e.dateNaissance, le);
+  if (a === null || a >= 18 || a < AGE_QUESTION_DISCERNEMENT) return false;
+  return a >= AGE_DISCERNEMENT || e.discernement === "Oui";
+}
+export const questionDiscernement = (e: Enfant, le: Date = new Date()) => {
+  const a = age(e.dateNaissance, le);
+  return a !== null && a >= AGE_QUESTION_DISCERNEMENT && a < AGE_DISCERNEMENT;
+};
 
 export const estMajeur = (e: Enfant) => {
   const a = age(e.dateNaissance);
@@ -1017,6 +1051,7 @@ export function recapitulatif(d: Donnees): Section[] {
       lignes: [
         ["Nom de famille", d.nomFamilleEnfants],
         ["Jour de l'alternance", d.jourAlternance],
+        ["Heure de l'alternance", d.enfants.some((e) => e.garde === "Alternée") ? d.heureAlternance || "19 heures" : ""],
         ["Allocations familiales", d.allocationsFamiliales || ""],
         ...(d.procedure === "Divorce" && avecContribution(d)
           ? ([["Point de départ de la CEE", texteDebutCEE(d)]] as [string, string][])
@@ -1030,6 +1065,7 @@ export function recapitulatif(d: Donnees): Section[] {
             e.lieuNaissance && `à ${e.lieuNaissance}`,
             e.garde && `résidence : ${e.garde}`,
             e.pension && `pension : ${e.pension} €`,
+            questionDiscernement(e) && e.discernement && `capable de discernement : ${e.discernement}`,
             e.profession && `profession : ${e.profession}`,
             e.adresse && `adresse : ${e.adresse}`,
           ]
@@ -1043,7 +1079,16 @@ export function recapitulatif(d: Donnees): Section[] {
       lignes: [
         ...d.immobilier.map((b, i): [string, string] => [
           `Bien immobilier n° ${i + 1}`,
-          [b.adresse, b.valeur && `valeur ${b.valeur} €`, b.creditRestant && `crédit restant ${b.creditRestant} €`, b.qui && `conservé : ${b.qui}`]
+          [
+            b.adresse,
+            b.valeur && `valeur ${b.valeur} €`,
+            b.creditRestant && `crédit restant ${b.creditRestant} €`,
+            b.qui && `conservé : ${b.qui}`,
+            b.qui === "maintien en indivision" && b.jouissance && `jouissance : ${b.jouissance}`,
+            b.qui === "maintien en indivision" && `indemnité d'occupation : ${b.indemniteOccupation ? `${b.indemniteOccupation} € par mois` : "aucune"}`,
+            b.qui === "maintien en indivision" && b.creditQui && `crédit : ${b.creditQui}`,
+            b.qui === "maintien en indivision" && b.chargesQui && `charges et taxe foncière : ${b.chargesQui}`,
+          ]
             .filter(Boolean)
             .join(", "),
         ]),

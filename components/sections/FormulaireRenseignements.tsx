@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AUCUN_GUIDE, type Guides, type Lien } from "@/lib/renseignements/guides";
+import { AUCUN_GUIDE, type Guides, type Lien, type Quand } from "@/lib/renseignements/guides";
 import {
   BENEFICIAIRES,
   ALLOCATIONS_FAMILIALES,
@@ -27,6 +27,11 @@ import {
   conseilDuConjoint,
   GARDES,
   JOURS,
+  HEURES_ALTERNANCE,
+  QUI_CHARGES_INDIVISION,
+  QUI_JOUISSANCE,
+  age,
+  questionDiscernement,
   OUI_NON,
   PLAFONDS,
   PROCEDURES,
@@ -133,6 +138,17 @@ function avec<T>(obj: T, chemin: string, valeur: unknown): T {
 /* Libellé du montant selon la nature du compte ou placement. */
 const libelleValeur = (c: string) =>
   c === "Assurance-vie" ? "Valeur de rachat (€)" : c.startsWith("Compte-titres") || c.startsWith("Autre") ? "Valeur (€)" : "Solde du compte (€)";
+
+/* Guides réservés à certaines situations (voir lib/renseignements/guides.ts). */
+function situation(d: Donnees, q: Quand): boolean {
+  if (q === "etranger") return [d.client, d.conjoint].some((p) => p.nationalite.trim() && !/fran[cç]/i.test(p.nationalite));
+  if (q === "enfants") return d.enfants.length > 0;
+  if (q === "alternee") return d.enfants.some((e) => e.garde === "Alternée");
+  return d.enfants.some((e) => {
+    const a = age(e.dateNaissance);
+    return a !== null && a >= 10 && a < 18;
+  });
+}
 
 /* Lectures proposées sous une étape (version client) : guides publiés
    seulement, ouverts dans un nouvel onglet pour ne pas quitter le formulaire. */
@@ -978,6 +994,14 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             <Champ label="Pension envisagée (€ par mois)" {...suivi(`enfants.${i}.pension`)}>
               <input className={inputCls} value={x.pension} onChange={(e) => maj(`enfants.${i}.pension`, e.target.value)} inputMode="decimal" />
             </Champ>
+            {questionDiscernement(x) && (
+              <Champ
+                label={cab("Votre enfant est-il capable de discernement ?", "Capable de discernement ?")}
+                aide="Entre 10 et 12 ans, c'est aux parents de l'apprécier. S'il l'est, il est informé de son droit à être entendu par un juge et signe un formulaire joint à la convention. À partir de 12 ans, il est considéré comme capable de discernement."
+              >
+                <Choix options={OUI_NON} value={x.discernement ?? ""} onChange={(v) => maj(`enfants.${i}.discernement`, v)} />
+              </Champ>
+            )}
             {(estMajeur(x) || x.garde === "Majeur plus à charge") && (
               <>
                 <Champ label="Profession" {...suivi(`enfants.${i}.profession`)}>
@@ -992,8 +1016,11 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
         </Bloc>
       ))}
       {d.enfants.some((x) => x.garde === "Alternée") && (
-        <Champ label="Jour du changement de résidence en alternance" aide="Le jour, à 19 heures, où les enfants passent d'un parent à l'autre.">
+        <Champ label="Jour du changement de résidence en alternance" aide="Le jour et l'heure où les enfants passent d'un parent à l'autre.">
           <Choix options={JOURS} value={d.jourAlternance} onChange={(v) => maj("jourAlternance", v)} />
+          <div className="mt-3 sm:max-w-xs">
+            <Liste options={HEURES_ALTERNANCE} value={d.heureAlternance || "19 heures"} onChange={(v) => maj("heureAlternance", v)} />
+          </div>
         </Champ>
       )}
       {d.enfants.some((x) => x.garde === "Alternée") && (
@@ -1036,6 +1063,22 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             <Champ label="Qui le conservera ?">
               <Choix options={QUI_IMMO} value={x.qui} onChange={(v) => maj(`immobilier.${i}.qui`, v)} />
             </Champ>
+            {x.qui === "maintien en indivision" && (
+              <>
+                <Champ label="Qui en aura la jouissance ?">
+                  <Choix options={QUI_JOUISSANCE} value={x.jouissance ?? ""} onChange={(v) => maj(`immobilier.${i}.jouissance`, v)} />
+                </Champ>
+                <Champ label="Indemnité d'occupation (€ par mois)" aide="Somme versée par celui qui occupe le bien à l'autre. Laissez vide ou indiquez 0 s'il n'y en a pas.">
+                  <input className={cn(inputCls, "sm:max-w-xs")} value={x.indemniteOccupation ?? ""} onChange={(e) => maj(`immobilier.${i}.indemniteOccupation`, e.target.value)} inputMode="decimal" />
+                </Champ>
+                <Champ label="Qui prendra en charge le crédit immobilier ?">
+                  <Choix options={QUI_CHARGES_INDIVISION} value={x.creditQui ?? ""} onChange={(v) => maj(`immobilier.${i}.creditQui`, v)} />
+                </Champ>
+                <Champ label="Qui prendra en charge les charges et la taxe foncière ?">
+                  <Choix options={QUI_CHARGES_INDIVISION} value={x.chargesQui ?? ""} onChange={(v) => maj(`immobilier.${i}.chargesQui`, v)} />
+                </Champ>
+              </>
+            )}
           </Bloc>
         ))}
         <Ajouter libelle="Ajouter un bien" onClick={() => maj("immobilier", [...d.immobilier, bienVide()])} desactive={d.immobilier.length >= PLAFONDS.immobilier} />
@@ -1503,7 +1546,11 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
 
       <h2 className="mb-6 font-serif text-3xl text-[#1A1A1A]">{titreEtape}</h2>
       {contenu[etape]}
-      {!interne && <PourVousAider liens={(guides.etapes[etape] || []).filter((l) => !l.procedure || l.procedure === d.procedure)} />}
+      {!interne && (
+        <PourVousAider
+          liens={(guides.etapes[etape] || []).filter((l) => (!l.procedure || l.procedure === d.procedure) && (!l.quand || situation(d, l.quand)))}
+        />
+      )}
 
       {rappel && complet && aFaire.length > 0 && (
         <div ref={rappelRef} className="mt-8 text-left rounded-xl border border-[#E6D9BF] bg-[#FBF7EE] px-5 py-4 text-sm text-[#4A3B24]">

@@ -7,11 +7,14 @@
  * guidesDisponibles) : la liste se remplit seule au fil des publications, sans
  * lien mort. L'indice est celui de l'étape dans ETAPES (0 = « Votre procédure »). */
 
-export type Lecture = { type: "fiche" | "actualite"; slug: string; procedure?: "Divorce" | "Séparation de corps" };
-export type Lien = { href: string; titre: string; procedure?: Lecture["procedure"] };
+/* quand : n'afficher le guide que s'il concerne la situation déclarée
+   (époux étranger, enfants, enfant de 10 ans et plus, résidence alternée). */
+export type Quand = "etranger" | "enfants" | "enfant10" | "alternee";
+export type Lecture = { type: "fiche" | "actualite"; slug: string; procedure?: "Divorce" | "Séparation de corps"; quand?: Quand };
+export type Lien = { href: string; titre: string; procedure?: Lecture["procedure"]; quand?: Quand };
 
-const f = (slug: string, procedure?: Lecture["procedure"]): Lecture => ({ type: "fiche", slug, procedure });
-const a = (slug: string, procedure?: Lecture["procedure"]): Lecture => ({ type: "actualite", slug, procedure });
+const f = (slug: string, procedure?: Lecture["procedure"], quand?: Quand): Lecture => ({ type: "fiche", slug, procedure, quand });
+const a = (slug: string, procedure?: Lecture["procedure"], quand?: Quand): Lecture => ({ type: "actualite", slug, procedure, quand });
 
 export const LECTURES_ETAPES: Record<number, Lecture[]> = {
   /* 1. Votre procédure */
@@ -22,8 +25,8 @@ export const LECTURES_ETAPES: Record<number, Lecture[]> = {
     f("separation-corps-effets", "Séparation de corps"),
   ],
   /* 2. Vous / 3. Votre conjoint : nationalité étrangère */
-  1: [f("reconnaissance-divorce-sans-juge-etranger", "Divorce"), f("divorce-titre-sejour")],
-  2: [f("reconnaissance-divorce-sans-juge-etranger", "Divorce")],
+  1: [f("reconnaissance-divorce-sans-juge-etranger", "Divorce", "etranger"), f("divorce-titre-sejour", undefined, "etranger")],
+  2: [f("reconnaissance-divorce-sans-juge-etranger", "Divorce", "etranger")],
   /* 4. Le mariage */
   3: [f("regimes-matrimoniaux"), f("donations-avantages-matrimoniaux-divorce", "Divorce")],
   /* 5. Le logement */
@@ -34,12 +37,12 @@ export const LECTURES_ETAPES: Record<number, Lecture[]> = {
   ],
   /* 6. Les enfants */
   5: [
-    f("divorce-sans-juge-audition-enfant", "Divorce"),
-    f("residence-alternee-divorce-organisation"),
-    f("pension-alimentaire-enfants"),
-    f("frais-exceptionnels-enfants-divorce"),
-    f("intermediation-financiere-pension-alimentaire"),
-    f("transmission-nom-famille-enfant"),
+    f("divorce-sans-juge-audition-enfant", "Divorce", "enfant10"),
+    f("residence-alternee-divorce-organisation", undefined, "alternee"),
+    f("pension-alimentaire-enfants", undefined, "enfants"),
+    f("frais-exceptionnels-enfants-divorce", undefined, "enfants"),
+    f("intermediation-financiere-pension-alimentaire", undefined, "enfants"),
+    f("transmission-nom-famille-enfant", undefined, "enfants"),
   ],
   /* 7. L'actif */
   6: [
