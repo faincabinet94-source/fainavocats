@@ -70,7 +70,7 @@ export const en = {
     titleItalic: "Questions.",
     subtitle: "We know that legal matters can be a source of anxiety. Here are clear answers to help you move forward with confidence.",
     items: [
-      { question: "How does the first contact work?", answer: "We offer a free initial phone consultation. This allows us to understand your situation and confirm whether we are the right firm to assist you." },
+      { question: "How does the first contact work?", answer: "We offer a free initial phone call. This allows us to understand your situation and confirm whether we are the right firm to assist you." },
       { question: "How much does a consultation cost?", answer: "If an in-depth analysis of your case is needed, we offer a consultation at the firm for €120 (tax included). This amount is deductible from our fees if you entrust us with your case." },
       { question: "How quickly can I get an appointment?", answer: "We commit to offering you a slot within 24 to 48 business hours. In emergencies (domestic violence, child abduction), we see you the same day." },
       { question: "How are your fees determined?", answer: "We prioritize complete transparency. A written fee agreement is always provided before any action is taken, usually in the form of a flat fee so you can manage your budget." }
