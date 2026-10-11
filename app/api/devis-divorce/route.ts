@@ -55,6 +55,9 @@ export async function OPTIONS(request: Request) {
 const TRI = ["Oui", "Non", "Ne sait pas"] as const;
 const CIVILITES = ["Monsieur", "Madame"] as const;
 const MODES = ["En ligne", "Au cabinet"] as const;
+/* Valeurs du champ Domaine de la table Contacts (base Prospects). Le formulaire de
+   divorcefacil.com envoie SDC pour une séparation de corps ; à défaut, DIVORCE. */
+const DOMAINES = ["DIVORCE", "SDC"] as const;
 
 type Corps = {
   civilite?: string;
@@ -71,6 +74,7 @@ type Corps = {
   presta?: string;
   mode?: string;
   commentaires?: string;
+  procedure?: string;
   piege?: string;
 };
 
@@ -129,7 +133,7 @@ export async function POST(request: Request) {
   const charge = {
     source: depuisDivorcefacil ? "divorcefacil" : "fain-avocats",
     statutDuLead: "DEVIS",
-    domaine: "DIVORCE",
+    domaine: dansListe(corps.procedure, DOMAINES) ?? "DIVORCE",
     genre: civilite,
     prenom,
     nom,
