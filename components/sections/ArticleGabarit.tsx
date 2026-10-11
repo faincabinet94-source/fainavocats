@@ -23,7 +23,6 @@ const AVEC_SIMULATEUR = new Set([
   "condition-attribution-prestation-compensatoire",
   "formes-prestation-compensatoire",
   "prestation-compensatoire-fiscalite",
-  "calcul-prestation-compensatoire-divorce",
 ]);
 
 function formatDate(dateStr: string) {

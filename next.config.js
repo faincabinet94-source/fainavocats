@@ -322,6 +322,22 @@ const nextConfig = {
         destination: '/actualites',
         permanent: true,
       },
+      // Fusion des doublons (11 octobre 2026)
+      {
+        source: '/actualites/residence-des-enfants-en-cas-de-divorce',
+        destination: '/fiches/residence-alternee-divorce-organisation',
+        permanent: true,
+      },
+      {
+        source: '/actualites/calcul-prestation-compensatoire-divorce',
+        destination: '/fiches/calcul-prestation-compensatoire',
+        permanent: true,
+      },
+      {
+        source: '/actualites/solidarite-loyer-epoux-depart-domicile-conjugal',
+        destination: '/fiches/divorce-loyers-impayes',
+        permanent: true,
+      },
     ];
   },
 }

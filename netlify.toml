@@ -358,6 +358,22 @@
 # 21/08/2026 a 23h28 : « Now using node v22.23.2 ».
 # On fige la majeure et non la version exacte, pour continuer de recevoir les
 # correctifs de la branche 22 sans jamais basculer sur une majeure suivante.
+# Fusion des doublons (11 octobre 2026)
+[[redirects]]
+  from = "/actualites/residence-des-enfants-en-cas-de-divorce"
+  to = "/fiches/residence-alternee-divorce-organisation"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/calcul-prestation-compensatoire-divorce"
+  to = "/fiches/calcul-prestation-compensatoire"
+  status = 301
+
+[[redirects]]
+  from = "/actualites/solidarite-loyer-epoux-depart-domicile-conjugal"
+  to = "/fiches/divorce-loyers-impayes"
+  status = 301
+
 [build.environment]
   NODE_VERSION = "22"
 
