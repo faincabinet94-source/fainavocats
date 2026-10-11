@@ -55,6 +55,13 @@ export const HONORAIRES_PARTAGE_FORMALISE = 500;
 export const avecPension = (d: Pick<Donnees, "enfants">) => d.enfants.some((e) => (nombre(e.pension) ?? 0) > 0);
 export const intermediationCabinet = (d: Donnees) =>
   d.intermediation === "Oui" && avecPension(d) && d.intermediationMiseEnPlace === MISES_EN_PLACE_INTERMEDIATION[0];
+/* Honoraires complémentaires TTC, cumulables : 250 € si le cabinet met en
+   place l'intermédiation, 500 € (minimum, selon la complexité) pour un partage
+   des comptes formalisé. Écrits dans « Formulaires reçus », qui les ajoute au
+   Hono total du dossier à sa création (formules « Hono total nombre » et
+   « Hono dû époux 1 / 2 »). */
+export const honorairesComplementaires = (d: Donnees) =>
+  (intermediationCabinet(d) ? HONORAIRES_INTERMEDIATION : 0) + (estFormalise(d) ? HONORAIRES_PARTAGE_FORMALISE : 0);
 
 /* Maintien d'un bien en indivision : qui en a la jouissance, qui paie quoi. */
 export const QUI_JOUISSANCE = ["Moi", "Mon époux(se)"] as const;
@@ -976,6 +983,9 @@ export function champsComplementaires(d: Donnees, lienReprise: string, interne =
     "Usage du nom": texteNom(d) || null,
     "Arriérés de loyers": d.arrieresLoyers === "Oui" ? nombre(d.montantArrieresLoyers) : null,
     "Arriérés d'impôts": d.arrieresImpots === "Oui" ? nombre(d.montantArrieresImpots) : null,
+    /* Colonnes créées le 2026-10-11 (validation de Me FAIN). */
+    "Comptes et placements": texteActifs(d) || null,
+    "Honoraires complémentaires": honorairesComplementaires(d) || null,
     "Lien de reprise": lienReprise,
     "Avocat conjoint (Pro)": av && /^rec[A-Za-z0-9]{14}$/.test(av.id) ? [av.id] : null,
     Type: typeDossier(d),
