@@ -6,6 +6,8 @@ import { getAllFiches } from '@/lib/fiches'
 // Google apprend alors a ignorer le signal (audit SEO du 2026-08-15).
 // Date de derniere refonte structurelle du site, a mettre a jour a la main.
 const SITE_LAST_MODIFIED = new Date('2026-08-15')
+// Réorganisation des rubriques du 11 octobre 2026 : pages de rubrique et guides.
+const REORGANISATION = new Date('2026-10-11')
  
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
@@ -19,7 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const expertisePages = [
     'divorce',
-    'garde-enfants',
+    'autorite-parentale-residence',
+    'prestation-compensatoire',
     'pension-alimentaire',
     'liquidation-regime-matrimonial',
     'filiation-adoption',
@@ -29,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const expertiseEntries: MetadataRoute.Sitemap = expertisePages.map((slug) => ({
     url: `https://fain-avocats.fr/${slug}`,
-    lastModified: SITE_LAST_MODIFIED,
+    lastModified: REORGANISATION,
     changeFrequency: 'monthly',
     priority: 0.9,
   }))
@@ -37,7 +40,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const fichesPages = [
     'droit-de-la-famille',
     'le-couple',
-    'les-enfants',
     'etat-civil',
   ]
 
@@ -51,7 +53,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const fiches = getAllFiches()
   const ficheArticles: MetadataRoute.Sitemap = fiches.map((f) => ({
     url: `https://fain-avocats.fr/fiches/${f.slug}`,
-    lastModified: SITE_LAST_MODIFIED,
+    lastModified: REORGANISATION,
     changeFrequency: 'yearly',
     priority: 0.7,
   }))

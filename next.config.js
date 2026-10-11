@@ -2,6 +2,57 @@
 const nextConfig = {
   async redirects() {
     return [
+      // Réorganisation du 11 octobre 2026 (audit d'organisation du site).
+      // « Garde d'enfants » est une expression que les textes n'emploient plus :
+      // la rubrique devient « Autorité parentale et résidence de l'enfant ».
+      // /les-enfants, hub sans fiche, est absorbé par la même rubrique.
+      {
+        source: '/garde-enfants',
+        destination: '/autorite-parentale-residence',
+        permanent: true,
+      },
+      {
+        source: '/les-enfants',
+        destination: '/autorite-parentale-residence',
+        permanent: true,
+      },
+      // Guides durables publiés par défaut en actualité : ils rejoignent /fiches/
+      // (un guide = une URL sous /fiches/, rattachée à une rubrique).
+      {
+        source: '/actualites/reprendre-nom-premier-mari-apres-second-divorce',
+        destination: '/fiches/reprendre-nom-premier-mari-apres-second-divorce',
+        permanent: true,
+      },
+      {
+        source: '/actualites/divorce-pour-faute-cas-pertinents',
+        destination: '/fiches/divorce-pour-faute-cas-pertinents',
+        permanent: true,
+      },
+      {
+        source: '/actualites/divorce-algeriens-france-competence-loi-applicable',
+        destination: '/fiches/divorce-algeriens-france-competence-loi-applicable',
+        permanent: true,
+      },
+      {
+        source: '/actualites/divorce-franco-marocain-juge-competent-loi-applicable',
+        destination: '/fiches/divorce-franco-marocain-juge-competent-loi-applicable',
+        permanent: true,
+      },
+      {
+        source: '/actualites/divorce-franco-tunisien-juge-loi-applicable',
+        destination: '/fiches/divorce-franco-tunisien-juge-loi-applicable',
+        permanent: true,
+      },
+      {
+        source: '/actualites/droit-de-partage-vendre-le-bien-avant-la-separation',
+        destination: '/fiches/droit-de-partage-vendre-le-bien-avant-la-separation',
+        permanent: true,
+      },
+      {
+        source: '/actualites/creance-concubin-refection-toiture-droits-recours',
+        destination: '/fiches/creance-concubin-refection-toiture-droits-recours',
+        permanent: true,
+      },
       // Anciennes pages Cognito (formulaires 3, 13 et 14) → formulaire commun du
       // site. Le paramètre entry (pré-remplissage) est conservé. Redirections
       // temporaires (307) : réversibles tant que Cognito n'est pas résilié.
@@ -51,7 +102,7 @@ const nextConfig = {
       },
       {
         source: '/actualites/creance-concubin-refection-toiture-droits-recours-1780773629662',
-        destination: '/actualites/creance-concubin-refection-toiture-droits-recours',
+        destination: '/fiches/creance-concubin-refection-toiture-droits-recours',
         permanent: true,
       },
       {
@@ -102,7 +153,7 @@ const nextConfig = {
       },
       {
         source: '/droit-de-la-famille/garde-enfants',
-        destination: '/garde-enfants',
+        destination: '/autorite-parentale-residence',
         permanent: true,
       },
       {
@@ -198,7 +249,7 @@ const nextConfig = {
       },
       {
         source: '/actualites/droit-de-la-famille/divorce-faute-preuve-sms.html',
-        destination: '/actualites/divorce-pour-faute-cas-pertinents',
+        destination: '/fiches/divorce-pour-faute-cas-pertinents',
         permanent: true,
       },
       {

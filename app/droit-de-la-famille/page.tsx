@@ -76,7 +76,7 @@ export default function DroitDeLaFamillePage() {
                 },
                 {
                   title: "Divorce et Séparation",
-                  desc: "Lors d'une séparation ou d'un divorce, le droit de la famille va permettre de régler la répartition des biens, la garde des enfants, la pension alimentaire et les éventuelles prestations compensatoires.",
+                  desc: "Lors d'une séparation ou d'un divorce, le droit de la famille va permettre de régler la répartition des biens, la résidence des enfants, la pension alimentaire et les éventuelles prestations compensatoires.",
                   image: "/images/fiches/hero-divorce.jpg",
                   href: "/divorce",
                 },
@@ -84,13 +84,13 @@ export default function DroitDeLaFamillePage() {
                   title: "Filiation et Parentalité",
                   desc: "Il s'agit de la reconnaissance juridique des liens de parenté, incluant les procédures d'adoption, la reconnaissance de paternité et les droits des grands-parents.",
                   image: "/images/fiches/adoption-simple.jpg",
-                  href: "/les-enfants",
+                  href: "/filiation-adoption",
                 },
                 {
-                  title: "Garde des Enfants",
-                  desc: "Le droit de la famille détermine les modalités de garde et de visite des enfants, en s'assurant que leur bien-être et leur intérêt supérieur sont respectés.",
+                  title: "Autorité parentale et Résidence",
+                  desc: "Le droit de la famille détermine l'exercice de l'autorité parentale, la résidence des enfants et le droit de visite, en s'assurant que leur bien-être et leur intérêt supérieur sont respectés.",
                   image: "/images/fiches/hero-garde-enfants.jpg",
-                  href: "/les-enfants",
+                  href: "/autorite-parentale-residence",
                 },
                 {
                   title: "Pension Alimentaire",
@@ -102,7 +102,7 @@ export default function DroitDeLaFamillePage() {
                   title: "Protection des Mineurs",
                   desc: "Il comprend des mesures pour protéger les mineurs en situation de danger, incluant les procédures d'assistance éducative et de placement.",
                   image: "/images/fiches/autorite-parentale.jpg",
-                  href: "/les-enfants",
+                  href: "/autorite-parentale-residence",
                 },
               ].map((item) => {
                 const inner = (
@@ -293,11 +293,11 @@ export default function DroitDeLaFamillePage() {
                     desc: "Procédures, partage des biens, prestation compensatoire.",
                   },
                   {
-                    href: "/les-enfants",
-                    label: "Les enfants",
+                    href: "/autorite-parentale-residence",
+                    label: "Autorité parentale et résidence",
                     img: "https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=600&q=80",
-                    alt: "Droit des enfants - garde et pension",
-                    desc: "Garde, autorité parentale, pension alimentaire.",
+                    alt: "Autorité parentale et résidence des enfants",
+                    desc: "Autorité parentale, résidence de l'enfant, droit de visite.",
                   },
                   {
                     href: "/fiches",
@@ -356,7 +356,7 @@ export default function DroitDeLaFamillePage() {
                 <p className="text-gray-700 text-lg leading-relaxed mb-6">
                   Le recours à un avocat en droit de la famille est essentiel compte tenu des
                   règles complexes qui régissent le droit de la famille. Que vous soyez
-                  confronté à un divorce, à une question de garde d&apos;enfants, à une
+                  confronté à un divorce, à une question de résidence des enfants, à une
                   adoption ou à toute autre problématique familiale, un avocat
                   expérimenté fera le plus souvent la différence.
                 </p>

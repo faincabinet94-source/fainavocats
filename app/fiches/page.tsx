@@ -6,9 +6,10 @@ import { Container } from "@/components/ui/Container";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { getAllFiches } from "@/lib/fiches";
+import { RUBRIQUES } from "@/lib/rubriques";
 
 export const metadata: Metadata = {
-  title: "Fiches pratiques en droit de la famille | Fain Avocats Paris",
+  title: "Guides pratiques en droit de la famille | Fain Avocats Paris",
   description:
     "Retrouvez nos fiches pratiques en droit de la famille : couple, enfants, divorce, état civil. Informations juridiques claires par Maître Fain, avocat à Paris.",
   keywords: [
@@ -18,30 +19,6 @@ export const metadata: Metadata = {
     "droit couple",
     "droit enfants",
   ],
-};
-
-const categoryConfig: Record<
-  string,
-  { label: string; emoji: string; href: string }
-> = {
-  couple: { label: "Le Couple", emoji: "💍", href: "/le-couple" },
-  enfants: { label: "Les Enfants", emoji: "👨‍👧‍👦", href: "/les-enfants" },
-  divorce: { label: "Divorce", emoji: "⚖️", href: "/divorce" },
-  liquidation: {
-    label: "Liquidation du régime matrimonial",
-    emoji: "💶",
-    href: "/liquidation-regime-matrimonial",
-  },
-  "etat-civil": { label: "État Civil", emoji: "📋", href: "/etat-civil" },
-  "garde-enfants": { label: "Garde d'enfants", emoji: "👨‍👧‍👦", href: "/garde-enfants" },
-  "pension-alimentaire": {
-    label: "Pension alimentaire et Prestation compensatoire",
-    emoji: "💶",
-    href: "/pension-alimentaire",
-  },
-  "filiation-adoption": { label: "Filiation & adoption", emoji: "👶", href: "/filiation-adoption" },
-  "droit-penal-famille": { label: "Droit pénal de la famille", emoji: "⚖️", href: "/droit-penal-famille" },
-  "annulation-mariage": { label: "Annulation de mariage", emoji: "📜", href: "/annulation-mariage" },
 };
 
 // Illustrations « droit de la famille » (bleu marine sur crème) réparties sur les fiches
@@ -94,7 +71,7 @@ export default function FichesPage() {
             </Link>
 
             <h1 className="font-serif text-4xl md:text-5xl text-[#1A1A1A] mb-6 leading-tight text-center">
-              Fiches pratiques
+              Guides pratiques
             </h1>
             <p className="text-gray-600 text-lg mb-16 text-center max-w-3xl mx-auto text-justify">
               Nos fiches pratiques vous informent sur les grandes questions du
@@ -102,7 +79,8 @@ export default function FichesPage() {
               constituent un premier niveau d&apos;information.
             </p>
 
-            {Object.entries(categoryConfig).map(([key, config]) => {
+            {RUBRIQUES.map((config) => {
+              const key = config.key;
               const items = grouped[key];
               if (!items || items.length === 0) return null;
               return (

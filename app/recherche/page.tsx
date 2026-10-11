@@ -29,7 +29,7 @@ export default function RecherchePage() {
     titre: f.title,
     description: f.description || "",
     url: `/fiches/${f.slug}`,
-    type: "Fiche pratique",
+    type: "Guide pratique",
     texte: texteBrut(f.content).slice(0, 4000),
   }));
 

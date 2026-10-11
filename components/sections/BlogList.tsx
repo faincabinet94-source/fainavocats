@@ -35,7 +35,7 @@ export function BlogList({
             Droit de la famille
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl">
-            Retrouvez nos publications sur le divorce, la garde d'enfants, la
+            Retrouvez nos publications sur le divorce, la résidence des enfants, la
             pension alimentaire et le patrimoine familial.
           </p>
         </motion.div>

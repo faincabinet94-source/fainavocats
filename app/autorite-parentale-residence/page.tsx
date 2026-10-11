@@ -8,12 +8,7 @@ import Link from "next/link";
 import { expertises } from "@/lib/expertises";
 import { FichesCategorie } from "@/components/sections/FichesCategorie";
 
-const articlesGarde = [
-  {
-    title: "L'autorité parentale",
-    slug: "autorite-parentale",
-    desc: "Contenu, exercice conjoint ou unilatéral, résidence et droit de visite.",
-  },
+const articlesLies = [
   {
     title: "La pension alimentaire destinée aux enfants",
     slug: "pension-alimentaire-enfants",
@@ -26,7 +21,7 @@ const articlesGarde = [
   },
 ];
 
-const data = expertises["garde-enfants"];
+const data = expertises["autorite-parentale-residence"];
 
 export const metadata: Metadata = {
   title: data.metaTitle,
@@ -35,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: data.metaTitle,
     description: data.metaDescription,
-    url: "https://fain-avocats.fr/garde-enfants",
+    url: "https://fain-avocats.fr/autorite-parentale-residence",
     type: "website",
   },
 };
@@ -43,9 +38,9 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LegalService",
-  name: "Fain Avocats - Avocat Garde d'Enfants Paris",
+  name: "Fain Avocats - Avocat Autorité Parentale et Résidence de l'Enfant Paris",
   description: data.metaDescription,
-  url: "https://fain-avocats.fr/garde-enfants",
+  url: "https://fain-avocats.fr/autorite-parentale-residence",
   provider: {
     "@type": "Attorney",
     name: "Fain Avocats",
@@ -59,10 +54,10 @@ const jsonLd = {
     },
   },
   areaServed: { "@type": "City", name: "Paris" },
-  serviceType: "Garde d'Enfants et Autorité Parentale",
+  serviceType: "Autorité Parentale et Résidence de l'Enfant",
 };
 
-export default function GardeEnfantsPage() {
+export default function AutoriteParentaleResidencePage() {
   return (
     <>
       <Navbar />
@@ -72,7 +67,7 @@ export default function GardeEnfantsPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ExpertisePage data={data} />
-        <FichesCategorie category="garde-enfants" titre="Fiches pratiques sur la garde d'enfants" />
+        <FichesCategorie category="autorite-parentale" titre="Guides sur l'autorité parentale et la résidence de l'enfant" />
 
         <section className="bg-[#F4F2EC] pb-20">
           <Container>
@@ -80,14 +75,14 @@ export default function GardeEnfantsPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/fiches/hero-garde-enfants.jpg"
-                alt="Résidence alternée et garde partagée"
+                alt="Résidence de l'enfant après la séparation des parents"
                 className="w-full h-56 md:h-72 object-cover rounded-lg mb-14"
               />
               <h2 className="font-serif text-3xl text-[#1A1A1A] mb-8 text-center">
-                Fiches pratiques sur la garde des enfants
+                Sur les enfants, à lire aussi
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
-                {articlesGarde.map((a) => (
+                {articlesLies.map((a) => (
                   <Link
                     key={a.slug}
                     href={`/fiches/${a.slug}`}
