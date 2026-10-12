@@ -231,6 +231,23 @@ export function conseilDuConjoint(d: Donnees): "partenaire" | "exterieur" | "" {
   if (d.avocatConjoint && d.avocatConjoint.nom && !estPartenaire(d.avocatConjoint)) return "exterieur";
   return "";
 }
+/* 2A : le conjoint a-t-il déjà choisi son avocat (décision de Me FAIN du
+   2026-10-12) ? Saisies antérieures sans réponse : « Oui » si un avocat est
+   nommé, sinon sans réponse. */
+export function avocatChoisi(d: Donnees): "Oui" | "Non" | "" {
+  if (d.avocatChoisi === "Oui" || d.avocatChoisi === "Non") return d.avocatChoisi;
+  const a = d.avocatConjoint;
+  return a && a.nom.trim() && !estPartenaire(a) ? "Oui" : "";
+}
+/* 2A, destinataire du courrier d'usage que le cabinet adresse une fois la
+   provision réglée : le confrère quand son courriel est connu, sinon le
+   conjoint lui-même (par courrier et par courriel), invité à choisir un avocat
+   ou à lui remettre le courrier. null hors 2A (confrère partenaire). */
+export function destinataireUsage(d: Donnees): "confrere" | "conjoint" | null {
+  if (conseilDuConjoint(d) !== "exterieur") return null;
+  const a = avocatRetenu(d);
+  return avocatChoisi(d) === "Oui" && a && COURRIEL_VALIDE.test((a.email || "").trim()) ? "confrere" : "conjoint";
+}
 /* Avocat du conjoint à retenir : le partenaire par défaut ; null quand il est
    extérieur et que son nom n'est pas encore connu. */
 export function avocatRetenu(d: Donnees): Avocat | null {
@@ -284,6 +301,8 @@ export type Donnees = {
   debutCEELibre?: string;
   partageComptes?: string;
   conseilConjoint?: string;
+  /* 2A seulement : « Oui » ou « Non » (absent des saisies antérieures au 2026-10-12). */
+  avocatChoisi?: string;
   avocatConjoint: Avocat;
   enfants: Enfant[];
   immobilier: Bien[];
@@ -369,6 +388,7 @@ export const donneesVides = (procedure = "Divorce"): Donnees => ({
   debutCEELibre: "",
   partageComptes: "",
   conseilConjoint: "",
+  avocatChoisi: "",
   avocatConjoint: { ...AVOCAT_PARTENAIRE },
   enfants: [],
   immobilier: [],
@@ -587,6 +607,8 @@ function manquantsBruts(d: Donnees, interne: boolean): Manque[] {
   if (interne) return m;
 
   exiger(0, "distance", d.distance, "la façon de procéder (à distance ou au cabinet)");
+  if (conseilDuConjoint(d) === "exterieur")
+    exiger(2, "avocatChoisi", avocatChoisi(d), "si votre conjoint a déjà choisi son avocat");
   exiger(3, "mariage.date", d.mariage.date, "la date du mariage");
   exiger(3, "mariage.lieu", d.mariage.lieu, "le lieu du mariage");
 
@@ -1035,7 +1057,17 @@ export function recapitulatif(d: Donnees): Section[] {
       lignes: [
         ...p(d.conjoint),
         ...(conseilDuConjoint(d) === "exterieur"
-          ? ([["Avocat du conjoint", avocatRetenu(d) ? texteAvocat(avocatRetenu(d) as Avocat) : "Avocat extérieur, nom pas encore connu"]] as [string, string][])
+          ? ([
+              ["Avocat déjà choisi", avocatChoisi(d)],
+              [
+                "Avocat du conjoint",
+                avocatRetenu(d)
+                  ? texteAvocat(avocatRetenu(d) as Avocat)
+                  : avocatChoisi(d) === "Non"
+                    ? "Pas encore choisi"
+                    : "Avocat extérieur, nom pas encore connu",
+              ],
+            ] as [string, string][])
           : []),
       ],
     },
