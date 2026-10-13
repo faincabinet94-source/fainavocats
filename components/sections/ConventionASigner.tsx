@@ -21,7 +21,7 @@ const enLigne = (s: string) =>
     .replace(/(^|[\s(])_([^_\n]+?)_(?=[\s.,;:)]|$)/g, "$1<em>$2</em>");
 
 /** Markdown restreint des modèles Airtable : paragraphes, listes « - », gras, italique. */
-function enHtml(texte: string): string {
+export function enHtml(texte: string): string {
   const puce = /^\s*\\?-\s+/;
   return texte
     .split(/\n{2,}/)
