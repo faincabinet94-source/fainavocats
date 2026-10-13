@@ -715,7 +715,9 @@ export function facultatifs(d: Donnees, interne: boolean): Manque[] {
   if (d.logement.separes === "Oui" && vide(d.logement.dateSeparation)) ajouter(4, "logement.dateSeparation", "la date de séparation");
   if (!divorce && d.ds.convenu === "Oui" && vide(d.ds.montant)) ajouter(8, "ds.montant", "le montant du devoir de secours");
   if (divorce && vide(d.nomUsage.utilise)) ajouter(9, "nomUsage.utilise", "l'usage du nom de l'autre époux");
-  if (!d.pieces.length) ajouter(11, "pieces", "les pièces justificatives");
+  // Version client : les pièces se déposent dans l'espace client, une fois la
+  // provision réglée (décision du 2026-10-13) ; plus de rappel ici.
+  if (interne && !d.pieces.length) ajouter(11, "pieces", "les pièces justificatives");
   return interne ? pourCabinet(m) : m;
 }
 

@@ -1520,10 +1520,18 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
     /* 12. Vos pièces */
     <div key="pi" className="space-y-5">
       <p className="text-[15px] leading-relaxed text-gray-600">
-        Livret de famille, actes d&apos;état civil récents, pièces d&apos;identité des deux époux. PDF ou photo,
-        5 Mo au plus par fichier. Vous pouvez aussi les transmettre plus tard.
+        {interne
+          ? "Livret de famille, actes d'état civil récents, pièces d'identité des deux époux. PDF ou photo, 5 Mo au plus par fichier. Vous pouvez aussi les transmettre plus tard."
+          : "Livret de famille, actes d'état civil récents, pièces d'identité des deux époux : vous pouvez dès maintenant les réunir."}
       </p>
-      {correction ? (
+      {!interne && !correction ? (
+        /* Version client : dépôt dans l'espace client, une fois la provision
+           réglée (décision de Me FAIN du 2026-10-13). */
+        <p className="rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-3 text-sm text-gray-600">
+          Vous les déposerez dans votre espace client dès réception de votre provision : la liste exacte des
+          pièces de votre procédure vous y attend.
+        </p>
+      ) : correction ? (
         <p className="rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-3 text-sm text-gray-600">
           {revoir || modification
             ? "Les pièces déjà transmises restent attachées à votre dossier. Pour en ajouter, écrivez-nous à contact@divorcefacil.com."
