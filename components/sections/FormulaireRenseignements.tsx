@@ -128,6 +128,80 @@ const ETAPES = [
 const inputCls =
   "w-full rounded-lg border border-[#D6D3CB] bg-white px-4 py-3 text-[15px] text-[#1A1A1A] outline-none transition-colors placeholder:text-gray-400 focus:border-[#362A24]";
 
+/* Récapitulatif modifiable (version cabinet). À chaque ligne du récapitulatif
+   correspondent les champs qui la composent : la ligne s'ouvre en place pour
+   les corriger. Les lignes sans éditeur (enfants, biens, crédits, avocat,
+   date des effets…) renvoient à leur étape. Clé : « section|intitulé ». */
+type ChampRecap = { chemin: string; libelle: string; type: "texte" | "long" | "date" | "choix"; options?: readonly string[] };
+const ETAPE_SECTION: Record<string, number> = {
+  Procédure: 0,
+  "Le client": 1,
+  "Le conjoint": 2,
+  "Le mariage": 3,
+  "Le logement": 4,
+  "Prestation compensatoire": 8,
+  "Devoir de secours": 8,
+  "Nom d'usage": 9,
+  "Honoraires et commentaires": 10,
+};
+function etapeRecap(section: string, ligne: string): number {
+  if (section.startsWith("Les enfants")) return 5;
+  if (section.startsWith("Pièces")) return 11;
+  if (section === "Le patrimoine") return /^(Crédit|Arriérés|Impôts)/.test(ligne) ? 7 : 6;
+  return ETAPE_SECTION[section] ?? 12;
+}
+function editeursRecap(d: Donnees): Record<string, ChampRecap[]> {
+  const t = (chemin: string, libelle: string): ChampRecap => ({ chemin, libelle, type: "texte" });
+  const date = (chemin: string, libelle: string): ChampRecap => ({ chemin, libelle, type: "date" });
+  const c = (chemin: string, libelle: string, options: readonly string[]): ChampRecap => ({ chemin, libelle, type: "choix", options });
+  const personne = (section: string, p: "client" | "conjoint") => ({
+    [`${section}|Identité`]: [c(`${p}.civilite`, "Civilité", CIVILITES), t(`${p}.prenoms`, "Prénoms"), t(`${p}.nom`, "Nom")],
+    [`${section}|Naissance`]: [date(`${p}.dateNaissance`, "Date de naissance"), t(`${p}.lieuNaissance`, "Lieu de naissance")],
+    [`${section}|Nationalité`]: [t(`${p}.nationalite`, "Nationalité")],
+    [`${section}|Adresse`]: [t(`${p}.adresse`, "Adresse"), t(`${p}.cp`, "Code postal"), t(`${p}.ville`, "Ville")],
+    [`${section}|Profession`]: [t(`${p}.profession`, "Profession")],
+    [`${section}|Revenus mensuels`]: [t(`${p}.revenus`, "Revenus mensuels nets (€)")],
+    [`${section}|Revenus annuels`]: [t(`${p}.revenusAnnuels`, "Revenus annuels nets (€)")],
+    [`${section}|Logement actuel`]: [c(`${p}.statutLogement`, "Logement actuel", statutsLogement(d.mariage.regime))],
+    [`${section}|Courriel`]: [t(`${p}.email`, "Courriel")],
+    [`${section}|Téléphone`]: [t(`${p}.telephone`, "Téléphone")],
+  });
+  return {
+    "Procédure|Procédure": [c("procedure", "Procédure", PROCEDURES)],
+    "Procédure|Déroulé": [c("distance", "Déroulé", DISTANCES)],
+    "Procédure|Déjà client": [c("dejaClient", "Déjà client", OUI_NON)],
+    ...personne("Le client", "client"),
+    ...personne("Le conjoint", "conjoint"),
+    "Le mariage|Date et lieu": [date("mariage.date", "Date du mariage"), t("mariage.lieu", "Lieu du mariage")],
+    "Le mariage|Régime": [c("mariage.regime", "Régime", REGIMES)],
+    "Le mariage|Contrat de mariage": [c("mariage.contrat", "Contrat de mariage", OUI_NON)],
+    "Le mariage|Notaire": [t("mariage.notaire", "Notaire"), t("mariage.villeNotaire", "Ville du notaire"), date("mariage.dateContrat", "Date du contrat")],
+    "Le logement|Vivent séparément": [c("logement.separes", "Vivent séparément", OUI_NON)],
+    "Le logement|Depuis le": [date("logement.dateSeparation", "Date de séparation")],
+    "Le logement|Domicile conjugal": [c("logement.domicile", "Domicile conjugal", DOMICILES)],
+    "Le logement|Délai de relogement": [c("logement.delai", "Délai de relogement", DELAIS)],
+    [`Les enfants (${d.enfants.length})|Nom de famille`]: [t("nomFamilleEnfants", "Nom de famille des enfants")],
+    "Le patrimoine|Arriérés de loyers": [c("arrieresLoyers", "Arriérés de loyers", OUI_NON), t("montantArrieresLoyers", "Montant (€)")],
+    "Le patrimoine|Arriérés d'impôts": [c("arrieresImpots", "Arriérés d'impôts", OUI_NON), t("montantArrieresImpots", "Montant (€)")],
+    "Le patrimoine|Impôts déjà séparés": [c("impotsSepares", "Impôts déjà séparés", OUI_NON)],
+    "Prestation compensatoire|Convenue": [c("pc.convenue", "Prestation compensatoire convenue", OUI_NON)],
+    "Prestation compensatoire|Bénéficiaire": [c("pc.beneficiaire", "Bénéficiaire", BENEFICIAIRES)],
+    "Prestation compensatoire|Forme": [c("pc.forme", "Forme", FORMES_PC)],
+    "Prestation compensatoire|Accord sur le montant": [c("pc.accordMontant", "Accord sur le montant", OUI_NON)],
+    "Prestation compensatoire|Montant total": [t("pc.montant", "Montant total (€)")],
+    "Devoir de secours|Convenu": [c("ds.convenu", "Devoir de secours convenu", OUI_NON)],
+    "Devoir de secours|Bénéficiaire": [c("ds.beneficiaire", "Bénéficiaire", BENEFICIAIRES)],
+    "Devoir de secours|Montant mensuel": [t("ds.montant", "Montant mensuel (€)")],
+    "Nom d'usage|Utilisé": [c("nomUsage.utilise", "Nom d'usage utilisé", OUI_NON)],
+    "Nom d'usage|Pourra le conserver": [c("nomUsage.conserve", "Pourra le conserver", OUI_NON)],
+    "Honoraires et commentaires|Répartition des honoraires": [c("repartition", "Répartition des honoraires", REPARTITIONS)],
+    "Honoraires et commentaires|Provision de 250 €": [c("provisionPartage", "Provision de 250 €", PROVISIONS_PARTAGE)],
+    "Honoraires et commentaires|Commentaires": [{ chemin: "commentaires", libelle: "Commentaires", type: "long" }],
+  };
+}
+const lireChemin = (d: Donnees, chemin: string): string =>
+  String(chemin.split(".").reduce<unknown>((o, k) => (o && typeof o === "object" ? (o as Record<string, unknown>)[k] : ""), d) ?? "");
+
 const nouvelId = () => {
   const b = new Uint8Array(16);
   crypto.getRandomValues(b);
@@ -516,6 +590,8 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             setDossierCorrige(j.dossier || "");
             setD(completer(j.donnees));
             setInterne(!versionClient);
+            /* Version cabinet : ouverture directe sur le récapitulatif, modifiable en place. */
+            if (!versionClient) setEtape(ETAPES.length - 1);
             if (lienRevoir) setRevoir(lirePoints(params.get("points")));
             else if (lienModifier) setModification(true);
             setPret(true);
@@ -608,6 +684,17 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
      rappelle, avec « Envoyer quand même ». */
   const [rappel, setRappel] = useState(false);
   const complet = tousManquants.length === 0;
+
+  /* Récapitulatif modifiable (version cabinet) : ligne ouverte en place. */
+  const [edition, setEdition] = useState<string | null>(null);
+  const editeurs = useMemo(() => editeursRecap(d), [d]);
+  const majRecap = (chemin: string, v: string) => {
+    maj(chemin, v);
+    // Revenus mensuels et annuels se calculent l'un de l'autre, comme à l'étape.
+    const n = enNombre(v);
+    if (chemin.endsWith(".revenus")) maj(chemin + "Annuels", n === null ? "" : String(Math.round(n * 12)));
+    if (chemin.endsWith(".revenusAnnuels")) maj(chemin.replace(/Annuels$/, ""), n === null ? "" : String(Math.round(n / 12)));
+  };
 
   /* Lien d'une liste « il manque » : ouvre l'étape, puis amène au champ. */
   const allerChamp = (x: Manque) => {
@@ -1543,12 +1630,71 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           <div key={s.titre}>
             <h3 className="mb-2 text-[16px] font-medium text-[#362A24]">{s.titre}</h3>
             <dl className="divide-y divide-[#EDEDEA] rounded-xl border border-[#E5E2DA] text-sm">
-              {s.lignes.map(([k, v]) => (
-                <div key={k} className="grid grid-cols-1 gap-1 px-4 py-2.5 sm:grid-cols-[200px_1fr]">
-                  <dt className="text-gray-500">{k}</dt>
-                  <dd className="whitespace-pre-line text-[#1A1A1A]">{v}</dd>
-                </div>
-              ))}
+              {s.lignes.map(([k, v]) => {
+                const cle = `${s.titre}|${k}`;
+                const champs = interne ? editeurs[cle] : undefined;
+                const ouvert = edition === cle && champs;
+                return (
+                  <div key={k} className="grid grid-cols-1 gap-1 px-4 py-2.5 sm:grid-cols-[200px_1fr]">
+                    <dt className="text-gray-500">{k}</dt>
+                    {ouvert ? (
+                      <dd className="space-y-3">
+                        {champs.map((x) => (
+                          <label key={x.chemin} className="block">
+                            {champs.length > 1 && <span className="mb-1 block text-[13px] text-gray-500">{x.libelle}</span>}
+                            {x.type === "choix" ? (
+                              <Liste options={x.options || []} value={lireChemin(d, x.chemin)} onChange={(val) => majRecap(x.chemin, val)} />
+                            ) : x.type === "date" ? (
+                              <SaisieDate className={inputCls} value={lireChemin(d, x.chemin)} onChange={(val) => majRecap(x.chemin, val)} />
+                            ) : x.type === "long" ? (
+                              <textarea
+                                rows={4}
+                                className={inputCls}
+                                value={lireChemin(d, x.chemin)}
+                                onChange={(e) => majRecap(x.chemin, e.target.value)}
+                              />
+                            ) : (
+                              <input
+                                type="text"
+                                className={inputCls}
+                                value={lireChemin(d, x.chemin)}
+                                onChange={(e) => majRecap(x.chemin, e.target.value)}
+                              />
+                            )}
+                          </label>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setEdition(null)}
+                          className="rounded-full bg-[#362A24] px-5 py-2 text-sm text-white hover:bg-[#2C221D]"
+                        >
+                          OK
+                        </button>
+                      </dd>
+                    ) : interne ? (
+                      <dd className="flex items-start justify-between gap-3">
+                        <button
+                          type="button"
+                          title={champs ? "Modifier" : `Modifier à l'étape « ${ETAPES_CABINET[ETAPES[etapeRecap(s.titre, k)]] || ETAPES[etapeRecap(s.titre, k)]} »`}
+                          onClick={() => (champs ? setEdition(cle) : aller(etapeRecap(s.titre, k)))}
+                          className="flex-1 whitespace-pre-line rounded text-left text-[#1A1A1A] hover:bg-[#F4F2EC]"
+                        >
+                          {v}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => (champs ? setEdition(cle) : aller(etapeRecap(s.titre, k)))}
+                          className="shrink-0 text-[13px] text-gray-400 underline-offset-2 hover:text-[#362A24] hover:underline"
+                        >
+                          {champs ? "Modifier" : "Étape"}
+                        </button>
+                      </dd>
+                    ) : (
+                      <dd className="whitespace-pre-line text-[#1A1A1A]">{v}</dd>
+                    )}
+                  </div>
+                );
+              })}
             </dl>
           </div>
         ))}
