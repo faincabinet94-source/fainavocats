@@ -7,6 +7,7 @@ import { PROVISIONS } from "@/lib/paiement";
 import { CASES_USAGE, casesUsage } from "@/lib/renseignements/lancement";
 import { avocatChoisi, avocatRetenu, texteAvocat, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import { PaiementProvision } from "@/components/paiement/PaiementProvision";
+import { ConventionASigner, type EtatSignature } from "@/components/sections/ConventionASigner";
 
 /* Fin du formulaire extérieur en 2A : le conjoint a ou aura son propre avocat.
    Le cabinet n'écrit pas au conjoint pour recueillir son avis (il est ou sera
@@ -20,6 +21,7 @@ const bouton =
 export function ChoixUsage({ id, d, destinataire }: { id: string; d: Donnees; destinataire: "confrere" | "conjoint" }) {
   const [cases, setCases] = useState<Record<keyof typeof CASES_USAGE, boolean>>({ convention: false, execution: false });
   const [paiement, setPaiement] = useState(false);
+  const [signature, setSignature] = useState<EtatSignature>(null);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
   const dejaChoisi = avocatChoisi(d) === "Oui";
@@ -38,7 +40,7 @@ export function ChoixUsage({ id, d, destinataire }: { id: string; d: Donnees; de
       const r = await fetch("/api/renseignements/lancement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, choix: "usage", cases }),
+        body: JSON.stringify({ id, choix: "usage", cases, signature: signature?.cle ? { empreinte: signature.empreinte, nom: signature.nom } : undefined }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.message || "Votre choix n'a pas pu être transmis.");
@@ -104,10 +106,11 @@ export function ChoixUsage({ id, d, destinataire }: { id: string; d: Donnees; de
           </label>
         ))}
       </div>
+      <ConventionASigner id={id} nomAttendu={[d.client.prenoms, d.client.nom.toUpperCase()].filter(Boolean).join(" ")} onChange={setSignature} />
       {erreur && <p className="mt-4 text-sm text-red-700">{erreur}</p>}
       <div className="mt-6">
-        <button type="button" className={bouton} disabled={envoi || !Object.values(cases).every(Boolean)} onClick={transmettre}>
-          Continuer vers le paiement
+        <button type="button" className={bouton} disabled={envoi || !signature || !Object.values(cases).every(Boolean)} onClick={transmettre}>
+          {signature?.cle ? "Signer et continuer vers le paiement" : "Continuer vers le paiement"}
         </button>
       </div>
     </div>

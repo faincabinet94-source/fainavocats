@@ -4,6 +4,7 @@ import { ID_VALIDE, saisies } from "@/lib/renseignements/stockage";
 import { versN8n } from "@/lib/renseignements/n8n";
 import { avocatChoisi, conseilDuConjoint, destinataireUsage, dossier, texteAvocat, avocatRetenu, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import { CASES_IMMEDIAT, CASES_USAGE, casesImmediat, casesUsage } from "@/lib/renseignements/lancement";
+import { INTITULES, empreinte, modeleConvention, pdfSigne, type CleModele } from "@/lib/renseignements/convention";
 
 /* Choix de l'époux qui a envoyé le formulaire (fin du formulaire extérieur) :
  *  - « immediat » : il certifie l'accord de son époux, demande l'exécution
@@ -32,10 +33,26 @@ export const dynamic = "force-dynamic";
 
 const COURRIEL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type Saisie = { donnees: Donnees; interne?: boolean; envoye?: boolean; numero?: number; lancement?: unknown };
+type Saisie = {
+  donnees: Donnees;
+  interne?: boolean;
+  envoye?: boolean;
+  numero?: number;
+  lancement?: unknown;
+  convention?: { cle: CleModele; texte: string; empreinte: string; le: string };
+};
+
+const sansAccents = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]/g, "");
 
 export async function POST(request: Request) {
-  let corps: { id?: string; choix?: string; cases?: Record<string, boolean>; emailConjoint?: string; transmission?: boolean };
+  let corps: {
+    id?: string;
+    choix?: string;
+    cases?: Record<string, boolean>;
+    emailConjoint?: string;
+    transmission?: boolean;
+    signature?: { empreinte?: string; nom?: string };
+  };
   try {
     corps = await request.json();
   } catch {
@@ -118,6 +135,73 @@ export async function POST(request: Request) {
     };
   } else {
     return NextResponse.json({ message: "Choix inconnu" }, { status: 400 });
+  }
+
+  /* Signature de la convention d'honoraires avant le paiement (2026-10-13) :
+     le texte signé est celui que la route « convention » a gardé avec la
+     saisie, vérifié par son empreinte. Le PDF signé part vers n8n
+     (« convention-signee »), qui le range sur la fiche dès sa création ; la
+     déclaration de signature rejoint les cases de la « Certification ». */
+  let signature: Record<string, unknown> | null = null;
+  const cle = corps.choix === "immediat" || corps.choix === "usage" ? modeleConvention(d) : null;
+  if (cle) {
+    const conv = s.convention;
+    const sig = corps.signature || {};
+    if (!conv || conv.cle !== cle || conv.empreinte !== empreinte(conv.texte) || sig.empreinte !== conv.empreinte)
+      return NextResponse.json({ message: "La convention a changé depuis son affichage. Rechargez la page et relisez-la avant de signer." }, { status: 409 });
+    const saisie = String(sig.nom || "").trim().slice(0, 200);
+    const nom = sansAccents(d.client.nom);
+    if (saisie.length < 3 || (nom && !sansAccents(saisie).includes(nom)))
+      return NextResponse.json({ message: "Saisissez vos prénom et nom pour signer la convention." }, { status: 400 });
+    const quand = new Date();
+    const signataire = [d.client.civilite, d.client.prenoms, d.client.nom.trim().toUpperCase()].filter(Boolean).join(" ");
+    const ip = (request.headers.get("x-nf-client-connection-ip") || request.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    const navigateur = (request.headers.get("user-agent") || "").slice(0, 400);
+    const declaration = `J'ai lu la convention d'honoraires affichée ci-dessus et je la signe électroniquement en saisissant mon nom (« ${saisie} »).`;
+    const textesCases = Object.values((lancement as { cases: Record<string, string> }).cases);
+    const pdf = await pdfSigne(conv.texte, {
+      intitule: INTITULES[cle],
+      reference: `formulaire n° ${s.numero}`,
+      signataire,
+      saisie,
+      courriel: d.client.email,
+      quand,
+      ip,
+      navigateur,
+      empreinteTexte: conv.empreinte,
+      cases: [...textesCases, declaration],
+    });
+    const preuve = [
+      `Convention : ${INTITULES[cle]} (modèle ${cle}), signée sur fain-avocats.fr avant le paiement`,
+      `Signataire : ${signataire} ; nom saisi : ${saisie}`,
+      `Courriel déclaré : ${d.client.email}`,
+      `Date : ${quand.toISOString()} (UTC)`,
+      `Adresse IP : ${ip || "non transmise"}`,
+      `Navigateur : ${navigateur || "non transmis"}`,
+      `Empreinte SHA-256 du texte affiché : ${conv.empreinte}`,
+      `Empreinte SHA-256 du PDF signé : ${empreinte(pdf)}`,
+      "Cases cochées :",
+      ...[...textesCases, declaration].map((t) => `[x] ${t}`),
+    ].join("\n");
+    const nomFichier = `${INTITULES[cle]} - ${d.client.nom.trim().toUpperCase()} - signée le ${quand.toISOString().slice(0, 10)}.pdf`.replace(/[/\\:*?"<>|]/g, "-");
+    const envoye = await versN8n(
+      {
+        numero: s.numero,
+        dossier: dossier(d),
+        cle,
+        nomFichier,
+        pdf: Buffer.from(pdf).toString("base64"),
+        preuve,
+        le: quand.toISOString(),
+        client: { civilite: d.client.civilite, nom: d.client.nom.trim().toUpperCase(), email: d.client.email },
+      },
+      "convention-signee",
+    );
+    if (!envoye) return NextResponse.json({ message: "Votre signature n'a pas pu être enregistrée. Réessayez dans un instant." }, { status: 502 });
+    signature = { cle, le: quand.toISOString(), saisie, ip, empreinteTexte: conv.empreinte, empreintePdf: empreinte(pdf) };
+    (charge.cases as Record<string, string>).signature =
+      `Convention d'honoraires (${cle}) signée électroniquement par ${signataire} (nom saisi : « ${saisie} »), empreinte ${conv.empreinte.slice(0, 16)}.`;
+    lancement.signature = signature;
   }
 
   const ok = await versN8n(charge, "renseignements-lancement");
