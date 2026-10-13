@@ -335,7 +335,16 @@ export type Donnees = {
   provisionPartage: string;
   commentaires: string;
   pieces: Piece[];
+  /* Fiche créée depuis un dossier existant : lien de l'ancien formulaire
+     Cognito du dossier (saisie et pièces d'avant la bascule), affiché dans la
+     version cabinet. Écrit par l'automatisation Airtable « Dossier -> créer le
+     formulaire prérempli ». */
+  ancienCognito?: string;
 };
+
+/* Seuls les liens Cognito sont affichés comme ancien formulaire. */
+export const lienCognito = (d: Pick<Donnees, "ancienCognito">) =>
+  /^https:\/\/(www\.)?cognitoforms\.com\//i.test(d.ancienCognito || "") ? (d.ancienCognito as string) : "";
 
 const personneVide = (): Personne => ({
   civilite: "",

@@ -79,6 +79,7 @@ import {
   type Manque,
   type Personne,
   type Piece,
+  lienCognito,
 } from "@/lib/renseignements/modele";
 import { ChoixLancement } from "@/components/sections/ChoixLancement";
 import { ChoixUsage } from "@/components/sections/ChoixUsage";
@@ -1440,7 +1441,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           {revoir || modification
             ? "Les pièces déjà transmises restent attachées à votre dossier. Pour en ajouter, écrivez-nous à contact@divorcefacil.com."
             : depuisDossier
-              ? "Les pièces ne se déposent pas par ce lien : joignez-les directement dans Airtable, au champ « Pièces » de la fiche. Les pièces de l'ancien formulaire Cognito restent accessibles depuis le dossier."
+              ? "Les pièces ne se déposent pas par ce lien : joignez-les directement dans Airtable, au champ « Pièces » de la fiche. Les pièces de l'ancien formulaire Cognito restent dans Cognito (lien en haut de page)."
               : "Correction d'un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les directement dans Airtable."}
         </p>
       ) : (
@@ -1589,6 +1590,14 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           </span>
           <span>{d.procedure}</span>
         </div>
+        {interne && lienCognito(d) && (
+          <p className="mt-3 rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-2.5 text-sm text-gray-600">
+            Ancien formulaire Cognito du dossier, avec ses pièces :{" "}
+            <a href={lienCognito(d)} target="_blank" rel="noopener noreferrer" className="text-[#362A24] underline underline-offset-2">
+              l&apos;ouvrir dans Cognito
+            </a>
+          </p>
+        )}
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#EDEDEA]">
           <div className="h-full rounded-full bg-[#362A24] transition-all" style={{ width: `${((etape + 1) / ETAPES.length) * 100}%` }} />
         </div>
