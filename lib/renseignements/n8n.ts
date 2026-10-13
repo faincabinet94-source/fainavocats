@@ -79,3 +79,28 @@ export async function appelN8n(charge: unknown, chemin: string): Promise<{ statu
     return { status: 502, json: { message: "Service indisponible" } };
   }
 }
+
+/* Appel à n8n qui attend une réponse JSON (webhook réglé pour répondre en fin
+   de workflow). Même secret que le devis. null si n8n ne répond pas. */
+export async function demanderN8n<T>(charge: unknown, chemin: string): Promise<T | null> {
+  const devis = process.env.N8N_DEVIS_WEBHOOK_URL;
+  if (!devis) return null;
+  const secret = process.env.N8N_DEVIS_WEBHOOK_SECRET;
+  try {
+    const r = await fetch(devis.replace(/devis-divorce\/?$/, chemin), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(secret ? { "X-Devis-Secret": secret } : {}) },
+      body: JSON.stringify(charge),
+      signal: AbortSignal.timeout(20000),
+      cache: "no-store",
+    });
+    if (!r.ok) {
+      console.error("[renseignements] n8n a répondu", chemin, r.status);
+      return null;
+    }
+    return (await r.json()) as T;
+  } catch (e) {
+    console.error("[renseignements] n8n injoignable", chemin, e);
+    return null;
+  }
+}

@@ -1,4 +1,4 @@
-import { AVOCAT_PARTENAIRE, HONORAIRES_INTERMEDIATION, HONORAIRES_PARTAGE_FORMALISE, aDiscernement, avecPension, intermediationCabinet, questionDiscernement, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { AVOCAT_PARTENAIRE, aDiscernement, avecPension, honorairesComplementaires, intermediationCabinet, questionDiscernement, CATEGORIES_ACTIFS, PLAFONDS, actifsDe, age, dateEffetsRetenue, dateLibreRetenable, debutCEERetenu, estFormalise, avocatRetenu, chargeCognito, estPartenaire, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import type { Valeurs } from "./moteur";
 import { activite, analyserExtraneite } from "./extraneite";
 
@@ -296,7 +296,7 @@ export function valeursConvention(d: Donnees, le: Date = new Date()): Valeurs {
   /* Honoraires complémentaires TTC, cumulables : 250 € si le cabinet met en
      place l'intermédiation, 500 € (minimum, selon la complexité) pour un
      partage des comptes formalisé dans la convention. */
-  const complementaires = (intermediationCabinet(d) ? HONORAIRES_INTERMEDIATION : 0) + (estFormalise(d) ? HONORAIRES_PARTAGE_FORMALISE : 0);
+  const complementaires = honorairesComplementaires(d);
   v.HonorairesComplementaires = { valeur: complementaires, texte: montant(complementaires) };
 
   /* Nombre de crédits communs en lettres (« deux crédits à la consommation ») ;

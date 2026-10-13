@@ -7,6 +7,7 @@ import { PROVISIONS } from "@/lib/paiement";
 import { casesImmediat } from "@/lib/renseignements/lancement";
 import type { Donnees } from "@/lib/renseignements/modele";
 import { PaiementProvision } from "@/components/paiement/PaiementProvision";
+import { ConventionASigner, type EtatSignature } from "@/components/sections/ConventionASigner";
 
 /* Fin du formulaire extérieur, en 1A seulement (en 2A : ChoixUsage) : l'époux qui a rempli le formulaire choisit
    entre lancer la procédure tout de suite (certification, provision de
@@ -14,7 +15,7 @@ import { PaiementProvision } from "@/components/paiement/PaiementProvision";
    d'abord l'accord de son époux (rien à régler à ce stade).
    Textes validés : coffre, textes-parcours-conjoint.md, sections 1 et 2. */
 
-type Etape = "choix" | "immediat" | "paiement" | "verification" | "invite";
+type Etape = "choix" | "immediat" | "paiement" | "sansProvision" | "verification" | "invite";
 
 const carte = "rounded-xl border border-[#E5E2DA] bg-[#F9F8F6] p-6 text-left";
 const bouton =
@@ -29,6 +30,7 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
      contre-proposition (décision de Me FAIN du 2026-10-12). Choix obligatoire. */
   const [transmission, setTransmission] = useState<boolean | null>(null);
   const [envoi, setEnvoi] = useState(false);
+  const [signature, setSignature] = useState<EtatSignature>(null);
   const [erreur, setErreur] = useState("");
   const textes = casesImmediat(d.procedure);
   const sdc = d.procedure === "Séparation de corps";
@@ -48,11 +50,15 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
       const r = await fetch("/api/renseignements/lancement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(choix === "immediat" ? { id, choix, cases } : { id, choix, emailConjoint: email, transmission }),
+        body: JSON.stringify(
+          choix === "immediat"
+            ? { id, choix, cases, signature: signature?.cle ? { empreinte: signature.empreinte, nom: signature.nom } : undefined }
+            : { id, choix, emailConjoint: email, transmission },
+        ),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.message || "Votre choix n'a pas pu être transmis.");
-      setEtape(choix === "immediat" ? "paiement" : "invite");
+      setEtape(choix === "immediat" ? (signature?.cle && !signature.provision ? "sansProvision" : "paiement") : "invite");
     } catch (e) {
       setErreur(e instanceof Error ? e.message : "Votre choix n'a pas pu être transmis.");
     } finally {
@@ -75,6 +81,19 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
       </div>
     );
 
+  /* Convention TC : les honoraires du client sont pris en charge par son
+     conjoint, aucune provision ne lui est demandée. */
+  if (etape === "sansProvision")
+    return (
+      <div className={cn("mx-auto mt-8 max-w-xl", carte)}>
+        <h3 className="font-serif text-xl text-[#1A1A1A]">Votre convention est signée</h3>
+        <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
+          Vos honoraires étant pris en charge par {epoux}, aucune provision ne vous est demandée. L&apos;exemplaire signé
+          vous est adressé par courriel, et le cabinet revient vers vous très prochainement.
+        </p>
+      </div>
+    );
+
   if (etape === "invite")
     return (
       <div className={cn("mx-auto mt-8 max-w-xl", carte)}>
@@ -91,7 +110,7 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
     return (
       <div className={cn("mx-auto mt-8 max-w-xl", carte)}>
         <h3 className="font-serif text-xl text-[#1A1A1A]">Lancer la procédure maintenant</h3>
-        <p className="mt-2 text-sm text-gray-500">Les deux cases sont nécessaires.</p>
+        <p className="mt-2 text-sm text-gray-500">Les deux cases sont nécessaires, puis la signature de la convention d&apos;honoraires.</p>
         <div className="mt-4 space-y-4">
           {(["certification", "provision"] as const).map((k) => (
             <label key={k} className="flex cursor-pointer items-start gap-3 text-[14px] leading-relaxed text-gray-700">
@@ -105,15 +124,16 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
             </label>
           ))}
         </div>
+        <ConventionASigner id={id} nomAttendu={[d.client.prenoms, d.client.nom.toUpperCase()].filter(Boolean).join(" ")} onChange={setSignature} />
         {erreur && <p className="mt-4 text-sm text-red-700">{erreur}</p>}
         <div className="mt-6">
           <button
             type="button"
             className={bouton}
-            disabled={envoi || !Object.values(cases).every(Boolean)}
+            disabled={envoi || !signature || !Object.values(cases).every(Boolean)}
             onClick={() => transmettre("immediat")}
           >
-            Continuer vers le paiement
+            {signature?.cle ? (signature.provision ? "Signer et continuer vers le paiement" : "Signer la convention") : "Continuer vers le paiement"}
           </button>
         </div>
         <button type="button" className={retour} onClick={() => setEtape("choix")}>

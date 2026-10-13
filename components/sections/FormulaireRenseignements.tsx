@@ -32,6 +32,8 @@ import {
   HEURES_ALTERNANCE,
   MISES_EN_PLACE_INTERMEDIATION,
   avecPension,
+  optionsHonoraires,
+  partsHonoraires,
   QUI_CHARGES_INDIVISION,
   QUI_JOUISSANCE,
   age,
@@ -1185,7 +1187,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             <Choix options={PARTAGES_COMPTES} value={d.partageComptes ?? ""} onChange={(v) => maj("partageComptes", v)} />
             {estFormalise(d) && (
               <p className="mt-2 text-[13px] text-gray-500">
-                La convention reprend alors chaque compte, calcule les droits de chacun et la soulte éventuelle. Honoraires supplémentaires à partir de 500 € TTC, à fixer avec le cabinet selon la complexité de la liquidation.
+                La convention reprend alors chaque compte, calcule les droits de chacun et la soulte éventuelle. Honoraires complémentaires : forfait de 500 € TTC dans la limite de 2 heures de travail, puis 225 € HT de l&apos;heure. Vous pourrez retirer cette option au récapitulatif.
               </p>
             )}
           </Champ>
@@ -1477,8 +1479,59 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
     </div>,
     /* 13. Récapitulatif */
     <div key="r" className="space-y-6">
+      {/* Honoraires : options facultatives retirables. Retirer une option
+          modifie la réponse elle-même, pour que la convention de divorce et la
+          convention d'honoraires disent la même chose. */}
+      <section className="rounded-xl border border-[#E5E2DA] bg-[#FAF9F6] p-5">
+        <h3 className="text-[16px] font-medium text-[#362A24]">{cab("Vos honoraires", "Honoraires")}</h3>
+        <p className="mt-2 text-sm text-gray-600">
+          {cab("Honoraires et frais de dépôt chez le notaire : selon votre devis.", "Honoraires et dépôt : selon le devis.")}
+        </p>
+        {optionsHonoraires(d).length === 0 ? (
+          <p className="mt-2 text-sm text-gray-600">{cab("Aucune option complémentaire choisie.", "Aucune option complémentaire.")}</p>
+        ) : (
+          <>
+            <ul className="mt-3 space-y-3">
+              {optionsHonoraires(d).map((o) => (
+                <li key={o.cle} className="flex items-start justify-between gap-4 text-sm">
+                  <div>
+                    <p className="text-[#1A1A1A]">
+                      {o.libelle} : <strong>{o.montant} € TTC</strong>
+                    </p>
+                    <p className="mt-0.5 text-[13px] text-gray-500">{o.detail}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      o.cle === "partage"
+                        ? maj("partageComptes", PARTAGES_COMPTES[0])
+                        : maj("intermediationMiseEnPlace", MISES_EN_PLACE_INTERMEDIATION[1])
+                    }
+                    className="inline-flex shrink-0 items-center gap-1.5 text-sm text-gray-500 hover:text-[#B42318]"
+                  >
+                    <Trash2 className="h-4 w-4" /> Retirer
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 border-t border-[#E5E2DA] pt-3 text-sm text-[#1A1A1A]">
+              Options : <strong>{optionsHonoraires(d).reduce((t, o) => t + o.montant, 0)} € TTC</strong>
+              {partsHonoraires(d, optionsHonoraires(d).reduce((t, o) => t + o.montant, 0)) &&
+                `, ${partsHonoraires(d, optionsHonoraires(d).reduce((t, o) => t + o.montant, 0))}`}
+              .
+            </p>
+          </>
+        )}
+        <p className="mt-3 text-[13px] text-gray-500">
+          {cab(
+            "Ces montants figureront dans votre convention d'honoraires, à signer avant le règlement de la provision.",
+            "Repris dans la convention d'honoraires.",
+          )}
+        </p>
+      </section>
       {recapitulatif(d)
         .filter((s) => s.lignes.length)
+        .map((s) => ({ ...s, lignes: s.lignes.filter(([k]) => !k.startsWith("Option : ")) }))
         .map((s) => (
           <div key={s.titre}>
             <h3 className="mb-2 text-[16px] font-medium text-[#362A24]">{s.titre}</h3>
