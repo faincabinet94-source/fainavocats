@@ -3,8 +3,10 @@
    et la route app/api/renseignements/lancement. */
 
 /* Textes exacts des cases (coffre, textes-parcours-conjoint.md, section 2), alignés
-   sur les conventions d'honoraires CH DCM1A M et T d'Airtable (article 9). Pas de
-   case sur le délai de rétractation : décision de Me FAIN du 2026-10-02. */
+   sur les conventions d'honoraires CH DCM1A M et T d'Airtable (article 9). Le droit
+   de rétractation et la demande d'exécution anticipée figurent dans la convention
+   elle-même (article 10, depuis le 2026-10-12), signée sur cet écran depuis le
+   2026-10-13 : lib/renseignements/convention.ts. */
 export const CASES_IMMEDIAT = {
   certification:
     "Je certifie que mon époux et moi sommes d'accord sur l'ensemble des conséquences de notre divorce, et notamment : l'usage du nom de famille après le divorce ; le sort du logement familial ; le partage de nos biens communs ou indivis et de nos dettes ; la prestation compensatoire, ou l'absence de prestation compensatoire ; la résidence des enfants et le droit de visite et d'hébergement ; la contribution à l'entretien et à l'éducation des enfants.",
