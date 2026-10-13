@@ -61,7 +61,7 @@ function Contenu() {
         {etat === "echec" && (
           <>
             <h2 className="font-serif text-2xl text-[#1A1A1A]">Le paiement n&apos;a pas abouti</h2>
-            <p className="mt-3 text-[15px] text-gray-600">Aucun montant n&apos;a été prélevé. Vous pouvez réessayer, ou nous appeler au 01 40 68 02 37.</p>
+            <p className="mt-3 text-[15px] text-gray-600">Aucun montant n&apos;a été prélevé. Vous pouvez réessayer, ou nous appeler au +33 1 40 68 02 37.</p>
           </>
         )}
       </div>

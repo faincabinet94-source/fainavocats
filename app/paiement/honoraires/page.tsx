@@ -36,7 +36,7 @@ function Checkout({ montant, email, objet, retour }: { montant: number; email: s
         if (actif) setClientSecret(j.clientSecret);
       })
       .catch((x) => {
-        if (actif) setErreur(x instanceof Error ? x.message : "Paiement indisponible. Appelez-nous au 01 40 68 02 37.");
+        if (actif) setErreur(x instanceof Error ? x.message : "Paiement indisponible. Appelez-nous au +33 1 40 68 02 37.");
       });
     return () => {
       actif = false;

@@ -41,7 +41,7 @@ export default function ProvisionReglee() {
             <div className="mx-auto max-w-2xl rounded-2xl border border-[#E5E2DA] bg-white p-8 text-center sm:p-12">
               <h1 className="font-serif text-3xl text-[#1A1A1A]">Le paiement n&apos;a pas abouti</h1>
               <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
-                Aucun montant n&apos;a été prélevé. Vous pouvez réessayer, ou nous appeler au 01 40 68 02 37.
+                Aucun montant n&apos;a été prélevé. Vous pouvez réessayer, ou nous appeler au +33 1 40 68 02 37.
               </p>
               <a
                 href="/paiement"
