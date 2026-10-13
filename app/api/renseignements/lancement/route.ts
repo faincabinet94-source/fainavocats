@@ -2,8 +2,8 @@ import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { ID_VALIDE, saisies } from "@/lib/renseignements/stockage";
 import { versN8n } from "@/lib/renseignements/n8n";
-import { dossier, type Donnees } from "@/lib/renseignements/modele";
-import { CASES_IMMEDIAT, casesImmediat } from "@/lib/renseignements/lancement";
+import { avocatChoisi, conseilDuConjoint, destinataireUsage, dossier, texteAvocat, avocatRetenu, type Avocat, type Donnees } from "@/lib/renseignements/modele";
+import { CASES_IMMEDIAT, CASES_USAGE, casesImmediat, casesUsage } from "@/lib/renseignements/lancement";
 
 /* Choix de l'époux qui a envoyé le formulaire (fin du formulaire extérieur) :
  *  - « immediat » : il certifie l'accord de son époux, demande l'exécution
@@ -11,7 +11,13 @@ import { CASES_IMMEDIAT, casesImmediat } from "@/lib/renseignements/lancement";
  *    le projet de convention établi ; le paiement suit sur la page ;
  *  - « verification » : il ne paie rien ; n8n invite son époux, depuis
  *    contact@divorcefacil.com, à donner son avis (pages divorcefacil de
- *    l'espace client).
+ *    l'espace client) ;
+ *  - « usage » (2A seulement, conjoint assisté ou à assister par un avocat
+ *    extérieur) : il accepte la convention CH CU et demande l'exécution
+ *    immédiate ; le paiement suit ; une fois la provision réglée, le cabinet
+ *    adresse un courrier d'usage au confrère ou au conjoint. En 2A, les deux
+ *    autres choix sont refusés : le cabinet n'écrit pas au conjoint pour
+ *    recueillir son avis.
  *
  * Le choix et les cases cochées sont gardés avec la saisie (date et heure,
  * texte exact des cases) ; n8n les reporte sur la fiche « Formulaires
@@ -29,7 +35,7 @@ const COURRIEL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Saisie = { donnees: Donnees; interne?: boolean; envoye?: boolean; numero?: number; lancement?: unknown };
 
 export async function POST(request: Request) {
-  let corps: { id?: string; choix?: string; cases?: Record<string, boolean>; emailConjoint?: string };
+  let corps: { id?: string; choix?: string; cases?: Record<string, boolean>; emailConjoint?: string; transmission?: boolean };
   try {
     corps = await request.json();
   } catch {
@@ -55,7 +61,30 @@ export async function POST(request: Request) {
   let lancement: Record<string, unknown>;
   let charge: Record<string, unknown>;
 
-  if (corps.choix === "immediat") {
+  const usage = destinataireUsage(d);
+  if (usage && corps.choix !== "usage")
+    return NextResponse.json({ message: "Votre conjoint a son propre avocat : le cabinet lui adresse un courrier d'usage." }, { status: 400 });
+
+  if (corps.choix === "usage") {
+    if (!usage) return NextResponse.json({ message: "Choix inconnu" }, { status: 400 });
+    const cases = corps.cases || {};
+    if (!Object.keys(CASES_USAGE).every((k) => cases[k] === true))
+      return NextResponse.json({ message: "Les deux cases doivent être cochées" }, { status: 400 });
+    const textes = casesUsage(d.procedure, usage, avocatChoisi(d) === "Oui");
+    const avocat = avocatRetenu(d);
+    lancement = { choix: "Courrier d'usage", le, cases: textes, destinataire: usage };
+    charge = {
+      action: "usage",
+      numero: s.numero,
+      dossier: dossier(d),
+      procedure: d.procedure,
+      le,
+      cases: textes,
+      destinataire: usage,
+      avocatDejaChoisi: avocatChoisi(d) === "Oui",
+      avocatConjoint: avocat ? texteAvocat(avocat as Avocat) : "",
+    };
+  } else if (corps.choix === "immediat") {
     const cases = corps.cases || {};
     if (!Object.keys(CASES_IMMEDIAT).every((k) => cases[k] === true))
       return NextResponse.json({ message: "Les deux cases doivent être cochées" }, { status: 400 });
@@ -63,11 +92,16 @@ export async function POST(request: Request) {
     lancement = { choix: "Immédiat", le, cases: textes };
     charge = { action: "immediat", numero: s.numero, dossier: dossier(d), le, cases: textes };
   } else if (corps.choix === "verification") {
+    /* Conjoint déjà assisté d'un avocat : pas d'écrit direct (RIN art. 8.3). */
+    if (conseilDuConjoint(d) === "exterieur")
+      return NextResponse.json({ message: "Votre époux étant assisté d'un avocat, nous ne pouvons pas lui écrire directement." }, { status: 400 });
+    if (typeof corps.transmission !== "boolean")
+      return NextResponse.json({ message: "Indiquez si vos réponses peuvent être présentées à votre époux" }, { status: 400 });
     const email = (corps.emailConjoint || d.conjoint.email || "").trim().toLowerCase();
     if (!COURRIEL.test(email)) return NextResponse.json({ message: "Indiquez l'adresse électronique de votre époux" }, { status: 400 });
     if (email === (d.client.email || "").trim().toLowerCase())
       return NextResponse.json({ message: "Indiquez l'adresse de votre époux, et non la vôtre" }, { status: 400 });
-    lancement = { choix: "Vérification préalable", le, emailConjoint: email };
+    lancement = { choix: "Vérification préalable", le, emailConjoint: email, transmission: corps.transmission };
     charge = {
       action: "verification",
       numero: s.numero,
@@ -77,6 +111,8 @@ export async function POST(request: Request) {
       dossier: dossier(d),
       procedure: d.procedure,
       le,
+      /* Réponses présentées au conjoint (case « Réponses transmises au conjoint »). */
+      transmission: corps.transmission,
       client: { civilite: d.client.civilite, prenoms: d.client.prenoms, nom: d.client.nom, email: d.client.email },
       conjoint: { civilite: d.conjoint.civilite, prenoms: d.conjoint.prenoms, nom: d.conjoint.nom, email },
     };

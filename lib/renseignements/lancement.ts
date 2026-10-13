@@ -28,3 +28,34 @@ export function casesImmediat(procedure: string): Record<keyof typeof CASES_IMME
     provision: r(CASES_IMMEDIAT.provision),
   };
 }
+
+/* 2A (le conjoint a ou aura son propre avocat) : pas d'invitation du conjoint
+   par le cabinet. Le client confie au cabinet un courrier d'usage, sur
+   convention d'honoraires CH CU et provision de 250 € (décision de Me FAIN du
+   2026-10-12). Destinataire : l'avocat du conjoint si son courriel est connu,
+   sinon le conjoint lui-même. Coffre : espace-client-validation-conjoint.md. */
+export const CASES_USAGE = { convention: "", execution: "" } as const;
+
+export function casesUsage(
+  procedure: string,
+  destinataire: "confrere" | "conjoint",
+  avocatDejaChoisi = false,
+): Record<keyof typeof CASES_USAGE, string> {
+  const proc = procedure === "Séparation de corps" ? "une séparation de corps par consentement mutuel" : "un divorce par consentement mutuel";
+  const cetteProc = procedure === "Séparation de corps" ? "cette séparation de corps" : "ce divorce";
+  const a =
+    destinataire === "confrere"
+      ? "à l'avocat de mon conjoint"
+      : avocatDejaChoisi
+        ? "à mon conjoint, à remettre à son avocat"
+        : "à mon conjoint, l'invitant à choisir son avocat";
+  return {
+    convention:
+      `J'ai pris connaissance de la convention d'honoraires. La provision de 250 € TTC rémunère l'envoi d'un courrier ${a}, ` +
+      `une première consultation et les premiers échanges avec son avocat, afin de déterminer si ${proc} est possible. ` +
+      `Si ${cetteProc} peut être engagé, une nouvelle convention d'honoraires me sera adressée et ces 250 € s'imputeront sur son forfait.`,
+    execution:
+      "Je demande au cabinet de commencer sa mission sans attendre la fin du délai de rétractation de quatorze jours. " +
+      "Si je me rétracte ensuite, je reste redevable des diligences déjà accomplies.",
+  };
+}

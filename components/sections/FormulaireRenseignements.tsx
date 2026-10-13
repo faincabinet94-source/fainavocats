@@ -24,6 +24,8 @@ import {
   FORMES_PC,
   AVOCAT_PARTENAIRE,
   CONSEILS,
+  avocatChoisi,
+  destinataireUsage,
   conseilDuConjoint,
   GARDES,
   JOURS,
@@ -77,6 +79,7 @@ import {
   type Piece,
 } from "@/lib/renseignements/modele";
 import { ChoixLancement } from "@/components/sections/ChoixLancement";
+import { ChoixUsage } from "@/components/sections/ChoixUsage";
 import { lirePoints } from "@/lib/renseignements/revoir";
 
 /* Formulaire de renseignements commun (divorce et séparation de corps), en
@@ -765,7 +768,12 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             ? "La fiche est transmise au cabinet."
             : "Nous avons bien reçu vos informations et vos pièces."}
         </p>
-        {!interne && <ChoixLancement id={id} d={d} />}
+        {!interne &&
+          (destinataireUsage(d) ? (
+            <ChoixUsage id={id} d={d} destinataire={destinataireUsage(d) as "confrere" | "conjoint"} />
+          ) : (
+            <ChoixLancement id={id} d={d} />
+          ))}
       </div>
     );
   }
@@ -885,12 +893,38 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           }}
         />
       </Champ>
+      {conseil === CONSEILS[1] && (
+        <Champ
+          label={cab("Votre conjoint a-t-il déjà choisi son avocat ?", "Avocat déjà choisi ?")}
+          {...suivi("avocatChoisi")}
+        >
+          <Choix
+            options={OUI_NON}
+            value={avocatChoisi(d)}
+            onChange={(v) => {
+              maj("avocatChoisi", v);
+              if (v === "Non") maj("avocatConjoint", avocatVide());
+            }}
+          />
+        </Champ>
+      )}
+      {conseil === CONSEILS[1] && avocatChoisi(d) === "Non" && !interne && (
+        <p className="text-sm text-gray-600">
+          Nous écrirons à votre conjoint, par courrier et par courriel, pour l&apos;inviter à choisir son avocat.
+          Vérifiez ses coordonnées ci-dessus.
+        </p>
+      )}
       {conseil === CONSEILS[1] &&
+        avocatChoisi(d) === "Oui" &&
         (interne ? (
           <ChoixAvocat avocat={d.avocatConjoint} onChange={(a) => maj("avocatConjoint", a)} />
         ) : (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">Si vous le connaissez, indiquez son avocat. Sinon, laissez ces champs vides : vous pourrez nous le transmettre plus tard.</p>
+            <p className="text-sm text-gray-600">
+              Si vous les connaissez, indiquez les coordonnées de son avocat : nous lui écrirons directement. Sinon,
+              laissez ces champs vides : nous écrirons à votre conjoint pour qu&apos;il transmette notre courrier à son
+              avocat.
+            </p>
             <Grille>
               <Champ label="Prénom de son avocat">
                 <input className={inputCls} value={d.avocatConjoint.prenom} onChange={(e) => maj("avocatConjoint", { ...d.avocatConjoint, id: "", prenom: e.target.value })} />

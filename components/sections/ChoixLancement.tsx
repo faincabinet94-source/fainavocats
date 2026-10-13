@@ -8,7 +8,7 @@ import { casesImmediat } from "@/lib/renseignements/lancement";
 import type { Donnees } from "@/lib/renseignements/modele";
 import { PaiementProvision } from "@/components/paiement/PaiementProvision";
 
-/* Fin du formulaire extérieur : l'époux qui a rempli le formulaire choisit
+/* Fin du formulaire extérieur, en 1A seulement (en 2A : ChoixUsage) : l'époux qui a rempli le formulaire choisit
    entre lancer la procédure tout de suite (certification, provision de
    250 € non remboursable une fois le projet établi) ou faire vérifier
    d'abord l'accord de son époux (rien à régler à ce stade).
@@ -25,6 +25,9 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
   const [etape, setEtape] = useState<Etape>("choix");
   const [cases, setCases] = useState({ certification: false, provision: false });
   const [email, setEmail] = useState(d.conjoint.email || "");
+  /* Réponses présentées au conjoint, qui les valide ou fait une
+     contre-proposition (décision de Me FAIN du 2026-10-12). Choix obligatoire. */
+  const [transmission, setTransmission] = useState<boolean | null>(null);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState("");
   const textes = casesImmediat(d.procedure);
@@ -45,7 +48,7 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
       const r = await fetch("/api/renseignements/lancement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(choix === "immediat" ? { id, choix, cases } : { id, choix, emailConjoint: email }),
+        body: JSON.stringify(choix === "immediat" ? { id, choix, cases } : { id, choix, emailConjoint: email, transmission }),
       });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.message || "Votre choix n'a pas pu être transmis.");
@@ -125,9 +128,35 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
         <h3 className="font-serif text-xl text-[#1A1A1A]">Vérifier d&apos;abord l&apos;accord de {epoux}</h3>
         <p className="mt-2 text-[15px] leading-relaxed text-gray-600">
           Nous lui demandons {fem ? "si elle" : "s'il"} accepte {sdc ? "une séparation de corps" : "un divorce"} par consentement mutuel, et
-          {fem ? "si elle" : "s'il"} est d&apos;accord sur chacun des points. Ses réponses ne vous sont pas communiquées : en cas de
-          désaccord, vous saurez seulement sur quels points.
+          {fem ? "si elle" : "s'il"} est d&apos;accord sur chacun des points. {fem ? "Si elle" : "S'il"} nous indique avoir déjà un
+          avocat, nous ne lui posons pas ces questions et nous vous proposons d&apos;écrire à son avocat.
         </p>
+        <fieldset className="mt-5 space-y-3">
+          <legend className="text-sm font-medium text-[#1A1A1A]">Vos réponses</legend>
+          {(
+            [
+              [
+                true,
+                `Je souhaite que mes réponses soient présentées à ${epoux} : il lui suffira de les valider, ou d'indiquer sa contre-proposition, qui me sera communiquée.`,
+              ],
+              [
+                false,
+                `Je préfère que ${epoux} réponde sans voir mes réponses : en cas de désaccord, je saurai seulement sur quels points.`,
+              ],
+            ] as const
+          ).map(([v, texte]) => (
+            <label key={String(v)} className="flex cursor-pointer items-start gap-3 text-[14px] leading-relaxed text-gray-700">
+              <input
+                type="radio"
+                name="transmission"
+                className="mt-1 h-4 w-4 shrink-0 accent-[#362A24]"
+                checked={transmission === v}
+                onChange={() => setTransmission(v)}
+              />
+              <span>{texte}</span>
+            </label>
+          ))}
+        </fieldset>
         <label className="mt-5 block text-sm font-medium text-[#1A1A1A]">
           Adresse électronique de {epoux}
           <input
@@ -140,7 +169,12 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
         </label>
         {erreur && <p className="mt-4 text-sm text-red-700">{erreur}</p>}
         <div className="mt-6">
-          <button type="button" className={bouton} disabled={envoi || !email.trim()} onClick={() => transmettre("verification")}>
+          <button
+            type="button"
+            className={bouton}
+            disabled={envoi || !email.trim() || transmission === null}
+            onClick={() => transmettre("verification")}
+          >
             Écrire à {epoux}
           </button>
         </div>
@@ -212,8 +246,8 @@ export function ChoixLancement({ id, d }: { id: string; d: Donnees }) {
             <Ligne titre="C'est gratuit">Vous ne réglez rien à ce stade.</Ligne>
             <Ligne titre="En cas d'accord sur tout">La procédure peut commencer.</Ligne>
             <Ligne titre="En cas de désaccord">
-              Nous vous indiquons les points de divergence, sans vous transmettre le détail de ses réponses, et nous vous
-              conseillons sur la marche à suivre.
+              Nous vous indiquons les points de divergence et, si vous avez choisi de lui présenter vos réponses, ses
+              contre-propositions. Nous vous conseillons ensuite sur la marche à suivre.
             </Ligne>
           </ul>
           <div className="pt-6">
