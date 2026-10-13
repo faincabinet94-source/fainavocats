@@ -38,13 +38,17 @@ export const CASES_USAGE = { convention: "", execution: "" } as const;
 
 export function casesUsage(
   procedure: string,
-  destinataire: "confrere" | "conjoint",
+  /* « indetermine » : lien envoyé après la réponse du conjoint dans l'espace client ;
+     le courrier part au confrère si son courriel est connu, sinon au conjoint. */
+  destinataire: "confrere" | "conjoint" | "indetermine",
   avocatDejaChoisi = false,
 ): Record<keyof typeof CASES_USAGE, string> {
   const proc = procedure === "Séparation de corps" ? "une séparation de corps par consentement mutuel" : "un divorce par consentement mutuel";
   const cetteProc = procedure === "Séparation de corps" ? "cette séparation de corps" : "ce divorce";
   const a =
-    destinataire === "confrere"
+    destinataire === "indetermine"
+      ? "à l'avocat de mon conjoint ou, à défaut d'avocat connu, à mon conjoint"
+      : destinataire === "confrere"
       ? "à l'avocat de mon conjoint"
       : avocatDejaChoisi
         ? "à mon conjoint, à remettre à son avocat"
