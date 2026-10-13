@@ -1555,7 +1555,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
       {tentative && tousManquants.length > 0 && <ListeManquants m={tousManquants} aller={allerChamp} />}
       {erreur && (
         <p className="rounded-lg border border-[#F3C7C7] bg-[#FDF2F2] px-4 py-3 text-sm text-[#7A1C12]">
-          {erreur}. Vous pouvez réessayer ou nous appeler au 01 40 68 02 37.
+          {erreur}. Vous pouvez réessayer ou nous appeler au +33 1 40 68 02 37.
         </p>
       )}
       {!interne && (

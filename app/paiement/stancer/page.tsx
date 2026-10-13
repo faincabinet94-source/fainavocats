@@ -65,7 +65,7 @@ function PaiementContent() {
     fetch(`/api/paiement?id=${encodeURIComponent(id)}`)
       .then((r) => r.json())
       .then((j) => {
-        if (j.etat === "echec") setError("Le paiement n'a pas abouti : aucun montant n'a été prélevé. Vous pouvez réessayer, ou nous appeler au 01 40 68 02 37.");
+        if (j.etat === "echec") setError("Le paiement n'a pas abouti : aucun montant n'a été prélevé. Vous pouvez réessayer, ou nous appeler au +33 1 40 68 02 37.");
         else setPaymentSuccess(true);
         if (j.etat !== "attente") {
           try {

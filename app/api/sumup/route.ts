@@ -34,7 +34,7 @@ async function sumup(chemin: string, corps?: unknown) {
 
 export async function POST(request: Request) {
   if (!process.env.SUMUP_API_KEY || !process.env.SUMUP_MERCHANT_CODE)
-    return NextResponse.json({ message: "Le paiement par carte n'est pas encore disponible. Appelez-nous au 01 40 68 02 37." }, { status: 503 });
+    return NextResponse.json({ message: "Le paiement par carte n'est pas encore disponible. Appelez-nous au +33 1 40 68 02 37." }, { status: 503 });
 
   const b = await request.json().catch(() => ({}));
   const montant = Math.round(Number(b.montant) * 100) / 100;

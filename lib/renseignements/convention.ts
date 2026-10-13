@@ -142,7 +142,7 @@ async function polices(pdf: PDFDocument) {
 
 function nouvellePage(pdf: PDFDocument, police: PDFFont): Page {
   const page = pdf.addPage(A4);
-  page.drawText("FAIN AVOCATS | 196 avenue Victor Hugo, 75116 PARIS | 01 40 68 02 37 | contact@fain-avocats.fr", {
+  page.drawText("FAIN AVOCATS | 196 avenue Victor Hugo, 75116 PARIS | +33 1 40 68 02 37 | contact@fain-avocats.fr", {
     x: MARGE,
     y: A4[1] - 36,
     size: 7.5,
