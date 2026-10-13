@@ -2,14 +2,21 @@ import { Suspense } from "react";
 import FormulaireRenseignements from "@/components/sections/FormulaireRenseignements";
 import { guidesDisponibles } from "@/lib/renseignements/guides-serveur";
 
-export default function FormulaireRenseignementsPage({ searchParams }: { searchParams: { interne?: string; correction?: string } }) {
+export default function FormulaireRenseignementsPage({
+  searchParams,
+}: {
+  searchParams: { interne?: string; correction?: string; dossier?: string };
+}) {
   const correction = Boolean(searchParams?.correction);
   const interne = correction || searchParams?.interne === "1";
+  /* Fiche créée depuis un dossier existant (case « Créer le formulaire ») :
+     ouverte par le lien de correction, mais c'est une première saisie. */
+  const depuisDossier = correction && searchParams?.dossier === "1";
   return (
     <main className="mx-auto min-h-screen max-w-4xl bg-white px-4 pb-16 pt-28 sm:px-8">
       <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Fain Avocats</p>
       <h1 className="mt-2 font-serif text-4xl text-[#1A1A1A] sm:text-5xl">
-        {correction
+        {correction && !depuisDossier
           ? "Correction du formulaire de renseignements"
           : interne
             ? "Formulaire de renseignements interne"

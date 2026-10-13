@@ -468,6 +468,10 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
      site, l'envoi met à jour la fiche d'origine. */
   const [correction, setCorrection] = useState("");
   const [dossierCorrige, setDossierCorrige] = useState("");
+  /* Fiche créée depuis un dossier existant (case « Créer le formulaire » de la
+     table Dossiers, lien …&dossier=1) : même mécanisme que la correction, mais
+     présentée comme le formulaire du dossier. */
+  const depuisDossier = params.get("dossier") === "1";
   /* Désaccord avec le conjoint : correction par l'époux lui-même. */
   const [revoir, setRevoir] = useState<{ intitule: string; etape: number | null }[] | null>(null);
   /* Modification par le client depuis son espace (pas de points à revoir). */
@@ -751,10 +755,10 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
     return (
       <div ref={haut} className="rounded-2xl border border-[#E5E2DA] bg-white p-8 text-center sm:p-12">
         <CheckCircle2 className="mx-auto h-12 w-12 text-[#362A24]" strokeWidth={1.5} />
-        <h2 className="mt-5 font-serif text-3xl text-[#1A1A1A]">Corrections enregistrées</h2>
+        <h2 className="mt-5 font-serif text-3xl text-[#1A1A1A]">{depuisDossier ? "Formulaire enregistré" : "Corrections enregistrées"}</h2>
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-600">
           La fiche « Formulaires reçus »{dossierCorrige ? ` ${dossierCorrige}` : ""} est mise à jour. Pour produire la convention
-          corrigée, cochez de nouveau « Générer la convention » sur la fiche.
+          {depuisDossier ? "" : " corrigée"}, cochez {depuisDossier ? "" : "de nouveau "}« Générer la convention » sur la fiche.
         </p>
       </div>
     );
@@ -1435,7 +1439,9 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
         <p className="rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-3 text-sm text-gray-600">
           {revoir || modification
             ? "Les pièces déjà transmises restent attachées à votre dossier. Pour en ajouter, écrivez-nous à contact@divorcefacil.com."
-            : "Correction d'un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les directement dans Airtable."}
+            : depuisDossier
+              ? "Les pièces ne se déposent pas par ce lien : joignez-les directement dans Airtable, au champ « Pièces » de la fiche. Les pièces de l'ancien formulaire Cognito restent accessibles depuis le dossier."
+              : "Correction d'un formulaire déjà envoyé : les pièces restent celles de la fiche. Pour en ajouter, joignez-les directement dans Airtable."}
         </p>
       ) : (
       <Grille>
@@ -1575,7 +1581,9 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             Étape {etape + 1} sur {ETAPES.length}
             {interne && (
               <span className="ml-3 rounded-full bg-[#F4F2EC] px-2.5 py-0.5 text-xs text-[#362A24]">
-                {correction ? `Correction${dossierCorrige ? ` : ${dossierCorrige}` : ""}` : "Version cabinet"}
+                {correction
+                  ? `${depuisDossier ? "Dossier" : "Correction"}${dossierCorrige ? ` : ${dossierCorrige}` : ""}`
+                  : "Version cabinet"}
               </span>
             )}
           </span>
@@ -1727,7 +1735,13 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
                 complet ? "bg-[#C2A679] font-medium text-[#1A1A1A] hover:bg-[#B39566]" : "bg-[#362A24] text-white hover:bg-[#2C221D]",
               )}
             >
-              {envoi === "envoi" ? "Envoi en cours…" : correction ? "Enregistrer les corrections" : "Envoyer le formulaire"}
+              {envoi === "envoi"
+                ? "Envoi en cours…"
+                : correction
+                  ? depuisDossier
+                    ? "Enregistrer le formulaire"
+                    : "Enregistrer les corrections"
+                  : "Envoyer le formulaire"}
             </button>
           )}
         </div>
