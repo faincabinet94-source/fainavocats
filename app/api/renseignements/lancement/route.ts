@@ -1,6 +1,6 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
-import { ID_VALIDE, saisies } from "@/lib/renseignements/stockage";
+import { ID_VALIDE, lireSaisie, saisies } from "@/lib/renseignements/stockage";
 import { versN8n } from "@/lib/renseignements/n8n";
 import { avocatChoisi, conseilDuConjoint, destinataireUsage, dossier, texteAvocat, avocatRetenu, type Avocat, type Donnees } from "@/lib/renseignements/modele";
 import { CASES_IMMEDIAT, CASES_USAGE, casesImmediat, casesUsage } from "@/lib/renseignements/lancement";
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
      quelques secondes avant de conclure. */
   let s: Saisie | null = null;
   for (let essai = 0; essai < 6; essai++) {
-    s = (await saisies().get(id, { type: "json" })) as Saisie | null;
+    s = await lireSaisie<Saisie>(id);
     if (s?.envoye && s.numero) break;
     await new Promise((r) => setTimeout(r, 800));
   }

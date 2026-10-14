@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Contexte Netlify figé à la construction : CONTEXT n'existe pas à l'exécution
+  // des fonctions. Sert au choix du magasin des formulaires (lib/renseignements/stockage.ts).
+  env: {
+    CONTEXTE_NETLIFY: process.env.CONTEXT || '',
+  },
   async redirects() {
     return [
       // Réorganisation du 11 octobre 2026 (audit d'organisation du site).

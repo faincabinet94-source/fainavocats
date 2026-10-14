@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ID_VALIDE, saisies } from "@/lib/renseignements/stockage";
+import { ID_VALIDE, lireSaisie, saisies } from "@/lib/renseignements/stockage";
 import { adresseSite, versN8n } from "@/lib/renseignements/n8n";
 import { COURRIEL_VALIDE, type Donnees } from "@/lib/renseignements/modele";
 
@@ -16,8 +16,16 @@ const TAILLE_MAX = 300_000;
 export async function GET(request: Request) {
   const id = new URL(request.url).searchParams.get("id") || "";
   if (!ID_VALIDE.test(id)) return NextResponse.json({ message: "Lien invalide" }, { status: 400 });
-  const s = (await saisies().get(id, { type: "json" })) as { donnees?: Donnees; interne?: boolean; envoye?: boolean } | null;
-  if (!s) return NextResponse.json({ message: "Saisie introuvable" }, { status: 404 });
+  const s = await lireSaisie<{ donnees?: Donnees; interne?: boolean; envoye?: boolean }>(id);
+  if (!s) {
+    return NextResponse.json(
+      {
+        message:
+          "Votre formulaire n'a pas pu être retrouvé. Écrivez-nous à contact@fain-avocats.fr ou appelez le cabinet au +33 1 40 68 02 37 : nous le retrouverons avec vous.",
+      },
+      { status: 404 },
+    );
+  }
   if (s.envoye) return NextResponse.json({ message: "Ce formulaire a déjà été envoyé" }, { status: 410 });
   return NextResponse.json({ donnees: s.donnees, interne: Boolean(s.interne) });
 }

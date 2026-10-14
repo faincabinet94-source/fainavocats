@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ID_VALIDE, saisies } from "@/lib/renseignements/stockage";
+import { ID_VALIDE, lireSaisie, saisies } from "@/lib/renseignements/stockage";
 import { demanderN8n } from "@/lib/renseignements/n8n";
 import { INTITULES, MODELES, empreinte, honoParAvocat, modeleConvention, remplirConvention, sansProvision, type CleModele } from "@/lib/renseignements/convention";
 import { lireTarifs } from "@/lib/tarifs-serveur";
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   let s: Saisie | null = null;
   for (let essai = 0; essai < 6; essai++) {
-    s = (await saisies().get(id, { type: "json" })) as Saisie | null;
+    s = await lireSaisie<Saisie>(id);
     if (s?.envoye && s.numero) break;
     await new Promise((r) => setTimeout(r, 800));
   }
