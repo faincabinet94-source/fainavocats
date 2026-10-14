@@ -14,9 +14,10 @@ export const dynamic = "force-dynamic";
 const TAILLE_MAX = 300_000;
 
 export async function GET(request: Request) {
-  const id = new URL(request.url).searchParams.get("id") || "";
+  const u = new URL(request.url);
+  const id = u.searchParams.get("id") || "";
   if (!ID_VALIDE.test(id)) return NextResponse.json({ message: "Lien invalide" }, { status: 400 });
-  const s = await lireSaisie<{ donnees?: Donnees; interne?: boolean; envoye?: boolean }>(id);
+  const s = await lireSaisie<{ donnees?: Donnees; interne?: boolean; envoye?: boolean }>(id, u.searchParams.get("version") || undefined);
   if (!s) {
     return NextResponse.json(
       {

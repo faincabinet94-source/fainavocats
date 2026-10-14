@@ -73,7 +73,10 @@ export function signatureValide(cle: string, s: string | null): boolean {
 type ContexteBlobs = { edgeURL?: string; apiURL?: string; token?: string; siteID?: string; deployID?: string };
 
 function contexteBlobs(): ContexteBlobs | null {
-  const brut = (globalThis as { netlifyBlobsContext?: string }).netlifyBlobsContext || process.env.NETLIFY_BLOBS_CONTEXT;
+  /* Mêmes sources que @netlify/blobs : variable globale, Netlify.env (fonctions
+     Netlify), puis process.env. */
+  const g = globalThis as { netlifyBlobsContext?: string; Netlify?: { env?: { get(k: string): string | undefined } } };
+  const brut = g.netlifyBlobsContext || g.Netlify?.env?.get("NETLIFY_BLOBS_CONTEXT") || process.env.NETLIFY_BLOBS_CONTEXT;
   if (!brut) return null;
   try {
     return JSON.parse(Buffer.from(brut, "base64").toString("utf8")) as ContexteBlobs;
@@ -88,7 +91,10 @@ async function deploiementsAnterieurs(nom: string): Promise<string[]> {
   const memo = deploiements.find((x) => x.nom === nom && Date.now() - x.le < 10 * 60_000);
   if (memo) return memo.ids;
   const ctx = contexteBlobs();
-  if (!ctx?.token || !ctx.siteID) return [];
+  if (!ctx?.token || !ctx.siteID) {
+    console.log("[recuperation] contexte Netlify Blobs absent", { contexte: Boolean(ctx) });
+    return [];
+  }
   const ids: string[] = [];
   let curseur = "";
   for (let page = 0; page < 50; page++) {
@@ -98,7 +104,10 @@ async function deploiementsAnterieurs(nom: string): Promise<string[]> {
     url.searchParams.set("prefix", "deploy:");
     if (curseur) url.searchParams.set("cursor", curseur);
     const r = await fetch(url, { headers: { authorization: `Bearer ${ctx.token}` } });
-    if (!r.ok) break;
+    if (!r.ok) {
+      console.log("[recuperation] liste des magasins refusée", { statut: r.status, edge: Boolean(ctx.edgeURL) });
+      break;
+    }
     const j = (await r.json()) as { stores?: string[]; next_cursor?: string };
     for (const magasin of j.stores || []) {
       const m = /^deploy:(\w{1,24}):(.+)$/.exec(magasin);
@@ -108,6 +117,7 @@ async function deploiementsAnterieurs(nom: string): Promise<string[]> {
     curseur = j.next_cursor;
   }
   ids.sort().reverse();
+  console.log("[recuperation] déploiements antérieurs", { nom, nombre: ids.length });
   deploiements = [...deploiements.filter((x) => x.nom !== nom), { nom, ids, le: Date.now() }];
   return ids;
 }
@@ -135,28 +145,47 @@ async function chercher<T>(nom: string, lire: (m: Magasin) => Promise<T | null>)
 }
 
 /** Pièce du formulaire ; retrouvée au besoin dans un déploiement précédent, puis recopiée. */
-export async function lirePiece(cle: string): Promise<{ donnees: ArrayBuffer; metadata: Record<string, unknown> } | null> {
+export async function lirePiece(
+  cle: string,
+  deployID?: string,
+): Promise<{ donnees: ArrayBuffer; metadata: Record<string, unknown> } | null> {
   const meta = await pieces().getMetadata(cle);
   const donnees = meta ? await pieces().get(cle, { type: "arrayBuffer" }) : null;
   if (meta && donnees) return { donnees, metadata: meta.metadata };
-  const trouvee = await chercher("renseignements-pieces", async (m) => {
+  const lire = async (m: Magasin) => {
     const md = await m.getMetadata(cle);
     const d = md ? await m.get(cle, { type: "arrayBuffer" }) : null;
     return md && d ? { donnees: d, metadata: md.metadata } : null;
-  });
+  };
+  const designee =
+    deployID && surNetlify()
+      ? await lire(getDeployStore({ name: "renseignements-pieces", deployID }) as unknown as Magasin).catch(() => null)
+      : null;
+  const trouvee = designee || (await chercher("renseignements-pieces", lire));
+  if (!trouvee) console.log("[recuperation] pièce introuvable", { cle });
   if (trouvee) await pieces().set(cle, trouvee.donnees, { metadata: trouvee.metadata }).catch(() => {});
   return trouvee;
 }
 
 /** Saisie du formulaire ; retrouvée au besoin dans un déploiement précédent,
  *  puis recopiée dans le magasin global avec ses pièces. */
-export async function lireSaisie<T = Record<string, unknown>>(id: string): Promise<T | null> {
+export async function lireSaisie<T = Record<string, unknown>>(id: string, deployID?: string): Promise<T | null> {
   const s = (await saisies().get(id, { type: "json" })) as T | null;
   if (s) return s;
-  const ancienne = await chercher("renseignements-saisies", (m) => m.get(id, { type: "json" }) as Promise<T | null>);
+  const lire = (m: Magasin) => m.get(id, { type: "json" }) as Promise<T | null>;
+  /* Déploiement désigné (lien de reprise + &version=<identifiant Netlify>) :
+     lu directement, sans passer par la liste des magasins. */
+  const designee =
+    deployID && /^\w{1,24}$/.test(deployID) && surNetlify()
+      ? await lire(getDeployStore({ name: "renseignements-saisies", deployID }) as unknown as Magasin).catch((e) => {
+          console.log("[recuperation] lecture du déploiement désigné impossible", { deployID, erreur: String(e) });
+          return null;
+        })
+      : null;
+  const ancienne = designee || (await chercher("renseignements-saisies", lire));
   if (!ancienne) return null;
   const listePieces = ((ancienne as { donnees?: { pieces?: { id?: string }[] } }).donnees?.pieces || []).filter((p) => p?.id);
-  for (const p of listePieces) await lirePiece(`${id}/${p.id}`).catch(() => null);
+  for (const p of listePieces) await lirePiece(`${id}/${p.id}`, deployID).catch(() => null);
   await saisies().setJSON(id, ancienne);
   return ancienne;
 }

@@ -616,7 +616,10 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
       }
       if (repriseId) {
         try {
-          const r = await fetch(`/api/renseignements/saisie?id=${encodeURIComponent(repriseId)}`);
+          const version = params.get("version");
+          const r = await fetch(
+            `/api/renseignements/saisie?id=${encodeURIComponent(repriseId)}${version ? `&version=${encodeURIComponent(version)}` : ""}`,
+          );
           const j = await r.json();
           if (r.ok && j.donnees) {
             setId(repriseId);
