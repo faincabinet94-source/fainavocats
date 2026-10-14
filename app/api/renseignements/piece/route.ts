@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { ID_VALIDE, pieces, signatureValide } from "@/lib/renseignements/stockage";
+import { ID_VALIDE, lirePiece, pieces, signatureValide } from "@/lib/renseignements/stockage";
 import { CATEGORIES_PIECES } from "@/lib/renseignements/modele";
 
 /* Pièces du formulaire de renseignements.
@@ -49,11 +49,10 @@ export async function GET(request: Request) {
   if (!ID_VALIDE.test(id || "") || !/^[a-f0-9]{16}$/.test(pieceId || "") || !signatureValide(cle, u.searchParams.get("s"))) {
     return new NextResponse("Introuvable", { status: 404 });
   }
-  const meta = await pieces().getMetadata(cle);
-  const donnees = await pieces().get(cle, { type: "arrayBuffer" });
-  if (!meta || !donnees) return new NextResponse("Introuvable", { status: 404 });
-  const m = meta.metadata as { nom?: string; type?: string };
-  return new NextResponse(donnees, {
+  const piece = await lirePiece(cle);
+  if (!piece) return new NextResponse("Introuvable", { status: 404 });
+  const m = piece.metadata as { nom?: string; type?: string };
+  return new NextResponse(piece.donnees, {
     headers: {
       "Content-Type": m.type || "application/octet-stream",
       "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(m.nom || "piece")}`,

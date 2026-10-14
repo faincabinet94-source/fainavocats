@@ -102,6 +102,9 @@ import { lirePoints } from "@/lib/renseignements/revoir";
                      « Modifier mon formulaire » de l'espace client */
 
 /* Intitulés courts de la version cabinet (même ordre). */
+const INTROUVABLE =
+  "Votre formulaire n'a pas pu être retrouvé. Écrivez-nous à contact@fain-avocats.fr ou appelez le cabinet au +33 1 40 68 02 37 : nous le retrouverons avec vous.";
+
 const ETAPES_CABINET: Record<string, string> = {
   "Votre procédure": "Procédure",
   Vous: "Client",
@@ -547,6 +550,10 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
      table Dossiers, lien …&dossier=1) : même mécanisme que la correction, mais
      présentée comme le formulaire du dossier. */
   const depuisDossier = params.get("dossier") === "1";
+  /* Brouillon d'un client complété par le cabinet (lien de reprise + &cabinet=1) :
+     la saisie reste celle du client, mais l'envoi lui est réservé, pour que la
+     convention d'honoraires et le paiement s'affichent chez lui. */
+  const pourClient = params.get("cabinet") === "1" && Boolean(params.get("reprise"));
   /* Désaccord avec le conjoint : correction par l'époux lui-même. */
   const [revoir, setRevoir] = useState<{ intitule: string; etape: number | null }[] | null>(null);
   /* Modification par le client depuis son espace (pas de points à revoir). */
@@ -618,10 +625,14 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             setPret(true);
             return;
           }
-          setErreur(j.message || "Ce lien de reprise n'est plus valable.");
+          setErreur(j.message || INTROUVABLE);
         } catch {
-          setErreur("Ce lien de reprise n'a pas pu être ouvert.");
+          setErreur(INTROUVABLE);
         }
+        /* Jamais de formulaire vierge à la place d'une saisie introuvable : le
+           client croirait ses réponses effacées et recommencerait sous un
+           nouveau lien (cas du 14/10/2026). */
+        return;
       }
       const base = donneesVides(params.get("procedure") === "sdc" ? "Séparation de corps" : "Divorce");
       try {
@@ -675,7 +686,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
   };
 
   const tousManquants = useMemo(() => manquants(d, interne), [d, interne]);
-  const manque = (champ: string) => tentative && tousManquants.some((m) => m.champ === champ);
+  const manque = (champ: string) => (tentative || pourClient) && tousManquants.some((m) => m.champ === champ);
   const suivi = (champ: string) => ({ champ, manque: manque(champ) });
   /* Intitulé côté client, ou forme courte de la version cabinet. */
   const cab = (client: string, cabinet: string) => (interne ? cabinet : client);
@@ -717,7 +728,9 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
         lien: r?.lien,
         message: interne
           ? "Saisie enregistrée. Le lien ci-dessous la rouvre à l'identique."
-          : "C'est enregistré. Nous venons de vous envoyer par courriel le lien pour reprendre plus tard.",
+          : pourClient
+            ? "Brouillon enregistré. Le client vient de recevoir par courriel le lien pour le reprendre, l'envoyer et régler la provision."
+            : "C'est enregistré. Nous venons de vous envoyer par courriel le lien pour reprendre plus tard.",
       });
     } catch (e) {
       setReprise({ etat: "erreur", message: e instanceof Error ? e.message : "Enregistrement impossible" });
@@ -1706,7 +1719,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             </dl>
           </div>
         ))}
-      {tentative && tousManquants.length > 0 && <ListeManquants m={tousManquants} aller={allerChamp} />}
+      {(tentative || pourClient) && tousManquants.length > 0 && <ListeManquants m={tousManquants} aller={allerChamp} />}
       {erreur && (
         <p className="rounded-lg border border-[#F3C7C7] bg-[#FDF2F2] px-4 py-3 text-sm text-[#7A1C12]">
           {erreur}. Vous pouvez réessayer ou nous appeler au +33 1 40 68 02 37.
@@ -1744,6 +1757,14 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           </span>
           <span>{d.procedure}</span>
         </div>
+        {pourClient && !interne && (
+          <p className="mt-3 rounded-lg border border-[#E6D9BF] bg-[#FBF7EE] px-4 py-2.5 text-sm text-[#4A3B24]">
+            <strong>Brouillon du client, ouvert par le cabinet.</strong> Chaque changement d&apos;étape enregistre vos
+            modifications dans son brouillon, et la dernière étape liste ce qui manque encore. L&apos;envoi reste au client : une fois le brouillon complété, cliquez sur
+            « Enregistrer et envoyer le lien au client », il recevra le lien pour l&apos;envoyer, signer la convention et
+            régler la provision.
+          </p>
+        )}
         {interne && lienCognito(d) && (
           <p className="mt-3 rounded-lg border border-[#E5E2DA] bg-[#FAF9F6] px-4 py-2.5 text-sm text-gray-600">
             Ancien formulaire Cognito du dossier, avec ses pièces :{" "}
@@ -1877,7 +1898,12 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
               disabled={reprise.etat === "envoi"}
               className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm text-[#362A24] underline-offset-4 hover:underline disabled:opacity-50"
             >
-              <Save className="h-4 w-4" /> {reprise.etat === "envoi" ? "Enregistrement…" : "Enregistrer et reprendre plus tard"}
+              <Save className="h-4 w-4" />{" "}
+              {reprise.etat === "envoi"
+                ? "Enregistrement…"
+                : pourClient
+                  ? "Enregistrer et envoyer le lien au client"
+                  : "Enregistrer et reprendre plus tard"}
             </button>
           )}
           {etape < ETAPES.length - 1 && (
@@ -1888,7 +1914,7 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
           {/* Toutes les informations obligatoires saisies : envoi possible depuis
               n'importe quelle étape (bouton doré). À la dernière étape, le bouton
               reste visible pour afficher ce qui manque encore. */}
-          {(complet || etape === ETAPES.length - 1) && (
+          {!pourClient && (complet || etape === ETAPES.length - 1) && (
             <button
               type="button"
               onClick={() => envoyer()}
