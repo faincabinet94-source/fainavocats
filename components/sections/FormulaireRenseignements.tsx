@@ -625,6 +625,8 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             setId(repriseId);
             setD(completer(j.donnees));
             setInterne(Boolean(j.interne));
+            /* Formulaire déjà envoyé, convention et provision en attente. */
+            if (j.aLancer) setEnvoi("ok");
             setPret(true);
             return;
           }
@@ -878,7 +880,14 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
             ? "La fiche est transmise au cabinet."
             : "Nous avons bien reçu vos informations et vos pièces."}
         </p>
+        {!interne && pourClient && (
+          <p className="mx-auto mt-6 max-w-xl rounded-lg border border-[#E6D9BF] bg-[#FBF7EE] px-4 py-3 text-sm text-[#4A3B24]">
+            Formulaire envoyé. La convention d&apos;honoraires et la provision restent à traiter par le client, depuis
+            son lien « Reprendre mon formulaire ».
+          </p>
+        )}
         {!interne &&
+          !pourClient &&
           (destinataireUsage(d) ? (
             <ChoixUsage id={id} d={d} destinataire={destinataireUsage(d) as "confrere" | "conjoint"} />
           ) : (

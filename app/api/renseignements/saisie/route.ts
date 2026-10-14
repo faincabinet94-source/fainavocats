@@ -17,7 +17,10 @@ export async function GET(request: Request) {
   const u = new URL(request.url);
   const id = u.searchParams.get("id") || "";
   if (!ID_VALIDE.test(id)) return NextResponse.json({ message: "Lien invalide" }, { status: 400 });
-  const s = await lireSaisie<{ donnees?: Donnees; interne?: boolean; envoye?: boolean }>(id, u.searchParams.get("version") || undefined);
+  const s = await lireSaisie<{ donnees?: Donnees; interne?: boolean; envoye?: boolean; numero?: number; lancement?: unknown }>(
+    id,
+    u.searchParams.get("version") || undefined,
+  );
   if (!s) {
     return NextResponse.json(
       {
@@ -26,6 +29,11 @@ export async function GET(request: Request) {
       },
       { status: 404 },
     );
+  }
+  /* Envoyé mais convention et provision pas encore traitées (onglet fermé
+     après l'envoi) : le lien rouvre directement cette étape. */
+  if (s.envoye && !s.interne && s.numero && !s.lancement && s.donnees) {
+    return NextResponse.json({ donnees: s.donnees, interne: false, aLancer: true });
   }
   if (s.envoye) return NextResponse.json({ message: "Ce formulaire a déjà été envoyé" }, { status: 410 });
   return NextResponse.json({ donnees: s.donnees, interne: Boolean(s.interne) });
