@@ -64,6 +64,29 @@ export default function PensionAlimentairePage() {
         <ExpertisePage data={data} />
         <FichesCategorie category="pension-alimentaire" titre="Guides sur la pension alimentaire" />
 
+        <section className="bg-[#F4F2EC] pt-20">
+          <Container>
+            <div className="max-w-5xl mx-auto bg-white border border-[#E2DDD4] p-8 md:p-10 rounded-lg flex flex-col sm:flex-row sm:items-center gap-6">
+              <div className="flex-1">
+                <h2 className="font-serif text-2xl text-[#1A1A1A] mb-2">
+                  Estimez la pension alimentaire en ligne
+                </h2>
+                <p className="text-gray-700 leading-relaxed">
+                  Notre simulateur gratuit applique le barème du ministère de la
+                  Justice et, en résidence alternée, compare avec un calcul qui
+                  tient compte des revenus des deux parents.
+                </p>
+              </div>
+              <Link
+                href="/outils/simulateur-pension-alimentaire"
+                className="inline-flex items-center justify-center gap-2 bg-[#362A24] text-white px-8 py-4 rounded-full text-sm font-medium tracking-wide hover:bg-[#4a3a30] transition-all duration-300 shrink-0"
+              >
+                Accéder au simulateur
+              </Link>
+            </div>
+          </Container>
+        </section>
+
         <section className="bg-[#F4F2EC] py-20">
           <Container>
             <div className="max-w-5xl mx-auto">

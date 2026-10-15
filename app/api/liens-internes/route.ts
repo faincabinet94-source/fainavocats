@@ -81,6 +81,14 @@ const RUBRIQUES_HORS_EXPERTISES: Cible[] = [
     type: "rubrique",
   },
   {
+    chemin: "/outils/simulateur-pension-alimentaire",
+    titre: "Simulateur de pension alimentaire",
+    description:
+      "Calcul indicatif de la contribution à l'entretien et à l'éducation des enfants selon le barème du ministère de la Justice, avec une méthode tenant compte des deux revenus en résidence alternée.",
+    categorie: "pension-alimentaire",
+    type: "rubrique",
+  },
+  {
     chemin: "/honoraires/droit-de-la-famille",
     titre: "Honoraires en droit de la famille",
     description:

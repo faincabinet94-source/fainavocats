@@ -87,6 +87,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: 'https://fain-avocats.fr/outils/simulateur-pension-alimentaire',
+      lastModified: new Date('2026-10-16'),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: 'https://fain-avocats.fr/consultations',
       lastModified: SITE_LAST_MODIFIED,
       changeFrequency: 'monthly',

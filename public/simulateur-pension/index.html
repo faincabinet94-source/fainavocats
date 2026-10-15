@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Simulateur gratuit de pension alimentaire (CEE) selon le barème du ministère de la Justice, avec une méthode tenant compte des deux revenus en garde alternée.">
+<title>Simulateur de pension alimentaire | Fain Avocats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Lato:wght@400;700&display=swap">
+<style>
+/* Layout : colonne de saisie à gauche, résultats à droite ; une seule colonne sous 860px. */
+:root{
+  --bg:#F4F2EC; --surface:#ffffff; --ink:#1A1A1A; --muted:#62574f; --line:#E2DDD4;
+  --accent:#362A24; --accent-soft:#efe9e2; --gold:#9a6b12; --gold-soft:#f6ecd8;
+  --good:#2d6a43; --good-soft:#e2f0e6; --warn:#a2441f;
+  --f-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --f-body:"Lato",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font:500 12px/1 var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+h1{font:600 clamp(28px,4vw,40px)/1.15 var(--f-display);margin:0;text-wrap:balance}
+h2{font:600 24px/1.25 var(--f-display);margin:0;text-wrap:balance}
+h3{font:600 15px/1.3 var(--f-body);margin:0}
+p{margin:0}
+.lede{color:var(--muted);max-width:70ch}
+.grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.field{display:flex;flex-direction:column;gap:6px}
+label,.lbl{font-weight:600;font-size:13px}
+.hint{font-size:12.5px;color:var(--muted)}
+input[type=number],select{font:500 16px var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px;width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{font-weight:500;text-align:center;padding:9px 4px;cursor:pointer;border-left:1px solid var(--line);font-size:13.5px}
+.seg label:first-of-type{border-left:0}
+.seg input:checked+label{background:var(--accent);color:var(--surface)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.money{position:relative}
+.money span{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font:14px var(--f-mono)}
+.money input{padding-right:28px}
+.sample{font-size:12.5px;background:var(--gold-soft);color:var(--ink);border-radius:6px;padding:8px 10px}
+.sample b{color:var(--gold)}
+button{font:600 13.5px var(--f-body);border-radius:6px;padding:8px 12px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.results{display:flex;flex-direction:column;gap:20px;min-width:0}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.cards{grid-template-columns:minmax(0,1fr)}}
+.card{border:1px solid var(--line);border-radius:9px;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface);min-width:0}
+.card.rec{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
+.tag{align-self:flex-start;font:600 11px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+.card.rec .tag{background:var(--good-soft);color:var(--good)}
+.big{font:500 clamp(22px,3vw,30px)/1.1 var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.big small{font-size:14px;color:var(--muted)}
+.sub{font-size:13px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:13px}
+.kv dd{margin:0;font:500 13px var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.kv dt{color:var(--muted)}
+.flag{font-size:12.5px;font-weight:600}
+.flag.bad{color:var(--warn)} .flag.ok{color:var(--good)}
+.single{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:620px){.single{grid-template-columns:minmax(0,1fr)}}
+.chart{overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:480px;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:75ch}
+.prose ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.formula{font:14px/1.6 var(--f-mono);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:12px 14px;overflow-x:auto;white-space:pre}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+td.on{background:var(--accent-soft);font-weight:600}
+.note{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+a{color:var(--accent)}
+.sources{font-size:13px;display:flex;flex-direction:column;gap:6px}
+body.embed{background:transparent;padding:0}
+body.embed header,body.embed .cta{display:none}
+body.embed .wrap{padding-block:0 8px}
+@media (prefers-reduced-motion:no-preference){.card,.big{transition:border-color .2s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Fain Avocats · simulateur gratuit</span>
+    <h1>Simulateur de pension alimentaire pour les enfants</h1>
+    <p class="lede">Estimez la contribution à l'entretien et à l'éducation de vos enfants (CEE, ou pension alimentaire) selon la table de référence du ministère de la Justice. En résidence alternée, comparez-la avec une méthode qui tient compte des revenus des deux parents. Le résultat est indicatif : le juge aux affaires familiales fixe la pension au vu des ressources de chacun et des besoins de l'enfant (article 371-2 du Code civil). Aucune donnée saisie n'est conservée.</p>
+  </header>
+
+  <div class="grid">
+    <form class="panel" id="f" autocomplete="off">
+      <h2>Situation</h2>
+      <div class="field">
+        <span class="lbl" id="l-amp">Mode de résidence</span>
+        <div class="seg" role="radiogroup" aria-labelledby="l-amp">
+          <input type="radio" name="amp" id="amp-r" value="reduit"><label for="amp-r">DVH réduit</label>
+          <input type="radio" name="amp" id="amp-c" value="classique"><label for="amp-c">DVH classique</label>
+          <input type="radio" name="amp" id="amp-a" value="alternee" checked><label for="amp-a">Alternée</label>
+        </div>
+        <span class="hint" id="amp-hint"></span>
+      </div>
+      <div class="field">
+        <label for="n">Nombre d'enfants</label>
+        <select id="n"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+      </div>
+      <div class="two" id="incomes">
+        <div class="field">
+          <label for="ra" id="la">Revenu parent A</label>
+          <div class="money"><input type="number" id="ra" min="0" step="10" value="2500" inputmode="decimal"><span>€</span></div>
+        </div>
+        <div class="field" id="fb">
+          <label for="rb">Revenu parent B</label>
+          <div class="money"><input type="number" id="rb" min="0" step="10" value="2000" inputmode="decimal"><span>€</span></div>
+        </div>
+      </div>
+      <span class="hint" style="margin-top:-10px" id="inc-hint">Revenus nets mensuels.</span>
+      <div class="field">
+        <label for="mv">Minimum vital déduit</label>
+        <div class="money"><input type="number" id="mv" min="0" step="0.01" value="651.69" inputmode="decimal"><span>€</span></div>
+        <span class="hint">Montant forfaitaire du RSA pour une personne seule. Valeur par défaut : 651,69 € au 1er avril 2026.</span>
+      </div>
+      <p class="sample"><b>Exemple chargé :</b> le cas chiffré de la question écrite n° 17910 (deux enfants, résidence alternée, 2 500 € et 2 000 €).</p>
+      <div class="row">
+        <button type="button" class="primary" id="copy">Copier le résultat</button>
+        <button type="button" id="reset">Revenir à l'exemple</button>
+        <span class="hint" id="copied" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <section class="results" aria-live="polite">
+      <div class="panel" id="out-alt">
+        <h2>Ce que verse le parent qui gagne le plus</h2>
+        <div class="cards">
+          <article class="card">
+            <span class="tag">Table officielle</span>
+            <div class="big" id="c-bar"></div>
+            <p class="sub">Seul le revenu du parent le plus aisé compte.</p>
+            <dl class="kv" id="k-bar"></dl>
+            <span class="flag" id="f-bar"></span>
+          </article>
+          <article class="card rec">
+            <span class="tag">Méthode différentielle</span>
+            <div class="big" id="c-dif"></div>
+            <p class="sub">La table est appliquée à chacun, puis les deux montants se compensent.</p>
+            <dl class="kv" id="k-dif"></dl>
+            <span class="flag" id="f-dif"></span>
+          </article>
+          <article class="card">
+            <span class="tag">Plafond d'équilibre</span>
+            <div class="big" id="c-cap"></div>
+            <p class="sub">Table officielle, plafonnée à la moitié de l'écart de revenus.</p>
+            <dl class="kv" id="k-cap"></dl>
+            <span class="flag" id="f-cap"></span>
+          </article>
+        </div>
+        <p class="hint" id="detail-alt"></p>
+      </div>
+
+      <div class="panel" id="out-single" hidden>
+        <h2 id="single-title"></h2>
+        <div class="single">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="big" id="s-tot"></div>
+            <p class="sub" id="s-per"></p>
+          </div>
+          <dl class="kv" id="s-kv"></dl>
+        </div>
+        <p class="hint" id="s-detail"></p>
+      </div>
+
+      <div class="panel" id="chart-panel">
+        <h2>Montant versé selon le revenu de l'autre parent</h2>
+        <p class="sub" id="chart-sub"></p>
+        <div class="chart" id="chart"></div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>Table officielle</span>
+          <span><i style="background:var(--good)"></i>Méthode différentielle</span>
+          <span><i style="background:var(--gold)"></i>Plafond d'équilibre</span>
+        </div>
+      </div>
+
+      <div class="panel" id="prorata-panel">
+        <h2>Partage des frais au prorata</h2>
+        <p class="sub">Clé utile pour les frais exceptionnels ou les frais partagés hors CEE (scolarité, santé, activités), calculée sur les revenus déclarés.</p>
+        <dl class="kv" id="prorata"></dl>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Le problème soulevé, et la réponse proposée</h2>
+    <div class="prose">
+      <p>La table de référence calcule la CEE sur le seul revenu du débiteur, diminué du minimum vital, multiplié par un pourcentage par enfant qui dépend du nombre d'enfants et de l'amplitude du droit de visite et d'hébergement. Le revenu du parent créancier n'entre pas dans la formule.</p>
+      <p>En DVH classique ou réduit, l'omission se justifie en partie : le parent chez qui l'enfant réside assume la plus grande part des frais courants. En résidence alternée, chaque parent assume la moitié du temps et des frais du quotidien. Ignorer le revenu du second parent conduit alors à l'effet décrit dans la question écrite : avec des revenus de 2 500 € et 2 000 €, la table met une CEE de 288 € à la charge du premier (296 € dans la question, calculée avec le minimum vital alors en vigueur), qui finit le mois avec 2 212 €, contre 2 288 € pour l'autre.</p>
+      <h3>La méthode différentielle</h3>
+      <p>On applique la table aux deux parents, au taux de la résidence alternée, comme si chacun devait une CEE à l'autre, puis on compense. Seule la différence est versée.</p>
+      <div class="formula">CEE théorique de chaque parent = max(0 ; revenu − minimum vital) × taux alterné × nombre d'enfants
+CEE versée = CEE théorique du parent le plus aisé − CEE théorique de l'autre</div>
+      <p>Sur l'exemple : 288 € − 210 € = <b>78 €</b>. Lorsque les deux revenus dépassent le minimum vital, la CEE versée est simplement égale à l'écart de revenus multiplié par le taux cumulé (500 € × 15,6 %).</p>
+      <p>La méthode remplit les trois objectifs posés par la question :</p>
+      <ul>
+        <li>si l'autre parent gagne le minimum vital ou moins, sa CEE théorique est nulle et le montant est celui de la table officielle, sans changement ;</li>
+        <li>si l'écart de revenus est fort, la CEE reste substantielle, puisqu'elle croît avec l'écart ;</li>
+        <li>le parent qui verse ne peut jamais finir le mois sous l'autre : le taux cumulé ne dépasse pas 28,8 % (six enfants), alors qu'il faudrait transférer plus de 50 % de l'écart pour inverser les positions.</li>
+      </ul>
+      <p>Elle se rattache à l'article 371-2 du Code civil, qui fait contribuer chaque parent « à proportion de ses ressources, de celles de l'autre parent » et des besoins de l'enfant. Elle n'utilise que les taux de la table officielle : elle ne crée aucun barème nouveau, elle cesse seulement d'en ignorer une moitié.</p>
+      <h3>Le plafond d'équilibre, en variante</h3>
+      <p>Une correction plus modeste consiste à garder la table officielle, mais à ne jamais verser plus que la moitié de l'écart de revenus, ce qui égalise au plus les revenus disponibles. Elle évite l'inversion, mais pas l'effet de seuil : sur l'exemple, elle aboutit à 250 €, et les deux parents terminent au même niveau alors que le premier gagnait davantage.</p>
+      <h3>Limites</h3>
+      <ul>
+        <li>Aucune décision de jurisprudence consultée ne consacre la méthode différentielle : c'est un mode de calcul à proposer dans une négociation ou à soumettre au juge, non une règle établie.</li>
+        <li>Le gouvernement a soutenu en 2023, devant le Sénat, que la méthode de la table « produit des résultats identiques à la méthode dite du partage des revenus » pour les revenus inférieurs à 5 000 € (réponse publiée au JO Sénat du 10 février 2023, p. 977). Cette affirmation est à discuter pour la résidence alternée, où les frais directs sont partagés.</li>
+        <li>La simulation ne tient compte ni des charges (logement, crédits), ni des autres enfants à charge, ni des prestations familiales, ni de la fiscalité (quotient familial partagé, non-déductibilité de la CEE).</li>
+        <li>Les deux questions écrites sur le sujet sont restées sans réponse publiée à notre connaissance (octobre 2026) : n° 17910 de M. Jérôme GUEDJ, retirée le 11 juin 2024 en fin de mandat ; n° 350 de Mme Lise MAGNIER, publiée au JO le 8 octobre 2024.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Table de référence : pourcentage par enfant</h2>
+    <div class="tbl">
+      <table id="rates">
+        <thead><tr><th>Enfants</th><th>DVH réduit</th><th>DVH classique</th><th>Alternée</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">Taux de la table de référence du ministère de la Justice. Le pourcentage s'applique par enfant au revenu du parent débiteur, diminué du minimum vital.</p>
+  </section>
+
+  <section class="panel cta">
+    <h2>Faire chiffrer votre situation</h2>
+    <p class="lede">Le simulateur donne un ordre de grandeur. Il ne tient compte ni des charges de chacun, ni des autres enfants à charge, ni des besoins particuliers de l'enfant. Le cabinet Fain Avocats, à PARIS, intervient principalement en droit de la famille. Pour examiner votre situation, prenez rendez-vous sur <a href="https://fain-avocats.fr/consultations" target="_top">fain-avocats.fr</a>, appelez le +33 1 40 68 02 37 ou écrivez à contact@fain-avocats.fr.</p>
+  </section>
+
+  <section class="panel sources">
+    <h2>Sources</h2>
+    <a href="https://www.assemblee-nationale.fr/dyn/16/questions/QANR5L16QE17910" target="_blank" rel="noopener noreferrer">Question écrite n° 17910 (16e législature), M. Jérôme GUEDJ, JO du 21 mai 2024</a>
+    <a href="https://www.assemblee-nationale.fr/dyn/17/questions/QANR5L17QE350" target="_blank" rel="noopener noreferrer">Question écrite n° 350 (17e législature), Mme Lise MAGNIER, JO du 8 octobre 2024</a>
+    <a href="https://www.senat.fr/questions/base/2022/qSEQ22070008S.html" target="_blank" rel="noopener noreferrer">Question orale de M. Yves DÉTRAIGNE et réponse du gouvernement, JO Sénat du 10 février 2023</a>
+    <a href="https://www.justice.fr/simulateurs/pensions/bareme" target="_blank" rel="noopener noreferrer">Barème des pensions alimentaires, justice.fr</a>
+  </section>
+</div>
+
+<script>
+const RATES={reduit:[18,15.5,13.3,11.7,10.6,9.5],classique:[13.5,11.5,10,8.8,8,7.2],alternee:[9,7.8,6.7,5.9,5.3,4.8]};
+const LABEL={reduit:"DVH réduit",classique:"DVH classique",alternee:"résidence alternée"};
+const HINT={reduit:"Hébergement de l'enfant moins d'un quart du temps chez le débiteur.",classique:"Une fin de semaine sur deux et la moitié des vacances.",alternee:"Temps de résidence partagé à égalité."};
+const $=id=>document.getElementById(id);
+const eur=v=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(Math.round(v));
+const pct=v=>v.toLocaleString("fr-FR",{maximumFractionDigits:1})+" %";
+const num=id=>{const v=parseFloat($(id).value);return isFinite(v)&&v>0?v:0};
+
+function compute(){
+  const amp=document.querySelector("input[name=amp]:checked").value;
+  const n=+$("n").value, ra=num("ra"), rb=num("rb"), mv=num("mv");
+  const t=RATES[amp][n-1]/100;
+  const theo=r=>Math.max(0,r-mv)*t*n;
+  return {amp,n,ra,rb,mv,t,theo};
+}
+
+function row(dl,pairs){dl.innerHTML=pairs.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}
+
+function flag(el,payerLeft,otherLeft){
+  if(payerLeft<otherLeft-0.5){el.className="flag bad";el.textContent="Le parent qui verse finit sous l'autre ("+eur(otherLeft-payerLeft)+" d'écart)."}
+  else{el.className="flag ok";el.textContent="L'ordre des revenus est respecté."}
+}
+
+let last="";
+function render(){
+  const s=compute();
+  const alt=s.amp==="alternee";
+  $("amp-hint").textContent=HINT[s.amp];
+  $("out-alt").hidden=!alt; $("out-single").hidden=alt; $("chart-panel").hidden=!alt; $("prorata-panel").hidden=!alt;
+  $("fb").hidden=!alt; $("incomes").style.gridTemplateColumns=alt?"":"1fr";
+  $("la").textContent=alt?"Revenu parent A":"Revenu du parent débiteur";
+  $("inc-hint").textContent=alt?"Revenus nets mensuels.":"Revenu net mensuel. La table ne tient compte que du revenu du parent qui verse la CEE.";
+  const hiIsA=s.ra>=s.rb, hi=Math.max(s.ra,s.rb), lo=Math.min(s.ra,s.rb);
+  const H=hiIsA?"A":"B", L=hiIsA?"B":"A";
+
+  if(alt){
+    const bar=s.theo(hi), other=s.theo(lo), dif=Math.max(0,bar-other), cap=Math.min(bar,(hi-lo)/2);
+    const set=(id,v)=>{$("c-"+id).innerHTML=eur(v)+" <small>/ mois</small>";
+      row($("k-"+id),[["Reste au parent "+H,eur(hi-v)],["Reçoit le parent "+L,eur(lo+v)]]);
+      flag($("f-"+id),hi-v,lo+v)};
+    set("bar",bar); set("dif",dif); set("cap",cap);
+    $("detail-alt").textContent=`Taux alterné pour ${s.n} enfant${s.n>1?"s":""} : ${pct(s.t*100)} par enfant, soit ${pct(s.t*100*s.n)} au total. CEE théorique du parent ${H} : ${eur(bar)} ; du parent ${L} : ${eur(other)}.`;
+    drawChart(s,hi,lo,H,L);
+    last=`Simulation CEE, résidence alternée, ${s.n} enfant${s.n>1?"s":""}. Revenus : parent A ${eur(s.ra)}, parent B ${eur(s.rb)} ; minimum vital ${s.mv.toLocaleString("fr-FR")} €.\nTable officielle : ${eur(bar)} par mois à la charge du parent ${H}.\nMéthode différentielle : ${eur(bar)} - ${eur(other)} = ${eur(dif)} par mois.\nPlafond d'équilibre : ${eur(cap)} par mois.\nRésultat indicatif, art. 371-2 C. civ.`;
+  }else{
+    const rd=s.ra, tot=s.theo(rd);
+    $("single-title").textContent=`CEE à la charge du parent débiteur, ${LABEL[s.amp]}`;
+    $("s-tot").innerHTML=eur(tot)+" <small>/ mois</small>";
+    $("s-per").textContent=`${eur(tot/s.n)} par enfant, ${s.n} enfant${s.n>1?"s":""}`;
+    row($("s-kv"),[["Revenu du débiteur",eur(rd)],["Minimum vital déduit","− "+eur(s.mv)],["Taux par enfant",pct(s.t*100)],["Reste au débiteur",eur(rd-tot)]]);
+    $("s-detail").textContent=`(${eur(rd)} − ${eur(s.mv)}) × ${pct(s.t*100)} × ${s.n} = ${eur(tot)}.`;
+    last=`Simulation CEE, ${LABEL[s.amp]}, ${s.n} enfant${s.n>1?"s":""}. Revenu du débiteur : ${eur(rd)} ; minimum vital ${s.mv.toLocaleString("fr-FR")} €.\nCEE selon la table : ${eur(tot)} par mois (${eur(tot/s.n)} par enfant).\nRésultat indicatif, art. 371-2 C. civ.`;
+    return;
+  }
+  const sum=s.ra+s.rb;
+  row($("prorata"),sum>0?[["Parent A",pct(s.ra/sum*100)],["Parent B",pct(s.rb/sum*100)]]:[["Saisissez les revenus",""]]);
+  last+= sum>0?`\nClé de partage des frais au prorata : A ${pct(s.ra/sum*100)}, B ${pct(s.rb/sum*100)}.`:"";
+}
+
+function drawChart(s,hi,lo,H,L){
+  const W=640,Hh=280,m={l:56,r:16,t:16,b:40},iw=W-m.l-m.r,ih=Hh-m.t-m.b;
+  const xmax=Math.max(hi,1), bar=s.theo(hi);
+  const f={bar:x=>bar,dif:x=>Math.max(0,bar-s.theo(x)),cap:x=>Math.min(bar,(hi-x)/2)};
+  const ymax=Math.max(bar,1)*1.15;
+  const X=x=>m.l+x/xmax*iw, Y=y=>m.t+ih-y/ymax*ih;
+  const path=fn=>{let d="";for(let i=0;i<=120;i++){const x=xmax*i/120;d+=(i?"L":"M")+X(x).toFixed(1)+","+Y(fn(x)).toFixed(1)}return d};
+  const step=v=>{const p=Math.pow(10,Math.floor(Math.log10(v)));return [1,2,2.5,5,10].map(k=>k*p).find(k=>v/k<=5)};
+  const ys=step(ymax), xs=step(xmax);
+  let g="";
+  for(let y=0;y<=ymax;y+=ys)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)"/><text x="${m.l-8}" y="${Y(y)+4}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="IBM Plex Mono,monospace">${Math.round(y)}</text>`;
+  for(let x=0;x<=xmax+0.1;x+=xs)g+=`<text x="${X(x)}" y="${Hh-m.b+18}" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="IBM Plex Mono,monospace">${Math.round(x)}</text>`;
+  const mvx=Math.min(s.mv,xmax);
+  g+=`<line x1="${X(mvx)}" x2="${X(mvx)}" y1="${m.t}" y2="${m.t+ih}" stroke="var(--muted)" stroke-dasharray="3 4"/><text x="${X(mvx)+5}" y="${m.t+12}" fill="var(--muted)" font-size="11">minimum vital</text>`;
+  const lines=[["cap","var(--gold)"],["bar","var(--accent)"],["dif","var(--good)"]].map(([k,c])=>`<path d="${path(f[k])}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/>`).join("");
+  const cx=X(lo), dots=[["bar","var(--accent)"],["dif","var(--good)"],["cap","var(--gold)"]].map(([k,c])=>`<circle cx="${cx}" cy="${Y(f[k](lo))}" r="4.5" fill="${c}" stroke="var(--surface)" stroke-width="2"/>`).join("");
+  $("chart").innerHTML=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Courbes du montant versé selon le revenu du parent ${L}">${g}
+  <line x1="${cx}" x2="${cx}" y1="${m.t}" y2="${m.t+ih}" stroke="var(--ink)" stroke-opacity=".35"/>${lines}${dots}
+  <text x="${m.l+iw/2}" y="${Hh-4}" text-anchor="middle" fill="var(--muted)" font-size="11.5">Revenu mensuel du parent ${L} (€), le parent ${H} gagnant ${eur(hi)}</text></svg>`;
+  $("chart-sub").textContent=`Le revenu du parent ${H} est fixé à ${eur(hi)}. Le trait vertical marque la situation saisie (${eur(lo)}). La table officielle reste plate : elle ne voit pas le revenu de l'autre parent.`;
+}
+
+function fillRates(){
+  const amp=document.querySelector("input[name=amp]:checked").value, n=+$("n").value;
+  $("rates").tBodies[0].innerHTML=[0,1,2,3,4,5].map(i=>`<tr><td>${i+1}</td>${["reduit","classique","alternee"].map(k=>`<td class="${k===amp&&i===n-1?"on":""}">${pct(RATES[k][i])}</td>`).join("")}</tr>`).join("");
+}
+function update(){render();fillRates()}
+$("f").addEventListener("input",update);
+$("f").addEventListener("submit",e=>e.preventDefault());
+$("reset").addEventListener("click",()=>{$("amp-a").checked=true;$("n").value="2";$("ra").value=2500;$("rb").value=2000;$("mv").value=651.69;update()});
+$("copy").addEventListener("click",()=>{
+  const done=()=>{$("copied").textContent="Copié."};
+  try{navigator.clipboard.writeText(last).then(done,()=>{$("copied").textContent="Copie refusée par le navigateur."})}catch(e){$("copied").textContent="Copie indisponible ici."}
+});
+update();
+// Mode embarqué (iframe du site) : masque l'en-tête et l'appel au cabinet,
+// transmet la hauteur du contenu à la page hôte (même protocole que /simulateur/).
+(function(){
+  if(!new URLSearchParams(location.search).has('embed'))return;
+  document.body.classList.add('embed');
+  var last=0;
+  function postH(){
+    var h=0,kids=document.body.children;
+    for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom+window.scrollY>h)h=r.bottom+window.scrollY}
+    h=Math.ceil(h+14);
+    if(Math.abs(h-last)>2){last=h;try{parent.postMessage({fainSimHeight:h},'*')}catch(e){}}
+  }
+  if(window.ResizeObserver)new ResizeObserver(postH).observe(document.body);
+  window.addEventListener('load',postH);window.addEventListener('resize',postH);setInterval(postH,800);
+})();
+</script>
+</body>
+</html>
