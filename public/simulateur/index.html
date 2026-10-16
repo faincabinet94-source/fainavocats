@@ -761,16 +761,22 @@ function recalc(){
     box.appendChild(row);
   }
   sauvegarder(e);
+  if(window.fainEtat) fainEtat({
+    valeurs:{champs:collecteChamps(),prises:Object.assign({},prises)},
+    resultat:{moyenne:Math.round(moyenne),methodes:r.methodes.map(m=>({cle:m.cle,nom:m.nom,valeur:Math.round(m.valeur),retenue:!!(m.dispo&&m.prise)}))},
+    resume:(nb>0?'Moyenne des méthodes retenues : '+eur(moyenne):'Aucune méthode retenue')
+  });
 }
 
 const RADIOS = ['pensionParent','secoursFixe','secoursPar'];
-function sauvegarder(e){ try{ localStorage.setItem('pc_sim', JSON.stringify({champs:collecteChamps(),prises})); }catch(_){} }
+function sauvegarder(e){ if(PREREMPLI) return; try{ localStorage.setItem('pc_sim', JSON.stringify({champs:collecteChamps(),prises})); }catch(_){} }
 function collecteChamps(){ const o={};
   CHAMPS.forEach(c=>o[c]=$(c).value);
   SELECTS.forEach(c=>o[c]=$(c).value);
   RADIOS.forEach(r=>o[r]=radioVal(r));
   o.enfants=lireEnfants(); return o; }
 function restaurer(){
+  if(PREREMPLI) return;
   try{
     const s=JSON.parse(localStorage.getItem('pc_sim')); if(!s) return;
     CHAMPS.forEach(c=>{ if(s.champs[c]!==undefined) $(c).value=s.champs[c]; });
@@ -831,6 +837,67 @@ $('nbEnfants').addEventListener('input',()=>{construireEnfants();recalc();});
     window.addEventListener('resize', postH);
     setInterval(postH, 800);
   }
+})();
+
+// ---- Préremplissage par une page hôte (formulaire du cabinet, espace client).
+//      Aucune donnée ne passe par l'adresse : la page hôte envoie les chiffres
+//      par postMessage, depuis une origine admise, et reçoit l'état en retour.
+const PREREMPLI = new URLSearchParams(location.search).has('prerempli');
+function appliquer(s){
+  CHAMPS.forEach(c=>{ if(s.champs[c]!==undefined) $(c).value=s.champs[c]; });
+  SELECTS.forEach(c=>{ if(s.champs[c]!==undefined) $(c).value=s.champs[c]; });
+  RADIOS.forEach(r=>{ const v=s.champs[r]; if(v!==undefined){ const el=document.querySelector(`input[name=${r}][value="${v}"]`); if(el) el.checked=true; } });
+  Object.assign(prises, s.prises||{});
+  construireEnfants();
+  (s.champs.enfants||[]).forEach((a,i)=>{
+    const rows=document.querySelectorAll('#enfantsBox .enfrow');
+    if(rows[i]){ rows[i].querySelector('[data-enf=age]').value=a.age||''; rows[i].querySelector('[data-enf=pension]').value=a.pension||''; }
+  });
+  recalc();
+}
+const montantSaisi = v => { const x=parseFloat(String(v||'').replace(/[\s\u00a0\u202f€]/g,'').replace(',','.')); return isFinite(x)&&x>0?x:0; };
+function ansDepuis(iso){
+  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); if(!m) return '';
+  const a=new Date(), n=a.getFullYear()-(+m[1]) - ((a.getMonth()+1<+m[2] || (a.getMonth()+1===+m[2] && a.getDate()<+m[3]))?1:0);
+  return n>=0?String(n):'';
+}
+const prenom = x => (x && (x.prenoms||'').trim().split(/\s+/)[0]) || '';
+function depuisFormulaire(f){
+  const cl=f.client||{}, co=f.conjoint||{};
+  const annuel = x => montantSaisi(x.revenusAnnuels) || montantSaisi(x.revenus)*12;
+  const enfants=(f.enfants||[]).slice(0,6);
+  let payeur='';
+  if(enfants.some(e=>montantSaisi(e.pension)>0)){
+    const chezClient=enfants.filter(e=>e.garde==='Moi').length, chezConjoint=enfants.filter(e=>e.garde==='Mon époux(se)').length;
+    payeur = chezClient>chezConjoint ? 'epouse' : chezConjoint>chezClient ? 'mari' : '';
+  }
+  const champs={
+    dureeMariage: ansDepuis(f.mariage&&f.mariage.date),
+    ageMari: ansDepuis(cl.dateNaissance), ageEpouse: ansDepuis(co.dateNaissance),
+    sexeMari: cl.civilite==='Madame'?'F':'M', sexeEpouse: co.civilite==='Monsieur'?'M':'F',
+    nbEnfants: String(enfants.length),
+    revProMari: annuel(cl)?String(Math.round(annuel(cl))):'', revProEpouse: annuel(co)?String(Math.round(annuel(co))):'',
+    pensionParent: payeur,
+    enfants: enfants.map(e=>({age:ansDepuis(e.dateNaissance), pension:montantSaisi(e.pension)?String(montantSaisi(e.pension)):''}))
+  };
+  const a=prenom(cl), b=prenom(co);
+  document.querySelectorAll('.colheads .cm').forEach(el=>el.textContent=a||'Vous');
+  document.querySelectorAll('.colheads .ce').forEach(el=>el.textContent=b||'Votre conjoint');
+  appliquer({champs, prises:{}});
+}
+(function(){
+  if(!new URLSearchParams(location.search).has('embed')) return;
+  const ORIGINES=[location.origin,'https://fain-avocats.fr','https://espace.fain-avocats.fr','https://client.voxagentis.com'];
+  if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ORIGINES.push('http://localhost:3000','http://localhost:3117','http://localhost:3118','http://localhost:3119');
+  const envoyer = m => ORIGINES.forEach(o=>{ try{ parent.postMessage(m,o); }catch(_){} });
+  window.fainEtat = etat => envoyer(Object.assign({fainSim:'etat',type:'pc'},etat));
+  window.addEventListener('message',e=>{
+    if(e.source!==parent || ORIGINES.indexOf(e.origin)<0) return;
+    const m=e.data||{};
+    if(m.fainSim==='remplir' && m.formulaire) depuisFormulaire(m.formulaire);
+    else if(m.fainSim==='charger' && m.valeurs && m.valeurs.champs) appliquer(m.valeurs);
+  });
+  envoyer({fainSim:'pret',type:'pc'});
 })();
 
 // Init

@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Plus, Trash2, Upload, FileText, AlertTriangle, Save, Search, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SimulateurCabinet } from "@/components/sections/SimulateurCabinet";
 import { AUCUN_GUIDE, type Guides, type Lien, type Quand } from "@/lib/renseignements/guides";
 import {
   BENEFICIAIRES,
@@ -554,6 +555,9 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
      la saisie reste celle du client, mais l'envoi lui est réservé, pour que la
      convention d'honoraires et le paiement s'affichent chez lui. */
   const pourClient = params.get("cabinet") === "1" && Boolean(params.get("reprise"));
+  /* Jeton des simulations du cabinet, joint au lien par le portail : sans lui,
+     aucun simulateur sous les rubriques du récapitulatif. */
+  const jetonSimulations = params.get("cab") || "";
   /* Désaccord avec le conjoint : correction par l'époux lui-même. */
   const [revoir, setRevoir] = useState<{ intitule: string; etape: number | null }[] | null>(null);
   /* Modification par le client depuis son espace (pas de points à revoir). */
@@ -1729,6 +1733,12 @@ export default function FormulaireRenseignements({ guides = AUCUN_GUIDE }: { gui
                 );
               })}
             </dl>
+            {interne && correction && jetonSimulations && s.titre === "Prestation compensatoire" && (
+              <SimulateurCabinet type="pc" d={d} jeton={jetonSimulations} />
+            )}
+            {interne && correction && jetonSimulations && s.titre.startsWith("Les enfants") && d.enfants.length > 0 && (
+              <SimulateurCabinet type="cee" d={d} jeton={jetonSimulations} />
+            )}
           </div>
         ))}
       {(tentative || pourClient) && tousManquants.length > 0 && <ListeManquants m={tousManquants} aller={allerChamp} />}

@@ -129,7 +129,7 @@ body.embed .wrap{padding-block:0 8px}
         <div class="money"><input type="number" id="mv" min="0" step="0.01" value="651.69" inputmode="decimal"><span>€</span></div>
         <span class="hint">Montant forfaitaire du RSA pour une personne seule. Valeur par défaut : 651,69 € au 1er avril 2026.</span>
       </div>
-      <p class="sample"><b>Exemple chargé :</b> le cas chiffré de la question écrite n° 17910 (deux enfants, résidence alternée, 2 500 € et 2 000 €).</p>
+      <p class="sample" id="sample"><b>Exemple chargé :</b> le cas chiffré de la question écrite n° 17910 (deux enfants, résidence alternée, 2 500 € et 2 000 €).</p>
       <div class="row">
         <button type="button" class="primary" id="copy">Copier le résultat</button>
         <button type="button" id="reset">Revenir à l'exemple</button>
@@ -276,13 +276,16 @@ function flag(el,payerLeft,otherLeft){
 }
 
 let last="";
+const NOMS={A:"",B:"",deb:""};
+const suffixe=x=>x?` (${x})`:"";
 function render(){
   const s=compute();
   const alt=s.amp==="alternee";
   $("amp-hint").textContent=HINT[s.amp];
   $("out-alt").hidden=!alt; $("out-single").hidden=alt; $("chart-panel").hidden=!alt; $("prorata-panel").hidden=!alt;
   $("fb").hidden=!alt; $("incomes").style.gridTemplateColumns=alt?"":"1fr";
-  $("la").textContent=alt?"Revenu parent A":"Revenu du parent débiteur";
+  $("la").textContent=alt?"Revenu parent A"+suffixe(NOMS.A):"Revenu du parent débiteur"+suffixe(NOMS.deb);
+  $("fb").querySelector("label").textContent="Revenu parent B"+suffixe(NOMS.B);
   $("inc-hint").textContent=alt?"Revenus nets mensuels.":"Revenu net mensuel. La table ne tient compte que du revenu du parent qui verse la CEE.";
   const hiIsA=s.ra>=s.rb, hi=Math.max(s.ra,s.rb), lo=Math.min(s.ra,s.rb);
   const H=hiIsA?"A":"B", L=hiIsA?"B":"A";
@@ -337,14 +340,69 @@ function fillRates(){
   const amp=document.querySelector("input[name=amp]:checked").value, n=+$("n").value;
   $("rates").tBodies[0].innerHTML=[0,1,2,3,4,5].map(i=>`<tr><td>${i+1}</td>${["reduit","classique","alternee"].map(k=>`<td class="${k===amp&&i===n-1?"on":""}">${pct(RATES[k][i])}</td>`).join("")}</tr>`).join("");
 }
-function update(){render();fillRates()}
+/* État transmis à la page hôte (formulaire du cabinet, espace client). */
+function etat(){
+  if(!window.fainEtat) return;
+  const s=compute(), hi=Math.max(s.ra,s.rb), lo=Math.min(s.ra,s.rb);
+  const resultat=s.amp==="alternee"
+    ? {table:Math.round(s.theo(hi)),differentielle:Math.round(Math.max(0,s.theo(hi)-s.theo(lo))),plafond:Math.round(Math.min(s.theo(hi),(hi-lo)/2))}
+    : {table:Math.round(s.theo(s.ra))};
+  const resume=s.amp==="alternee"
+    ? `Résidence alternée, ${s.n} enfant${s.n>1?"s":""} : table ${eur(resultat.table)}, différentielle ${eur(resultat.differentielle)}, plafond ${eur(resultat.plafond)}`
+    : `${LABEL[s.amp][0].toUpperCase()+LABEL[s.amp].slice(1)}, ${s.n} enfant${s.n>1?"s":""} : ${eur(resultat.table)} par mois`;
+  fainEtat({valeurs:{amp:s.amp,n:s.n,ra:$("ra").value,rb:$("rb").value,mv:$("mv").value,noms:Object.assign({},NOMS)},resultat,resume});
+}
+function update(){render();fillRates();etat()}
 $("f").addEventListener("input",update);
 $("f").addEventListener("submit",e=>e.preventDefault());
-$("reset").addEventListener("click",()=>{$("amp-a").checked=true;$("n").value="2";$("ra").value=2500;$("rb").value=2000;$("mv").value=651.69;update()});
+$("reset").addEventListener("click",()=>{if(DERNIER){depuisFormulaire(DERNIER);return}$("amp-a").checked=true;$("n").value="2";$("ra").value=2500;$("rb").value=2000;$("mv").value=651.69;update()});
 $("copy").addEventListener("click",()=>{
   const done=()=>{$("copied").textContent="Copié."};
   try{navigator.clipboard.writeText(last).then(done,()=>{$("copied").textContent="Copie refusée par le navigateur."})}catch(e){$("copied").textContent="Copie indisponible ici."}
 });
+/* ---- Préremplissage par une page hôte. Aucune donnée ne passe par l'adresse :
+   la page hôte envoie les chiffres par postMessage, depuis une origine admise. */
+let DERNIER=null;
+const montantSaisi=v=>{const x=parseFloat(String(v||"").replace(/[\s\u00a0\u202f€]/g,"").replace(",","."));return isFinite(x)&&x>0?x:0};
+const prenom=x=>(x&&(x.prenoms||"").trim().split(/\s+/)[0])||"";
+function charger(v){
+  const el=document.querySelector(`input[name=amp][value="${v.amp}"]`); if(el) el.checked=true;
+  if(v.n) $("n").value=String(Math.min(6,Math.max(1,+v.n)));
+  ["ra","rb","mv"].forEach(k=>{ if(v[k]!==undefined && v[k]!=="") $(k).value=v[k]; });
+  Object.assign(NOMS,{A:"",B:"",deb:""},v.noms||{});
+  update();
+}
+function depuisFormulaire(f){
+  DERNIER=f;
+  const cl=f.client||{}, co=f.conjoint||{};
+  const mensuel=x=>montantSaisi(x.revenus)||montantSaisi(x.revenusAnnuels)/12;
+  const enfants=(f.enfants||[]).filter(e=>e.garde!=="Majeur plus à charge");
+  const n=Math.min(6,Math.max(1,enfants.length));
+  const alt=enfants.length>0&&enfants.every(e=>e.garde==="Alternée");
+  const chezClient=enfants.filter(e=>e.garde==="Moi").length, chezConjoint=enfants.filter(e=>e.garde==="Mon époux(se)").length;
+  const rc=Math.round(mensuel(cl)), rco=Math.round(mensuel(co));
+  const nomA=prenom(cl), nomB=prenom(co);
+  const v={amp:alt?"alternee":"classique",n,mv:"651.69",noms:{A:nomA,B:nomB,deb:""}};
+  if(alt){ v.ra=rc?String(rc):""; v.rb=rco?String(rco):""; }
+  else if(chezConjoint>chezClient){ v.ra=rc?String(rc):""; v.rb=rco?String(rco):""; v.noms.deb=nomA; }
+  else { v.ra=rco?String(rco):""; v.rb=rc?String(rc):""; v.noms.deb=nomB; }
+  $("sample").hidden=true; $("reset").textContent="Revenir aux chiffres du formulaire";
+  charger(v);
+}
+(function(){
+  if(!new URLSearchParams(location.search).has("embed")) return;
+  const ORIGINES=[location.origin,"https://fain-avocats.fr","https://espace.fain-avocats.fr","https://client.voxagentis.com"];
+  if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ORIGINES.push("http://localhost:3000","http://localhost:3117","http://localhost:3118","http://localhost:3119");
+  const envoyer=m=>ORIGINES.forEach(o=>{try{parent.postMessage(m,o)}catch(_){}});
+  window.fainEtat=e=>envoyer(Object.assign({fainSim:"etat",type:"cee"},e));
+  window.addEventListener("message",e=>{
+    if(e.source!==parent||ORIGINES.indexOf(e.origin)<0) return;
+    const m=e.data||{};
+    if(m.fainSim==="remplir"&&m.formulaire) depuisFormulaire(m.formulaire);
+    else if(m.fainSim==="charger"&&m.valeurs) charger(m.valeurs);
+  });
+  envoyer({fainSim:"pret",type:"cee"});
+})();
 update();
 // Mode embarqué (iframe du site) : masque l'en-tête et l'appel au cabinet,
 // transmet la hauteur du contenu à la page hôte (même protocole que /simulateur/).
